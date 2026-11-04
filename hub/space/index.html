@@ -442,14 +442,14 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
 <section id="run" aria-labelledby="run-h">
   <div class="sec-head">
     <h2 id="run-h">Run it yourself</h2>
-    <p>The plugin installs into an agentenv-framework environment and ships a bundle named <code>genesis-workbench</code> with the three tasks. Genesis runs on its CPU backend, so no GPU is needed.</p>
+    <p>The plugin installs into an agentenv-framework environment and ships a bundle named <code>genesis-workbench</code> with eleven tasks: three on objects built from primitives and eight on real assets (scanned objects, VLM-to-CAD output and ReplicaCAD furniture). Genesis runs on its CPU backend, so no GPU is needed.</p>
   </div>
   <div class="two">
     <div style="display:grid;gap:12px;min-width:0">
       <pre class="cmd"><span class="c"># install agentenv-framework, then add the plugin</span>
 agent-env plugin add 'agentenv-genesis @ git+https://github.com/earakely-scale/agentenv-genesis-plugin'
 
-<span class="c"># run the three tasks</span>
+<span class="c"># run all eleven tasks</span>
 agent-env run genesis-workbench</pre>
       <p class="muted" style="font-size:13.5px">Claude Code needs a model endpoint that serves Anthropic’s Messages API, set in <code>[model]</code> of <code>.agentenv/config.toml</code>. Every run is recorded in agentenv’s local store.</p>
     </div>
@@ -462,7 +462,7 @@ agent-env run genesis-workbench</pre>
 </section>
 
 <footer>
-  <p>GenesisWorkbenchEnv is a prototype: three tasks, example objects built from primitives, and probe tolerances that are example values. The plugin, this viewer and the episode data are Apache-2.0, as is Genesis.</p>
+  <p>GenesisWorkbenchEnv is a prototype: eleven tasks, three objects built from primitives and eight real assets with defects found by an asset audit, and probe tolerances and weight bands that are our estimates. The plugin, this viewer and the episode data are Apache-2.0, as is Genesis.</p>
   <ul>
     <li><a href="https://github.com/earakely-scale/agentenv-genesis-plugin" target="_blank" rel="noopener">agentenv-genesis-plugin on GitHub</a></li>
     <li><a href="https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv" target="_blank" rel="noopener">GenesisWorkbenchEnv-AgentEnv dataset</a></li>
@@ -485,6 +485,14 @@ agent-env run genesis-workbench</pre>
     "mug-tip": { title: "Mug tip", bug: "The CAD export left the inertial frame at the base (COM 0.3 cm), so the mug rights itself from almost any lean. A real ceramic mug’s COM sits about 3.95 cm up, and it tips past about 45.4°.", probe: "Tilt table" },
     "oven-door": { title: "Oven door", bug: "The door weighs 1.2 kg and its hinge has 4.0 N·m of friction, more than gravity can ever supply, so once unlatched it stays wherever it is. Heavier and lower friction, it swings from 5° to its 90° stop.", probe: "Hinge swing" },
     "drawer-slide": { title: "Drawer slide", bug: "The drawer is welded to the cabinet: there is no joint. It needs a slide joint with a range so a 10 N pull opens it to its stop.", probe: "Drawer pull" },
+    "scan-mug-heavy": { title: "Scanned mug", bug: "A Google Scanned Objects mug with no inertial in its MJCF, so the loader fills its convex pieces at water density: 1.25 kg for a 16 oz ceramic mug that weighs 0.30–0.45 kg.", probe: "Mass, cavity, rest, tilt" },
+    "scan-bowl-heavy": { title: "Scanned bowl", bug: "The same defect on a scanned 7 qt plastic mixing bowl: 10.5 kg instead of 0.25–0.55 kg.", probe: "Mass, cavity, rest" },
+    "cad-mug-small": { title: "CAD mug size", bug: "A VLM rebuilt this mug as CAD at about 0.7× in every axis: 6.2 cm tall, where the real one is 9.5 cm. Scaling a solid model up also multiplies its mass, so size and mass both need fixing. source_photo shows the real mug on a 1 cm grid.", probe: "Size and mass" },
+    "cad-bowl-small": { title: "CAD bowl size", bug: "Rebuilt at 0.5× scale: 16 cm across for a 32 cm serving bowl. source_photo shows the real bowl on a 1 cm grid.", probe: "Size and mass" },
+    "cad-coffeemaker-heavy": { title: "CAD coffee maker", bug: "The VLM's CAD has a solid plastic housing and a solid steel carafe: 10.7 kg for a 2.2–3.6 kg appliance.", probe: "Mass, tilt table" },
+    "cad-frother-ring": { title: "CAD frother ring", bug: "The power cord came out of VLM-to-CAD as a separate ring 2 cm from the frother's base, moving with it as one body.", probe: "Gaps between parts" },
+    "rcad-cabinet-sliders": { title: "Cabinet sliders", bug: "A ReplicaCAD cabinet whose sliding doors' collision boxes collide with each other and the frame, so the doors move 5% of their travel. The dataset assumes a simulator that filters these collisions.", probe: "Joint reach" },
+    "rcad-cupboard-doors": { title: "Cupboard doors", bug: "A ReplicaCAD kitchen cupboard whose neighbouring doors' collision boxes collide: one door doesn't open, another stops at 75%.", probe: "Joint reach" },
   };
   const ORDER = Object.keys(TASKS);
   const root = document.getElementById("ep-root");

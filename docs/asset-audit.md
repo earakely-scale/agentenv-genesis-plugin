@@ -87,6 +87,10 @@ self-collision on and off.
 - **The assets assume self-collision between links is filtered.** With Genesis's default (self-collision on), the
   cabinet's two sliding doors move 5% of their range and one cupboard door doesn't open at all (another reaches 75%).
   With self-collision off, all of them reach 100%. Habitat, which ReplicaCAD was built for, filters these pairs.
+- **The up axis differs between files in the same dataset.** ReplicaCAD is authored Y-up, so in a Z-up simulator the
+  cabinet lies on its back, which also changes how gravity acts on its hinges. The kitchen cupboard, by contrast,
+  turns itself upright through a root joint (`rpy="1.565 0 0"`). An importer has to check each file rather than rotate
+  the whole set.
 - **The kitchen counter's three middle drawers don't move at all**, even with self-collision off; their limits are a
   normal 0–0.5 m. The cause isn't isolated yet.
 
