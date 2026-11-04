@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentenv-genesis"
+version = "0.1.0"
+description = "GenesisWorkbenchEnv: an AgentEnv environment where an agent fixes sim-ready objects' physics through MCP tools, measured by the Genesis physics simulator."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11.4"
+keywords = ["agentenv", "mcp", "genesis", "physics-simulation", "sim-ready-assets", "llm-agents", "reinforcement-learning"]
+classifiers = ["Programming Language :: Python :: 3", "Topic :: Scientific/Engineering :: Artificial Intelligence"]
+# The env image pins its own server dependencies (envs/genesis-workbench/requirements.txt); this package ships the bundle.
+dependencies = ["agentenv-framework>=0.9.1411"]
+
+[project.urls]
+Source = "https://github.com/earakely-scale/agentenv-genesis-plugin"
+Genesis = "https://github.com/Genesis-Embodied-AI/genesis-world"
+
+[project.entry-points."agent_env.bundles"]
+genesis-workbench = "agentenv_genesis.bundles"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentenv_genesis"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"

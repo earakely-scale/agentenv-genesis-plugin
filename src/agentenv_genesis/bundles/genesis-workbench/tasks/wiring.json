@@ -1,0 +1,30 @@
+[
+ {
+  "id": "deploy",
+  "type": "deploy_env",
+  "env_id": "genesis-workbench"
+ },
+ {
+  "id": "load",
+  "type": "apply_server_config",
+  "env_id": "genesis-workbench",
+  "directives": [
+   {
+    "service": "genesis-workbench",
+    "uri": "urn:genesis:load-object/v1",
+    "args": {
+     "object": "mug_017",
+     "complaint": "wiring"
+    }
+   }
+  ]
+ },
+ {
+  "id": "grade",
+  "type": "env_outcome_verifier",
+  "env_id": "genesis-workbench",
+  "file_artifact_id": "workbench-probes",
+  "verifier_id": "genesis-workbench",
+  "score_aggregator": "weighted_average"
+ }
+]

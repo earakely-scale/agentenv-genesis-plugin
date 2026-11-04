@@ -1,0 +1,5 @@
+agentenv-framework-protocol>=0.1.453
+mcp>=1.25,<2
+genesis-world==1.4.5
+matplotlib==3.11.2
+numpy==2.5.4

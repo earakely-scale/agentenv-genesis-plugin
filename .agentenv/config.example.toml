@@ -1,0 +1,6 @@
+# Copy to .agentenv/config.toml (git-ignored). Local profile: stores under ~/.local/state/agent-env/, a registry:2 at
+# localhost:5000, envs and agents as containers on this machine's Docker. The model endpoint must serve Anthropic's
+# Messages API for the default Claude Code agent (a LiteLLM gateway works); the key comes from LITELLM_API_KEY.
+[model]
+base_url = "https://your-litellm-proxy"
+default = "anthropic/claude-sonnet-5-5"

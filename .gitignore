@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.agentenv/config.toml
+results/
+dist/
+.DS_Store
