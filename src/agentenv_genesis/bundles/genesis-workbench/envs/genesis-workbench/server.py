@@ -132,6 +132,10 @@ class GenesisWorkbench(AgentEnvEnvironment):
                 "probe": {"kind": kind, "x": a.get("x"), "x_label": a.get("x_label"), "y_label": a.get("y_label"),
                           "before": b.get("y"), "after": a.get("y")},
                 "calls": self.calls, "duration_s": round(time.time() - self.t0, 1)}
+        s = self.session
+        if s.connected:
+            data["session"] = {"status": s.status, "chat": s.chat, "interactions": s.actions,
+                               "decision": s.decision and {k: v for k, v in s.decision.items() if k != "model"}}
         return [DataPart(data=json.loads(json.dumps(data, default=float)))]
 
     def _diff(self) -> str:

@@ -19,6 +19,8 @@ license_details: "Apache-2.0 for the episodes; rendered frames of Google Scanned
 configs:
 - config_name: default
   data_files: episodes.jsonl
+- config_name: contributor_sessions
+  data_files: sessions.jsonl
 ---
 
 # GenesisWorkbenchEnv AgentEnv episodes
@@ -54,6 +56,7 @@ through MCP tools backed by a live Genesis scene:
 | `set_shell`, `set_scale`, `remove_part` | mesh objects: hollow a part to a wall thickness, rescale, drop a stray part |
 | `source_photo` | VLM-to-CAD objects: the photos of the real object the CAD was built from, on a 1 cm grid |
 | `set_self_collision` | articulated furniture: whether the object's links collide with each other |
+| `last_interaction` | contributor sessions: what the contributor did in the browser, what each action showed them, and its image |
 
 After the agent's last turn, a hidden probe suite runs the edited object in Genesis with settings and
 tolerances the agent never sees, and checks it against reference behaviour. The checks give a score from 0 to
@@ -97,6 +100,45 @@ The scale tasks are the open problem. Even with `source_photo`, neither model re
 
 That matches the VLM-to-CAD step itself, which misjudged these same objects' size from these same photos.
 Measuring metric size from photos needs a metric source: depth, a known-size reference, or a person.
+
+## With a contributor in the loop
+
+The scale tasks fail because the real size isn't in the asset. The `contributor-*` tasks put a person in the loop. The
+env serves a page where the contributor looks at, lifts, leans, drops, fills or shakes the object in Genesis, or opens
+its doors. They chat with the agent there, and approve or reject the object. The agent reads what they did with
+`last_interaction`. An approval saves the object as a new version of a sim-asset artifact, with its checks and probe
+results attached, and the same hidden checks grade the run.
+
+![The contributor page during the mug session: the Genesis render, the actions, what each showed, the chat and the agent's edits](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/workbench-page.png)
+
+*The contributor page during the `contributor-cad-mug` session, replayed from the recorded session.*
+
+These three sessions use a scripted contributor (`scripts/contributor.py`), not a person. It knows each object's real
+size and weight from the Google scan the CAD was built from. It judges each fix only from what the page shows it, and it
+never sees the hidden checks. The agent is Claude Code with `claude-sonnet-5-5`.
+
+| Task | Without a contributor (Sonnet / Opus) | With one | What happened | Saved as |
+|---|---|---|---|---|
+| `contributor-cad-mug` | 0.50 / 0.75 | **1.00**, approved | The agent asked for the real size instead of guessing. The CAD is wider for its height than the real mug, so it said no uniform scale fits both and split the difference at 1.4×. When the contributor said it was still short, it went to 1.516× (9.4 cm). It set the mass to 0.30 kg directly, saying a thin ceramic shell didn't come close. | `sim-assets/cad_mug` v2 |
+| `contributor-cad-bowl` | 0.50 / 0.75 | **1.00**, approved | Asked for the real size, scaled 1.99× to 32.1 cm across and 14.3 cm tall, and set the mass to 2 kg, saying a hollow shell would have needed 3 mm walls and moved the centre of mass up; approved on the first check | `sim-assets/cad_serving_bowl` v1 |
+| `contributor-rcad-cupboard` | (`rcad-cupboard-doors`: passed) | **1.00**, approved | The contributor's Open showed two stuck lower doors. The agent turned off self-collision and warned that the doors can now pass through each other, since the tool can't exempt one pair. It asked whether the real doors touch; the scripted contributor didn't answer that, and approved once every door opened. | `sim-assets/rcad_cupboard` v1 |
+
+`sessions.jsonl` (config `contributor_sessions`) has one row per session: the chat, the contributor's actions and what
+each one showed them, the agent's calls and edits, the checks, and the saved sim asset's id, version and metadata. The
+mug's v1 came from a pilot run, left out here: its scripted contributor gave the agent a rim width that isn't the real
+mug's.
+
+### Can the browser run MuJoCo instead of Genesis?
+
+A page that simulates in the browser would run MuJoCo's WebAssembly build, with Genesis grading on the server.
+[A parity check](https://github.com/earakely-scale/agentenv-genesis-plugin/blob/main/docs/parity.md) ran the probes on the
+same MJCF in both engines, for six real assets, each as delivered and edited:
+
+- The tilt-table angle agrees within 5° in all 12 cases, and exactly in 8.
+- Drop, rest and cavity agree everywhere.
+- Tipping against sliding differs in 3 cases, all at 40–50°, near the 45° where friction 1.0 lets an object slide.
+
+So MuJoCo can carry what the contributor feels, and Genesis stays the grader.
 
 Rendered frames are under `renders/<episode id>/`, and a call's `image` field gives the path of its frame
 relative to the repository root.

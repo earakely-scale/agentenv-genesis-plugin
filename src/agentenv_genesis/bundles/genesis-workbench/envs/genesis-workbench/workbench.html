@@ -135,7 +135,8 @@ function render(s) {
   }
   if (s.last && s.last.i !== shownLast) {
     shownLast = s.last.i; $("result").hidden = false; $("summary").textContent = s.last.summary;
-    if (s.last.image_png_b64) { $("chart").hidden = false; $("chart").src = "data:image/png;base64," + s.last.image_png_b64; } else $("chart").hidden = true;
+    // Look and Lift show the object as the main view does; only probes have a chart of their own.
+    if (s.last.image_png_b64 && !["look", "lift"].includes(s.last.action)) { $("chart").hidden = false; $("chart").src = "data:image/png;base64," + s.last.image_png_b64; } else $("chart").hidden = true;
   }
   const h = $("history"); h.textContent = "";
   for (const a of s.interactions.slice().reverse()) { const li = el("li"); li.append(el("b", "", a.action + " "), document.createTextNode(a.summary)); h.append(li); }

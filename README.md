@@ -97,6 +97,20 @@ python scripts/contributor.py --persona cad_mug --log run.log # or let the scrip
 The env uses the `server` env provider (`env.toml`), with no gateway in front, so the page is at the env's own
 address. The page has no authentication; on a remote host, reach it through an SSH tunnel.
 
+With the scripted contributor and Claude Code on `claude-sonnet-5-5`, all three tasks scored 1.00 and were approved, in 1
+to 2 minutes each. Without a contributor, the mug and bowl had scored 0.50 (Sonnet) and 0.75 (Opus). In both, the agent
+asked the contributor for the real size instead of guessing. On the mug it also said why one scale factor can't match
+both the real height and rim. The sessions are in the dataset (`sessions.jsonl`).
+
+The page runs Genesis on the server for every action. To let the browser simulate instead, [docs/parity.md](docs/parity.md)
+compares Genesis with MuJoCo on the same MJCF:
+
+- The tilt angle agrees within 5° on all 12 object variants.
+- Drop, rest and cavity agree everywhere.
+- On 3 variants near the friction limit, one engine has the object tip over where the other has it slide.
+
+So MuJoCo in the browser with Genesis grading on the server works for rigid objects.
+
 ## Run it
 
 ```bash
