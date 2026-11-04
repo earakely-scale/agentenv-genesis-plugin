@@ -1,0 +1,1142 @@
+[
+ {
+  "source": "replicacad",
+  "object": "kitchen_cupboards/kitchenCupboard_01.urdf",
+  "mode": "as_delivered",
+  "comma_separated_scales": 9,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 9,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 10,
+    "mass_kg": 70.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_1L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_1R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_2L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_2R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_1L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_1R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_2L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_2R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "doorWhole_1L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 0
+   },
+   {
+    "name": "doorWhole_1R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 1
+   },
+   {
+    "name": "doorWhole_2L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 2
+   },
+   {
+    "name": "doorWhole_2R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 3
+   },
+   {
+    "name": "doorWindow_1L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 4
+   },
+   {
+    "name": "doorWindow_1R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 5
+   },
+   {
+    "name": "doorWindow_2L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 6
+   },
+   {
+    "name": "doorWindow_2R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 7
+   }
+  ],
+  "reach": [
+   {
+    "joint": "doorWhole_1L_hinge",
+    "target": -2.07,
+    "reached": -2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWhole_1R_hinge",
+    "target": 2.07,
+    "reached": 1.556,
+    "fraction": 0.75
+   },
+   {
+    "joint": "doorWhole_2L_hinge",
+    "target": -2.07,
+    "reached": 0.105,
+    "fraction": -0.05
+   },
+   {
+    "joint": "doorWhole_2R_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_1L_hinge",
+    "target": -2.07,
+    "reached": -2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_1R_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_2L_hinge",
+    "target": -2.07,
+    "reached": -2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_2R_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   }
+  ],
+  "unstable": false,
+  "seconds": 5.9
+ },
+ {
+  "source": "replicacad",
+  "object": "kitchen_cupboards/kitchenCupboard_01.urdf",
+  "mode": "no_self_collision",
+  "comma_separated_scales": 9,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 9,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 10,
+    "mass_kg": 70.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_1L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_1R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_2L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWhole_2R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_1L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_1R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_2L",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "kitchencupboard_doorWindow_2R",
+    "n_geoms": 2,
+    "mass_kg": 8.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "doorWhole_1L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 0
+   },
+   {
+    "name": "doorWhole_1R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 1
+   },
+   {
+    "name": "doorWhole_2L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 2
+   },
+   {
+    "name": "doorWhole_2R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 3
+   },
+   {
+    "name": "doorWindow_1L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 4
+   },
+   {
+    "name": "doorWindow_1R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 5
+   },
+   {
+    "name": "doorWindow_2L_hinge",
+    "type": "revolute",
+    "lower": -2.3,
+    "upper": 0.0,
+    "dof": 6
+   },
+   {
+    "name": "doorWindow_2R_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 7
+   }
+  ],
+  "reach": [
+   {
+    "joint": "doorWhole_1L_hinge",
+    "target": -2.07,
+    "reached": -2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWhole_1R_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWhole_2L_hinge",
+    "target": -2.07,
+    "reached": -2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWhole_2R_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_1L_hinge",
+    "target": -2.07,
+    "reached": -2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_1R_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_2L_hinge",
+    "target": -2.07,
+    "reached": -2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "doorWindow_2R_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   }
+  ],
+  "unstable": false,
+  "seconds": 3.1
+ },
+ {
+  "source": "replicacad",
+  "object": "chest_of_drawers/chestOfDrawers_01.urdf",
+  "mode": "as_delivered",
+  "comma_separated_scales": 7,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 7,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 11,
+    "mass_kg": 70.0
+   },
+   {
+    "name": "drawer_topL",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_topR",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_midL",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_midR",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_botL",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_botR",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "drawer_topL",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 0
+   },
+   {
+    "name": "drawer_topR",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 1
+   },
+   {
+    "name": "drawer_midL",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 2
+   },
+   {
+    "name": "drawer_midR",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 3
+   },
+   {
+    "name": "drawer_botL",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 4
+   },
+   {
+    "name": "drawer_botR",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 5
+   }
+  ],
+  "reach": [
+   {
+    "joint": "drawer_topL",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_topR",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_midL",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_midR",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_botL",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_botR",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   }
+  ],
+  "unstable": false,
+  "seconds": 2.8
+ },
+ {
+  "source": "replicacad",
+  "object": "chest_of_drawers/chestOfDrawers_01.urdf",
+  "mode": "no_self_collision",
+  "comma_separated_scales": 7,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 7,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 11,
+    "mass_kg": 70.0
+   },
+   {
+    "name": "drawer_topL",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_topR",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_midL",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_midR",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_botL",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "drawer_botR",
+    "n_geoms": 6,
+    "mass_kg": 8.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "drawer_topL",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 0
+   },
+   {
+    "name": "drawer_topR",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 1
+   },
+   {
+    "name": "drawer_midL",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 2
+   },
+   {
+    "name": "drawer_midR",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 3
+   },
+   {
+    "name": "drawer_botL",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 4
+   },
+   {
+    "name": "drawer_botR",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 5
+   }
+  ],
+  "reach": [
+   {
+    "joint": "drawer_topL",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_topR",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_midL",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_midR",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_botL",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   },
+   {
+    "joint": "drawer_botR",
+    "target": 0.45,
+    "reached": 0.449,
+    "fraction": 1.0
+   }
+  ],
+  "unstable": false,
+  "seconds": 2.8
+ },
+ {
+  "source": "replicacad",
+  "object": "kitchen_counter/kitchen_counter.urdf",
+  "mode": "as_delivered",
+  "comma_separated_scales": 8,
+  "malformed_box_sizes": 1,
+  "links_with_placeholder_inertia": 8,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 12,
+    "mass_kg": 120.0
+   },
+   {
+    "name": "drawer1_top",
+    "n_geoms": 5,
+    "mass_kg": 5.0
+   },
+   {
+    "name": "drawer1_bottom",
+    "n_geoms": 5,
+    "mass_kg": 5.0
+   },
+   {
+    "name": "drawer2_top",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer2_middle",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer2_bottom",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer3",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer4",
+    "n_geoms": 5,
+    "mass_kg": 6.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "left_slide_top",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 0
+   },
+   {
+    "name": "left_slide_bottom",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 1
+   },
+   {
+    "name": "middle_slide_top",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 2
+   },
+   {
+    "name": "middle_slide_middle",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 3
+   },
+   {
+    "name": "middle_slide_bottom",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 4
+   },
+   {
+    "name": "right_slide_top",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 5
+   },
+   {
+    "name": "right_slide_bottom",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 6
+   }
+  ],
+  "reach": [
+   {
+    "joint": "left_slide_top",
+    "target": 0.45,
+    "reached": 0.452,
+    "fraction": 1.01
+   },
+   {
+    "joint": "left_slide_bottom",
+    "target": 0.45,
+    "reached": 0.452,
+    "fraction": 1.01
+   },
+   {
+    "joint": "middle_slide_top",
+    "target": 0.45,
+    "reached": 0.0,
+    "fraction": 0.0
+   },
+   {
+    "joint": "middle_slide_middle",
+    "target": 0.45,
+    "reached": 0.0,
+    "fraction": 0.0
+   },
+   {
+    "joint": "middle_slide_bottom",
+    "target": 0.45,
+    "reached": 0.0,
+    "fraction": 0.0
+   },
+   {
+    "joint": "right_slide_top",
+    "target": 0.45,
+    "reached": 0.451,
+    "fraction": 1.0
+   },
+   {
+    "joint": "right_slide_bottom",
+    "target": 0.45,
+    "reached": 0.453,
+    "fraction": 1.01
+   }
+  ],
+  "unstable": false,
+  "seconds": 4.1
+ },
+ {
+  "source": "replicacad",
+  "object": "kitchen_counter/kitchen_counter.urdf",
+  "mode": "no_self_collision",
+  "comma_separated_scales": 8,
+  "malformed_box_sizes": 1,
+  "links_with_placeholder_inertia": 8,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 12,
+    "mass_kg": 120.0
+   },
+   {
+    "name": "drawer1_top",
+    "n_geoms": 5,
+    "mass_kg": 5.0
+   },
+   {
+    "name": "drawer1_bottom",
+    "n_geoms": 5,
+    "mass_kg": 5.0
+   },
+   {
+    "name": "drawer2_top",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer2_middle",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer2_bottom",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer3",
+    "n_geoms": 5,
+    "mass_kg": 4.0
+   },
+   {
+    "name": "drawer4",
+    "n_geoms": 5,
+    "mass_kg": 6.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "left_slide_top",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 0
+   },
+   {
+    "name": "left_slide_bottom",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 1
+   },
+   {
+    "name": "middle_slide_top",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 2
+   },
+   {
+    "name": "middle_slide_middle",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 3
+   },
+   {
+    "name": "middle_slide_bottom",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 4
+   },
+   {
+    "name": "right_slide_top",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 5
+   },
+   {
+    "name": "right_slide_bottom",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.5,
+    "dof": 6
+   }
+  ],
+  "reach": [
+   {
+    "joint": "left_slide_top",
+    "target": 0.45,
+    "reached": 0.452,
+    "fraction": 1.01
+   },
+   {
+    "joint": "left_slide_bottom",
+    "target": 0.45,
+    "reached": 0.452,
+    "fraction": 1.01
+   },
+   {
+    "joint": "middle_slide_top",
+    "target": 0.45,
+    "reached": 0.0,
+    "fraction": 0.0
+   },
+   {
+    "joint": "middle_slide_middle",
+    "target": 0.45,
+    "reached": 0.0,
+    "fraction": 0.0
+   },
+   {
+    "joint": "middle_slide_bottom",
+    "target": 0.45,
+    "reached": 0.0,
+    "fraction": 0.0
+   },
+   {
+    "joint": "right_slide_top",
+    "target": 0.45,
+    "reached": 0.451,
+    "fraction": 1.0
+   },
+   {
+    "joint": "right_slide_bottom",
+    "target": 0.45,
+    "reached": 0.453,
+    "fraction": 1.01
+   }
+  ],
+  "unstable": false,
+  "seconds": 1.7
+ },
+ {
+  "source": "replicacad",
+  "object": "fridge/fridge.urdf",
+  "mode": "as_delivered",
+  "comma_separated_scales": 0,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 3,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 10,
+    "mass_kg": 70.0
+   },
+   {
+    "name": "top_door",
+    "n_geoms": 1,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "bottom_door",
+    "n_geoms": 1,
+    "mass_kg": 6.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "top_door_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 0
+   },
+   {
+    "name": "bottom_door_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.5,
+    "dof": 1
+   }
+  ],
+  "reach": [
+   {
+    "joint": "top_door_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "bottom_door_hinge",
+    "target": 2.25,
+    "reached": 2.25,
+    "fraction": 1.0
+   }
+  ],
+  "unstable": false,
+  "seconds": 0.6
+ },
+ {
+  "source": "replicacad",
+  "object": "fridge/fridge.urdf",
+  "mode": "no_self_collision",
+  "comma_separated_scales": 0,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 3,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 10,
+    "mass_kg": 70.0
+   },
+   {
+    "name": "top_door",
+    "n_geoms": 1,
+    "mass_kg": 8.0
+   },
+   {
+    "name": "bottom_door",
+    "n_geoms": 1,
+    "mass_kg": 6.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "top_door_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.3,
+    "dof": 0
+   },
+   {
+    "name": "bottom_door_hinge",
+    "type": "revolute",
+    "lower": 0.0,
+    "upper": 2.5,
+    "dof": 1
+   }
+  ],
+  "reach": [
+   {
+    "joint": "top_door_hinge",
+    "target": 2.07,
+    "reached": 2.07,
+    "fraction": 1.0
+   },
+   {
+    "joint": "bottom_door_hinge",
+    "target": 2.25,
+    "reached": 2.25,
+    "fraction": 1.0
+   }
+  ],
+  "unstable": false,
+  "seconds": 0.5
+ },
+ {
+  "source": "replicacad",
+  "object": "cabinet/cabinet.urdf",
+  "mode": "as_delivered",
+  "comma_separated_scales": 3,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 3,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 5,
+    "mass_kg": 25.0
+   },
+   {
+    "name": "left_door",
+    "n_geoms": 1,
+    "mass_kg": 2.0
+   },
+   {
+    "name": "right_door",
+    "n_geoms": 1,
+    "mass_kg": 2.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "left_slide",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.8,
+    "dof": 0
+   },
+   {
+    "name": "right_slide",
+    "type": "prismatic",
+    "lower": -0.76,
+    "upper": 0.0,
+    "dof": 1
+   }
+  ],
+  "reach": [
+   {
+    "joint": "left_slide",
+    "target": 0.72,
+    "reached": 0.036,
+    "fraction": 0.05
+   },
+   {
+    "joint": "right_slide",
+    "target": -0.684,
+    "reached": -0.036,
+    "fraction": 0.05
+   }
+  ],
+  "unstable": false,
+  "seconds": 0.6
+ },
+ {
+  "source": "replicacad",
+  "object": "cabinet/cabinet.urdf",
+  "mode": "no_self_collision",
+  "comma_separated_scales": 3,
+  "malformed_box_sizes": 0,
+  "links_with_placeholder_inertia": 3,
+  "collision_types": [
+   "box"
+  ],
+  "links": [
+   {
+    "name": "root",
+    "n_geoms": 5,
+    "mass_kg": 25.0
+   },
+   {
+    "name": "left_door",
+    "n_geoms": 1,
+    "mass_kg": 2.0
+   },
+   {
+    "name": "right_door",
+    "n_geoms": 1,
+    "mass_kg": 2.0
+   }
+  ],
+  "joints": [
+   {
+    "name": "left_slide",
+    "type": "prismatic",
+    "lower": 0.0,
+    "upper": 0.8,
+    "dof": 0
+   },
+   {
+    "name": "right_slide",
+    "type": "prismatic",
+    "lower": -0.76,
+    "upper": 0.0,
+    "dof": 1
+   }
+  ],
+  "reach": [
+   {
+    "joint": "left_slide",
+    "target": 0.72,
+    "reached": 0.72,
+    "fraction": 1.0
+   },
+   {
+    "joint": "right_slide",
+    "target": -0.684,
+    "reached": -0.684,
+    "fraction": 1.0
+   }
+  ],
+  "unstable": false,
+  "seconds": 0.6
+ }
+]

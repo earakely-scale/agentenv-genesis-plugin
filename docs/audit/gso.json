@@ -1,0 +1,971 @@
+[
+ {
+  "source": "gso",
+  "object": "ACE_Coffee_Mug_Kristen_16_oz_cup",
+  "label": "mug",
+  "material": "ceramic",
+  "real_mass_band_kg": [
+   0.3,
+   0.45
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.1263,
+    0.0906,
+    0.1349
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 831.2
+  },
+  "as_provided": {
+   "mass_kg": 1.2519,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.03,
+   "aabb_m": [
+    0.1248,
+    0.0887,
+    0.1343
+   ],
+   "drop": {
+    "settles_s": 0.4,
+    "max_penetration_mm": 4.5,
+    "final_speed": 0.0007,
+    "final_tilt_deg": 0.6
+   },
+   "tilt_table": {
+    "first_failure_deg": 25,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "slide",
+     "topple",
+     "slide",
+     "slide",
+     "topple",
+     "topple",
+     "topple",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 13.4,
+    "ball_heights_cm": [
+     1.9,
+     1.9,
+     1.9,
+     1.9,
+     1.9
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 1.912,
+  "seconds": 9.2
+ },
+ {
+  "source": "gso",
+  "object": "Cole_Hardware_Mug_Classic_Blue",
+  "label": "mug",
+  "material": "ceramic",
+  "real_mass_band_kg": [
+   0.25,
+   0.4
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.1657,
+    0.1255,
+    0.0948
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 1161.1
+  },
+  "as_provided": {
+   "mass_kg": 1.9301,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.03,
+   "aabb_m": [
+    0.1626,
+    0.1229,
+    0.0943
+   ],
+   "drop": {
+    "settles_s": 0.35,
+    "max_penetration_mm": 5.5,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.6
+   },
+   "tilt_table": {
+    "first_failure_deg": 30,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 9.4,
+    "ball_heights_cm": [
+     1.7,
+     1.8,
+     1.7,
+     1.8,
+     1.7
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 2.671,
+  "seconds": 1.7
+ },
+ {
+  "source": "gso",
+  "object": "BIA_Porcelain_Ramekin_With_Glazed_Rim_35_45_oz_cup",
+  "label": "ramekin",
+  "material": "porcelain",
+  "real_mass_band_kg": [
+   0.08,
+   0.16
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.0887,
+    0.0887,
+    0.0433
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 232.8
+  },
+  "as_provided": {
+   "mass_kg": 0.3892,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.01,
+   "aabb_m": [
+    0.0873,
+    0.0873,
+    0.043
+   ],
+   "drop": {
+    "settles_s": 0.3,
+    "max_penetration_mm": 2.3,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.6
+   },
+   "tilt_table": {
+    "first_failure_deg": 45,
+    "mode": "slide",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "slide",
+     "topple",
+     "slide",
+     "topple",
+     "topple",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 4.3,
+    "ball_heights_cm": [
+     1.5,
+     1.6,
+     1.6,
+     1.5,
+     1.6
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 0.559,
+  "seconds": 1.5
+ },
+ {
+  "source": "gso",
+  "object": "Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+  "label": "mixing bowl",
+  "material": "plastic_pp",
+  "real_mass_band_kg": [
+   0.25,
+   0.55
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.2826,
+    0.2851,
+    0.1545
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 6454.8
+  },
+  "as_provided": {
+   "mass_kg": 10.4639,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.02,
+   "aabb_m": [
+    0.278,
+    0.28,
+    0.1539
+   ],
+   "drop": {
+    "settles_s": 0.4,
+    "max_penetration_mm": 3.9,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.8
+   },
+   "tilt_table": {
+    "first_failure_deg": 45,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "topple",
+     "slide",
+     "topple",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 15.4,
+    "ball_heights_cm": [
+     1.3,
+     1.5,
+     1.4,
+     1.3,
+     1.4
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 5.842,
+  "seconds": 1.5
+ },
+ {
+  "source": "gso",
+  "object": "Calphalon_Kitchen_Essentials_12_Cast_Iron_Fry_Pan_Black",
+  "label": "bowl (mislabelled pan)",
+  "material": "ceramic",
+  "real_mass_band_kg": null,
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.3224,
+    0.3236,
+    0.1462
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 7877.0
+  },
+  "as_provided": {
+   "mass_kg": 12.2729,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.08,
+   "aabb_m": [
+    0.3182,
+    0.3193,
+    0.1453
+   ],
+   "drop": {
+    "settles_s": 0.35,
+    "max_penetration_mm": 8.1,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.6
+   },
+   "tilt_table": {
+    "first_failure_deg": 40,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 14.5,
+    "ball_heights_cm": [
+     2.8,
+     2.7,
+     2.9,
+     2.8,
+     2.9
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 18.117,
+  "seconds": 1.7
+ },
+ {
+  "source": "gso",
+  "object": "Chefmate_8_Frypan",
+  "label": "frying pan",
+  "material": "aluminum",
+  "real_mass_band_kg": [
+   0.4,
+   0.8
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.3558,
+    0.2043,
+    0.055
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 1451.6
+  },
+  "as_provided": {
+   "mass_kg": 1.8149,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.06,
+   "aabb_m": [
+    0.3533,
+    0.199,
+    0.0524
+   ],
+   "drop": {
+    "settles_s": 0.3,
+    "max_penetration_mm": 4.0,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.8
+   },
+   "tilt_table": {
+    "first_failure_deg": 50,
+    "mode": "slide",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "slide",
+     "slide",
+     "slide",
+     "slide",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 5.2,
+    "ball_heights_cm": [
+     1.2,
+     1.3,
+     1.3,
+     1.4,
+     1.2
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 3.919,
+  "seconds": 1.8
+ },
+ {
+  "source": "gso",
+  "object": "Chef_Style_Round_Cake_Pan_9_inch_pan",
+  "label": "cake pan",
+  "material": "aluminum",
+  "real_mass_band_kg": [
+   0.2,
+   0.45
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.2459,
+    0.246,
+    0.0452
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 1806.6
+  },
+  "as_provided": {
+   "mass_kg": 3.1404,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.0,
+   "aabb_m": [
+    0.2425,
+    0.2419,
+    0.0448
+   ],
+   "drop": {
+    "settles_s": 0.25,
+    "max_penetration_mm": 3.4,
+    "final_speed": 0.0026,
+    "final_tilt_deg": 0.3
+   },
+   "tilt_table": {
+    "first_failure_deg": 50,
+    "mode": "slide",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "slide",
+     "slide",
+     "slide",
+     "topple",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 4.5,
+    "ball_heights_cm": [
+     1.1,
+     1.2,
+     1.3,
+     1.2,
+     1.2
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 4.878,
+  "seconds": 1.5
+ },
+ {
+  "source": "gso",
+  "object": "Aroma_Stainless_Steel_Milk_Frother_2_Cup",
+  "label": "milk frother",
+  "material": "stainless_steel",
+  "real_mass_band_kg": [
+   0.4,
+   1.2
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.1423,
+    0.1577,
+    0.1483
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 1814.0
+  },
+  "as_provided": {
+   "mass_kg": 2.3341,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.06,
+   "aabb_m": [
+    0.1407,
+    0.1562,
+    0.1472
+   ],
+   "drop": {
+    "settles_s": 0.4,
+    "max_penetration_mm": 6.3,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.4
+   },
+   "tilt_table": {
+    "first_failure_deg": 20,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "slide",
+     "topple",
+     "topple"
+    ]
+   }
+  },
+  "solid_at_material_density_kg": 14.331,
+  "seconds": 1.1
+ },
+ {
+  "source": "gso",
+  "object": "Black_Decker_CM2035B_12Cup_Thermal_Coffeemaker",
+  "label": "coffee maker",
+  "material": "plastic_abs",
+  "real_mass_band_kg": [
+   2.2,
+   3.6
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.2269,
+    0.3236,
+    0.3369
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 15935.2
+  },
+  "as_provided": {
+   "mass_kg": 25.2482,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.07,
+   "aabb_m": [
+    0.2218,
+    0.3203,
+    0.335
+   ],
+   "drop": {
+    "settles_s": 0.6,
+    "max_penetration_mm": 2.6,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.5
+   },
+   "tilt_table": {
+    "first_failure_deg": 30,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "slide"
+    ]
+   }
+  },
+  "solid_at_material_density_kg": 16.732,
+  "seconds": 1.2
+ },
+ {
+  "source": "gso",
+  "object": "Footed_Bowl_Sand",
+  "label": "bowl",
+  "material": "ceramic",
+  "real_mass_band_kg": [
+   0.3,
+   0.8
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.1609,
+    0.1615,
+    0.1088
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 1606.6
+  },
+  "as_provided": {
+   "mass_kg": 2.6106,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.12,
+   "aabb_m": [
+    0.1587,
+    0.1592,
+    0.1072
+   ],
+   "drop": {
+    "settles_s": 0.3,
+    "max_penetration_mm": 1.0,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.2
+   },
+   "tilt_table": {
+    "first_failure_deg": 35,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "slide"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 10.7,
+    "ball_heights_cm": [
+     2.3,
+     1.7,
+     1.7,
+     2.3,
+     2.0
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 3.695,
+  "seconds": 1.9
+ },
+ {
+  "source": "gso",
+  "object": "Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+  "label": "bowl",
+  "material": "ceramic",
+  "real_mass_band_kg": [
+   0.8,
+   2.5
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.2837,
+    0.2843,
+    0.1318
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 5609.0
+  },
+  "as_provided": {
+   "mass_kg": 9.3749,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.01,
+   "aabb_m": [
+    0.2798,
+    0.28,
+    0.1315
+   ],
+   "drop": {
+    "settles_s": 0.35,
+    "max_penetration_mm": 4.4,
+    "final_speed": 0.0,
+    "final_tilt_deg": 1.0
+   },
+   "tilt_table": {
+    "first_failure_deg": 40,
+    "mode": "topple",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple",
+     "topple"
+    ]
+   },
+   "cavity": {
+    "rim_height_cm": 13.1,
+    "ball_heights_cm": [
+     1.8,
+     2.2,
+     1.9,
+     1.8,
+     1.8
+    ],
+    "balls_inside": 5,
+    "open": true
+   }
+  },
+  "solid_at_material_density_kg": 12.901,
+  "seconds": 1.5
+ },
+ {
+  "source": "gso",
+  "object": "Ecoforms_Plate_S20Avocado",
+  "label": "plate",
+  "material": "plant_fiber",
+  "real_mass_band_kg": [
+   0.1,
+   0.35
+  ],
+  "mesh": {
+   "watertight": false,
+   "bbox_m": [
+    0.207,
+    0.2065,
+    0.0322
+   ],
+   "volume_cm3": null,
+   "hull_volume_cm3": 826.9
+  },
+  "as_provided": {
+   "mass_kg": 1.3564,
+   "n_collision_geoms": 32,
+   "com_height_cm": -0.01,
+   "aabb_m": [
+    0.2039,
+    0.2035,
+    0.0318
+   ],
+   "drop": {
+    "settles_s": 0.25,
+    "max_penetration_mm": 1.0,
+    "final_speed": 0.0,
+    "final_tilt_deg": 0.7
+   },
+   "tilt_table": {
+    "first_failure_deg": 50,
+    "mode": "slide",
+    "leans": [
+     10,
+     15,
+     20,
+     25,
+     30,
+     35,
+     40,
+     45,
+     50,
+     55,
+     60,
+     65,
+     70
+    ],
+    "modes": [
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "holds",
+     "slide",
+     "slide",
+     "topple",
+     "slide",
+     "topple"
+    ]
+   }
+  },
+  "solid_at_material_density_kg": 1.075,
+  "seconds": 1.1
+ }
+]
