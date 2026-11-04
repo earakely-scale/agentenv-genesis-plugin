@@ -1,5 +1,9 @@
 # GenesisWorkbenchEnv for AgentEnv
 
+![The mug, oven door and drawer as delivered beside the agent's fix, simulated in Genesis](hub/showcase.gif)
+
+*Each object as delivered (red) beside the agent's fix (teal), simulated and rendered by Genesis from the MJCF recorded in the episodes: the mug on a tilt table, the oven door unlatched at 5°, the drawer pulled with 10 N.*
+
 An [AgentEnv](https://github.com/scaleapi/agentenv-framework) environment where an agent fixes the physics of
 sim-ready objects, measured by the [Genesis](https://github.com/Genesis-Embodied-AI/genesis-world) physics simulator.
 

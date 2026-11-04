@@ -234,6 +234,9 @@ def main() -> int:
     space_files.update(tree(SPACE_DIR, "renders"))
     dataset_files = {name: DATASET_DIR / name for name in ("README.md", "episodes.jsonl")}
     dataset_files.update({rel: path for rel, path in tree(SPACE_DIR, "renders").items()})
+    showcase = SPACE_DIR.parent / "showcase.gif"
+    if showcase.is_file():
+        space_files["showcase.gif"] = dataset_files["showcase.gif"] = showcase
     missing = [str(p) for p in list(space_files.values()) + list(dataset_files.values()) if not p.is_file()]
     if missing:
         print("missing: " + ", ".join(missing))

@@ -28,6 +28,10 @@ Recorded episodes of an LLM agent fixing the physics of sim-ready objects in
 [Genesis](https://github.com/Genesis-Embodied-AI/genesis-world) physics simulator. Browse them in the
 [viewer Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv).
 
+![GenesisWorkbenchEnv: objects as delivered beside the agent's fix, simulated in Genesis](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/showcase.gif)
+
+*Each object as delivered (red) beside the agent's fix (teal), simulated and rendered by Genesis from the MJCF recorded in the episodes: the mug on a tilt table, the oven door unlatched at 5°, the drawer pulled with 10 N. Made with `scripts/make_showcase.py`.*
+
 ## What the data is
 
 Each row is one episode. An episode starts from an object, written as MJCF, that a VLM-to-CAD step produced
