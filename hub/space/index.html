@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>GenesisWorkbenchEnv AgentEnv</title>
+<meta name="description" content="An agentenv environment where an LLM agent fixes the physics of a sim-ready object through MCP tools, graded by a hidden probe suite in the Genesis simulator. Episode viewer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* A bench sheet: ruled sections, instrument panels, XYZ axis colours only on frames and gizmos. */
+:root {
+  --bg: #F2F4F2; --panel: #FFFFFF; --sub: #E8ECE9; --ink: #14191B; --ink2: #374146; --muted: #5C676B; --line: #D5DBD7; --line2: #BFC8C3;
+  --accent: #0B7A72; --accent-ink: #FFFFFF; --accent-soft: #DCEEEA;
+  --pass: #2B8A4C; --pass-soft: #E1F2E6; --fail: #BF3B2E; --fail-soft: #F8E3E0; --warn: #A9650F; --warn-soft: #F6EBDA;
+  --ax-x: #D2453B; --ax-y: #3A9A55; --ax-z: #3566D1;
+  --vp-bg: #E6EBE8; --vp-ground: #DCE2DE; --vp-grid: #C8D0CB; --vp-grid-strong: #A9B4AD; --vp-object: #F8F7F3;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --s-1: 12px; --s0: 15px; --s1: 17px; --s2: 21px; --s3: 28px; --s4: clamp(30px, 5.2vw, 50px);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1213; --panel: #161B1D; --sub: #1C2325; --ink: #E7ECEA; --ink2: #C3CCC8; --muted: #8F9B97; --line: #283033; --line2: #364145;
+  --accent: #3CC2B2; --accent-ink: #062320; --accent-soft: #12312D; --pass: #4CC072; --pass-soft: #14301F; --fail: #EF6A5C; --fail-soft: #3A1B18; --warn: #E0A14A; --warn-soft: #34260F;
+  --ax-x: #F0675B; --ax-y: #5CC47B; --ax-z: #6E96F2;
+  --vp-bg: #141A1C; --vp-ground: #1D2528; --vp-grid: #2A3437; --vp-grid-strong: #3C484C; --vp-object: #E9E7E1;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0E1213; --panel: #161B1D; --sub: #1C2325; --ink: #E7ECEA; --ink2: #C3CCC8; --muted: #8F9B97; --line: #283033; --line2: #364145;
+  --accent: #3CC2B2; --accent-ink: #062320; --accent-soft: #12312D; --pass: #4CC072; --pass-soft: #14301F; --fail: #EF6A5C; --fail-soft: #3A1B18; --warn: #E0A14A; --warn-soft: #34260F;
+  --ax-x: #F0675B; --ax-y: #5CC47B; --ax-z: #6E96F2;
+  --vp-bg: #141A1C; --vp-ground: #1D2528; --vp-grid: #2A3437; --vp-grid-strong: #3C484C; --vp-object: #E9E7E1;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--s0)/1.6 var(--f-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 72px; display: grid; gap: 64px; }
+h1, h2, h3 { font-family: var(--f-display); font-stretch: 112%; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: var(--s4); line-height: 1.05; font-weight: 750; max-width: 22ch; }
+@media (max-width: 520px) { h1 { font-size: 27px; font-stretch: 100%; } }
+@media (max-width: 380px) { h1 { font-size: 23px; } }
+header.top > * { min-width: 0; }
+h1, .quote q { overflow-wrap: break-word; }
+.wrap > * { min-width: 0; }
+h2 { font-size: var(--s3); line-height: 1.15; font-weight: 700; }
+h3 { font-size: var(--s1); line-height: 1.3; font-weight: 650; font-stretch: 105%; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+.eyebrow { font: 500 var(--s-1)/1.4 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.lede { font-size: var(--s1); color: var(--ink2); max-width: 70ch; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+section { display: grid; gap: 22px; min-width: 0; }
+.sec-head { display: grid; gap: 8px; max-width: 76ch; }
+.sec-head p { color: var(--ink2); }
+.frame-mark { display: inline-block; width: 18px; height: 18px; position: relative; margin-right: 10px; vertical-align: -2px; }
+.frame-mark::before { content: ""; position: absolute; left: 1px; bottom: 1px; width: 15px; height: 2px; background: var(--ax-x); }
+.frame-mark::after { content: ""; position: absolute; left: 1px; bottom: 1px; width: 2px; height: 15px; background: var(--ax-z); }
+
+/* header */
+header.top { display: grid; gap: 18px; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links a { display: inline-flex; align-items: center; gap: 8px; font: 500 13.5px/1 var(--f-body); color: var(--ink); text-decoration: none; padding: 9px 12px; border: 1px solid var(--line2); border-radius: 7px; background: var(--panel); }
+.links a:hover { border-color: var(--accent); color: var(--accent); }
+.links a span { font: 500 11px/1 var(--f-mono); color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+.answers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line2); border-bottom: 1px solid var(--line2); margin-top: 8px; }
+.answers > div { padding: 18px 20px 20px 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.answers > div + div { padding-left: 20px; border-left: 1px solid var(--line); }
+.answers b { font: 600 var(--s-1)/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--accent); }
+.answers strong { font-family: var(--f-display); font-stretch: 108%; font-size: var(--s2); line-height: 1.2; font-weight: 700; }
+.answers p { color: var(--ink2); font-size: 14.5px; }
+@media (max-width: 860px) { .answers { grid-template-columns: minmax(0, 1fr); } .answers > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } }
+
+/* figures */
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+figcaption { font-size: 13.5px; color: var(--muted); max-width: 80ch; }
+.fig-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 10px; }
+.fig-scroll svg { display: block; width: 100%; height: auto; min-width: 860px; }
+svg text { font-family: var(--f-body); fill: var(--ink); }
+svg .t-title { font: 600 14px var(--f-body); fill: var(--ink); }
+svg .t-body { font: 400 12px var(--f-body); fill: var(--ink2); }
+svg .t-mono { font: 500 11.5px var(--f-mono); fill: var(--ink2); }
+svg .t-cap { font: 500 10.5px var(--f-mono); fill: var(--muted); letter-spacing: .04em; }
+svg .t-acc { fill: var(--accent); }
+svg .bx { fill: var(--panel); stroke: var(--line2); stroke-width: 1.2; }
+svg .bx-sub { fill: var(--sub); stroke: var(--line2); stroke-width: 1; }
+svg .bx-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.6; }
+svg .bx-dash { fill: var(--panel); stroke: var(--ink2); stroke-width: 1.4; stroke-dasharray: 6 5; }
+svg .band { fill: var(--accent-soft); opacity: .55; }
+svg .ed { stroke: var(--ink2); stroke-width: 1.4; fill: none; }
+svg .ed-acc { stroke: var(--accent); stroke-width: 1.8; fill: none; }
+svg .ed-dot { stroke: var(--muted); stroke-width: 1.2; fill: none; stroke-dasharray: 3 4; }
+svg .hd { fill: var(--ink2); }
+svg .hd-acc { fill: var(--accent); }
+svg .num { fill: var(--ink); }
+svg .num-t { font: 600 12px var(--f-mono); fill: var(--bg); }
+
+/* chips, buttons */
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 500 11.5px/1 var(--f-mono); padding: 5px 8px; border-radius: 99px; border: 1px solid var(--line2); color: var(--ink2); white-space: nowrap; text-transform: none; letter-spacing: 0; }
+.chip.ok { color: var(--pass); border-color: color-mix(in srgb, var(--pass) 45%, transparent); background: var(--pass-soft); }
+.chip.bad { color: var(--fail); border-color: color-mix(in srgb, var(--fail) 45%, transparent); background: var(--fail-soft); }
+.chip.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, transparent); background: var(--warn-soft); }
+.btn { font: 600 13.5px/1 var(--f-body); padding: 10px 14px; border-radius: 7px; border: 1px solid var(--line2); background: var(--panel); color: var(--ink); cursor: pointer; }
+.btn.pri { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.linkbtn { font: 500 12.5px var(--f-body); color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; justify-self: start; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line2); border-radius: 7px; overflow: hidden; }
+.seg button { font: 500 13px/1 var(--f-body); padding: 8px 12px; border: 0; background: transparent; color: var(--ink2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* episodes */
+.banner { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); background: var(--warn-soft); border-radius: 10px; color: var(--ink2); font-size: 14px; }
+.banner b { color: var(--warn); font: 600 12px/1.6 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 22px; font: 500 13px var(--f-mono); color: var(--ink2); }
+.stats b { color: var(--ink); font-weight: 600; }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line2); overflow-x: auto; scrollbar-width: thin; }
+.tab { flex: 0 0 auto; display: grid; gap: 3px; text-align: left; padding: 12px 18px 12px 0; margin-right: 18px; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; color: var(--ink2); font: inherit; }
+.tab .tn { font: 650 17px/1.2 var(--f-display); font-stretch: 108%; color: inherit; }
+.tab .ts { font: 500 11.5px/1.3 var(--f-mono); color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.tab .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line2); flex: none; }
+.tab .dot.ok { background: var(--pass); } .tab .dot.bad { background: var(--fail); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--ink); }
+#ep-root { display: grid; gap: 16px; min-width: 0; }
+.tp { display: grid; gap: 18px; padding-top: 22px; min-width: 0; }
+.runs { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.ep { display: grid; gap: 20px; min-width: 0; }
+.ep-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+.quote { display: grid; gap: 8px; min-width: 0; }
+.quote q { font-family: var(--f-display); font-stretch: 104%; font-size: clamp(22px, 3.2vw, 30px); line-height: 1.2; font-weight: 680; quotes: "\201C" "\201D"; }
+.quote .who { font-size: 13.5px; color: var(--muted); }
+.bug { color: var(--ink2); font-size: 14.5px; max-width: 72ch; }
+.bug b { color: var(--ink); }
+.scorebox { display: grid; gap: 6px; justify-items: end; text-align: right; padding: 14px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); min-width: 150px; }
+.scorebox strong { font: 750 44px/1 var(--f-display); font-stretch: 100%; font-variant-numeric: tabular-nums; }
+.scorebox.ok strong { color: var(--pass); } .scorebox.bad strong { color: var(--fail); }
+@media (max-width: 640px) { .ep-head { grid-template-columns: minmax(0, 1fr); } .scorebox { justify-items: start; text-align: left; grid-template-columns: auto auto 1fr; align-items: center; gap: 12px; } .scorebox strong { font-size: 34px; } }
+.meta { display: flex; flex-wrap: wrap; gap: 0; margin: 0; border-top: 1px solid var(--line2); border-bottom: 1px solid var(--line); }
+.meta > div { padding: 10px 22px 10px 0; min-width: 0; }
+.meta > div + div { padding-left: 22px; border-left: 1px solid var(--line); }
+.meta dt { font: 500 11px/1.4 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.meta dd { margin: 2px 0 0; font: 500 14px/1.4 var(--f-body); overflow-wrap: anywhere; }
+.meta dd.mono { font: 500 12.5px/1.6 var(--f-mono); }
+@media (max-width: 640px) { .meta > div { flex: 1 1 45%; padding: 8px 0; } .meta > div + div { padding-left: 0; border-left: 0; } }
+.ep-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 980px) { .ep-grid { grid-template-columns: minmax(0, 1fr); } }
+.side { display: grid; gap: 20px; min-width: 0; }
+.blk { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; display: grid; gap: 12px; padding: 16px 18px; min-width: 0; align-content: start; }
+.blk-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.blk-head .eyebrow { font-size: 11px; }
+
+/* timeline */
+.tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-height: 860px; overflow: auto; }
+.tl-item { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+.tl-item:first-child { border-top: 0; padding-top: 2px; }
+.tl-n { font: 600 11.5px/22px var(--f-mono); text-align: center; height: 22px; border-radius: 6px; background: var(--sub); color: var(--ink2); }
+.tl-body { display: grid; gap: 6px; min-width: 0; }
+.tl-call { font: 12.5px/1.5 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; border-left: 2px solid var(--accent); padding-left: 10px; }
+.tl-call b { color: var(--ink); font-weight: 600; font-size: 13px; }
+.tl-res { font-size: 13.5px; color: var(--ink2); overflow-wrap: anywhere; white-space: pre-wrap; }
+.thumb { justify-self: start; display: block; padding: 0; border: 1px solid var(--line2); border-radius: 7px; background: var(--vp-bg); overflow: hidden; cursor: zoom-in; width: min(260px, 100%); aspect-ratio: 4 / 3; }
+.thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.thumb:hover { border-color: var(--accent); }
+.thumb.missing { cursor: default; display: grid; place-content: center; gap: 4px; padding: 10px; text-align: center; font-size: 12.5px; color: var(--muted); border-style: dashed; aspect-ratio: auto; min-height: 72px; }
+.thumb.missing code { font-size: 11px; overflow-wrap: anywhere; }
+
+/* chart */
+.chart-host { min-height: 240px; min-width: 0; }
+.chart-host svg { display: block; width: 100%; height: auto; overflow: visible; }
+.ch-grid { stroke: var(--line); stroke-width: 1; }
+.ch-axis { stroke: var(--line2); stroke-width: 1.2; }
+.ch-tick { font: 500 11px var(--f-mono); fill: var(--muted); }
+.ch-lab { font: 500 12px var(--f-body); fill: var(--ink2); }
+.ch-ref { fill: none; stroke: var(--muted); stroke-opacity: .32; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.ch-before { fill: none; stroke: var(--fail); stroke-width: 2; stroke-dasharray: 7 5; stroke-linejoin: round; }
+.ch-after { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linejoin: round; }
+.ch-mk-after { fill: var(--accent); }
+.ch-mk-before { fill: var(--panel); stroke: var(--fail); stroke-width: 1.6; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink2); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend svg { width: 30px; height: 12px; flex: none; }
+.target { font-size: 13.5px; color: var(--ink2); border-top: 1px solid var(--line); padding-top: 10px; }
+.target b { font: 600 11px/1.4 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+
+/* checks, metrics */
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.checks li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.checks li:first-child { border-top: 0; padding-top: 0; }
+.checks .mk { font: 700 15px/1.3 var(--f-body); }
+.checks li.ok .mk { color: var(--pass); } .checks li.bad .mk { color: var(--fail); }
+.checks code { font-size: 12px; color: var(--ink); font-weight: 500; }
+.checks p { font-size: 13.5px; color: var(--ink2); }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px/1.3 var(--f-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--sub); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-family: var(--f-mono); font-size: 12px; color: var(--ink); overflow-wrap: anywhere; }
+td.v { font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.chg td.v.after { color: var(--accent); font-weight: 600; }
+
+/* diff and code */
+.diff { font: 12px/1.6 var(--f-mono); background: var(--sub); border-radius: 7px; padding: 10px 0; overflow-x: auto; margin: 0; white-space: pre; max-height: 520px; }
+.diff span { display: block; width: max-content; min-width: 100%; padding: 0 14px; }
+.diff .del { color: var(--fail); background: var(--fail-soft); }
+.diff .add { color: var(--pass); background: var(--pass-soft); }
+.diff .hunk { color: var(--accent); }
+.diff .hdr { color: var(--ink); font-weight: 500; }
+.diff .ctx { color: var(--muted); }
+details.full summary { cursor: pointer; font-size: 13.5px; color: var(--accent); }
+details.full[open] summary { margin-bottom: 10px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.code { font: 11.5px/1.6 var(--f-mono); background: var(--sub); border-radius: 7px; padding: 12px 14px; overflow: auto; white-space: pre; margin: 0; color: var(--ink2); max-height: 460px; }
+.code-head { font: 600 11px/1.3 var(--f-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.cmd { font: 12.5px/1.7 var(--f-mono); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; color: var(--ink); }
+.cmd .c { color: var(--muted); }
+.state { padding: 28px 18px; border: 1px dashed var(--line2); border-radius: 10px; color: var(--ink2); background: var(--panel); }
+.state.bad { border-color: var(--fail); }
+
+/* lean demo bay */
+.bay { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+.viewport { position: relative; min-height: 460px; background: var(--vp-bg); display: grid; grid-template-rows: 1fr auto; min-width: 0; }
+.viewport canvas { width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: grab; min-height: 340px; }
+.viewport canvas:active { cursor: grabbing; }
+.gl-fallback { position: absolute; inset: 0 0 auto 0; height: 340px; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); }
+.hud { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; gap: 8px; flex-wrap: wrap; pointer-events: none; }
+.hud span { background: color-mix(in srgb, var(--panel) 88%, transparent); border: 1px solid var(--line); border-radius: 6px; padding: 5px 9px; font: 500 12px/1.3 var(--f-mono); color: var(--ink2); }
+.hud span em { font-style: normal; color: var(--ink); }
+.hud .c-com::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 6px; vertical-align: 0; }
+.controls { display: grid; gap: 10px; padding: 14px 16px 16px; border-top: 1px solid var(--line); background: var(--panel); }
+.ctl-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.lean { display: flex; align-items: center; gap: 10px; flex: 1 1 220px; min-width: 0; }
+.lean label { font: 500 13px var(--f-body); color: var(--ink2); white-space: nowrap; }
+.lean input { flex: 1; accent-color: var(--accent); min-width: 0; }
+.lean output { font: 500 13px var(--f-mono); width: 3.2em; text-align: right; }
+.status { font-size: 13.5px; color: var(--ink2); min-height: 1.4em; }
+.status[data-tone="bad"] { color: var(--fail); }
+.status[data-tone="ok"] { color: var(--pass); }
+.bay-side { border-left: 1px solid var(--line); padding: 18px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.bay-side .call { font: 12px/1.45 var(--f-mono); border-left: 2px solid var(--accent); padding: 4px 0 4px 10px; color: var(--ink2); overflow-wrap: anywhere; }
+.bay-side .call b { color: var(--ink); font-weight: 500; }
+.bay-side .call span { display: block; color: var(--muted); }
+.bay-note { grid-column: 1 / -1; padding: 12px 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+@media (max-width: 900px) { .bay { grid-template-columns: minmax(0, 1fr); } .bay-side { border-left: 0; border-top: 1px solid var(--line); } .viewport { min-height: 380px; } }
+
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+@media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.list { margin: 0; padding: 0; list-style: none; display: grid; border-top: 1px solid var(--line2); }
+.list li { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--ink2); }
+.list li b { color: var(--ink); font-weight: 600; display: block; margin-bottom: 3px; }
+
+dialog.lb { border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink); padding: 12px; width: min(1100px, 94vw); max-height: 94vh; }
+dialog.lb::backdrop { background: rgb(8 12 13 / .72); }
+dialog.lb figure { gap: 8px; }
+dialog.lb img { display: block; max-width: 100%; max-height: 80vh; margin: 0 auto; border-radius: 6px; background: var(--vp-bg); }
+dialog.lb .lb-bar { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+dialog.lb figcaption { font: 500 12.5px var(--f-mono); color: var(--ink2); overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--line2); padding-top: 18px; display: grid; gap: 10px; font-size: 13px; color: var(--muted); }
+footer ul { margin: 0; padding-left: 18px; columns: 2; column-gap: 32px; }
+footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
+@media (max-width: 700px) { footer ul { columns: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">agentenv environment · Genesis 1.4.5 · Apache-2.0</p>
+  <h1>GenesisWorkbenchEnv: fix an object’s physics from one complaint</h1>
+  <p class="lede">A sim-ready object comes out of a VLM-to-CAD step with a physics bug. A contributor says what feels wrong, and that sentence is the whole task prompt. An LLM agent works out the cause and edits the object through MCP tools while Genesis simulates and renders it. When the agent stops, a probe suite it never sees runs the edited object in Genesis and compares its behaviour with a reference.</p>
+  <nav class="links" aria-label="Project links">
+    <a href="https://github.com/earakely-scale/agentenv-genesis-plugin" target="_blank" rel="noopener"><span>Code</span>agentenv-genesis-plugin</a>
+    <a href="https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv" target="_blank" rel="noopener"><span>Data</span>Episode dataset</a>
+    <a href="https://github.com/scaleapi/agentenv-framework" target="_blank" rel="noopener"><span>Runs on</span>agentenv-framework</a>
+    <a href="https://github.com/Genesis-Embodied-AI/genesis-world" target="_blank" rel="noopener"><span>Simulator</span>Genesis</a>
+  </nav>
+  <div class="answers">
+    <div><b>The agent gets</b><strong>A complaint and an object</strong><p>One MJCF file with one physics bug from the CAD step, and a contributor’s sentence about how it misbehaves. Nothing says which parameter is wrong.</p></div>
+    <div><b>It can use</b><strong>Seven MCP tools</strong><p><code>inspect</code>, <code>render</code> (returns PNG frames), <code>set_inertial</code>, <code>set_material</code>, <code>set_joint</code>, <code>run_probe</code> and <code>diff</code>, all backed by a live Genesis scene.</p></div>
+    <div><b>It is graded by</b><strong>A hidden probe suite</strong><p>Genesis runs the edited object through the task’s probe (tilt table, hinge swing or drawer pull) and checks it against reference behaviour, for a score from 0 to 1 and a pass or fail.</p></div>
+  </div>
+</header>
+
+<section id="loop" aria-labelledby="loop-h">
+  <div class="sec-head">
+    <h2 id="loop-h"><span class="frame-mark" aria-hidden="true"></span>How an episode runs</h2>
+    <p>The agent loops through steps 2 to 4 as many times as it wants: it calls a tool, Genesis answers with numbers or rendered frames, and the agent edits again. The probe suite runs once, after the agent’s last turn.</p>
+  </div>
+  <figure>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 1080 300" role="img" aria-label="Loop diagram. 1, a contributor complaint becomes the task prompt. 2, the agent, Claude Code running claude-sonnet-5-5, reads it. 3, the agent calls MCP tools. 4, Genesis simulates and renders the object and returns results and PNG frames to the agent, which may call tools again. 5, after the agent's last turn a hidden probe suite runs the final object in Genesis. 6, the checks give a score from 0 to 1 and a pass or fail.">
+        <defs>
+          <marker id="lp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="hd"/></marker>
+          <marker id="lp-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="hd-acc"/></marker>
+        </defs>
+        <rect class="band" x="184" y="22" width="540" height="190" rx="12"/>
+        <text class="t-cap t-acc" x="200" y="204">THE AGENT’S TURN · CALL, LOOK, EDIT, REPEAT</text>
+
+        <g>
+          <rect class="bx-sub" x="16" y="40" width="148" height="150" rx="9"/>
+          <circle class="num" cx="38" cy="64" r="11"/><text class="num-t" x="38" y="68" text-anchor="middle">1</text>
+          <text class="t-title" x="56" y="69">Complaint</text>
+          <text class="t-body" x="30" y="100">A contributor’s words,</text>
+          <text class="t-body" x="30" y="118">used as the task</text>
+          <text class="t-body" x="30" y="136">prompt as written</text>
+          <text class="t-mono" x="30" y="172">“doesn’t tip over”</text>
+        </g>
+        <g>
+          <rect class="bx" x="196" y="40" width="148" height="150" rx="9"/>
+          <circle class="num" cx="218" cy="64" r="11"/><text class="num-t" x="218" y="68" text-anchor="middle">2</text>
+          <text class="t-title" x="236" y="69">Agent</text>
+          <text class="t-body" x="210" y="100">Claude Code running</text>
+          <text class="t-mono" x="210" y="118">claude-sonnet-5-5</text>
+          <text class="t-body" x="210" y="136">finds the cause,</text>
+          <text class="t-body" x="210" y="154">edits, re-checks</text>
+        </g>
+        <g>
+          <rect class="bx" x="376" y="40" width="168" height="150" rx="9"/>
+          <circle class="num" cx="398" cy="64" r="11"/><text class="num-t" x="398" y="68" text-anchor="middle">3</text>
+          <text class="t-title" x="416" y="69">MCP tools</text>
+          <text class="t-mono" x="390" y="100">inspect · render</text>
+          <text class="t-mono" x="390" y="118">set_inertial</text>
+          <text class="t-mono" x="390" y="136">set_material</text>
+          <text class="t-mono" x="390" y="154">set_joint · diff</text>
+          <text class="t-mono" x="390" y="172">run_probe</text>
+        </g>
+        <g>
+          <rect class="bx" x="576" y="40" width="136" height="150" rx="9"/>
+          <circle class="num" cx="598" cy="64" r="11"/><text class="num-t" x="598" y="68" text-anchor="middle">4</text>
+          <text class="t-title" x="616" y="69">Genesis</text>
+          <text class="t-mono" x="590" y="100">genesis-world</text>
+          <text class="t-mono" x="590" y="118">1.4.5 · CPU</text>
+          <text class="t-body" x="590" y="136">loads the MJCF,</text>
+          <text class="t-body" x="590" y="154">steps physics,</text>
+          <text class="t-body" x="590" y="172">renders PNGs</text>
+        </g>
+        <g>
+          <rect class="bx-dash" x="756" y="40" width="148" height="150" rx="9"/>
+          <circle class="num" cx="778" cy="64" r="11"/><text class="num-t" x="778" y="68" text-anchor="middle">5</text>
+          <text class="t-title" x="796" y="69">Probe suite</text>
+          <text class="t-body" x="770" y="100">Runs the final object</text>
+          <text class="t-body" x="770" y="118">in Genesis: tilt table,</text>
+          <text class="t-body" x="770" y="136">hinge swing or</text>
+          <text class="t-body" x="770" y="154">drawer pull</text>
+          <text class="t-mono" x="770" y="178">hidden from agent</text>
+        </g>
+        <g>
+          <rect class="bx-acc" x="936" y="40" width="128" height="150" rx="9"/>
+          <circle class="num" cx="958" cy="64" r="11"/><text class="num-t" x="958" y="68" text-anchor="middle">6</text>
+          <text class="t-title" x="976" y="69">Score</text>
+          <text class="t-body" x="950" y="100">Checks against</text>
+          <text class="t-body" x="950" y="118">reference</text>
+          <text class="t-body" x="950" y="136">behaviour</text>
+          <text class="t-mono t-acc" x="950" y="172">0–1 · pass/fail</text>
+        </g>
+
+        <line class="ed" x1="164" y1="115" x2="194" y2="115" marker-end="url(#lp-a)"/>
+        <line class="ed-acc" x1="344" y1="98" x2="374" y2="98" marker-end="url(#lp-b)"/>
+        <line class="ed-acc" x1="374" y1="138" x2="346" y2="138" marker-end="url(#lp-b)"/>
+        <line class="ed-acc" x1="544" y1="98" x2="574" y2="98" marker-end="url(#lp-b)"/>
+        <line class="ed-acc" x1="574" y1="138" x2="546" y2="138" marker-end="url(#lp-b)"/>
+        <path class="ed-dot" d="M712 115 L754 115" marker-end="url(#lp-a)"/>
+        <line class="ed" x1="904" y1="115" x2="934" y2="115" marker-end="url(#lp-a)"/>
+
+        <line class="ed-dot" x1="16" y1="234" x2="1064" y2="234"/>
+        <text class="t-cap" x="16" y="256">IN AGENTENV</text>
+        <text class="t-mono" x="30" y="280">task prompt</text>
+        <text class="t-mono" x="210" y="280">deploy + prompt agent</text>
+        <text class="t-mono" x="390" y="280">MCP server in the env</text>
+        <text class="t-mono" x="590" y="280">env container</text>
+        <text class="t-mono" x="770" y="280">verifier step</text>
+        <text class="t-mono t-acc" x="950" y="280">run record</text>
+      </svg>
+    </div>
+    <figcaption>The agent’s own <code>run_probe</code> tool lets it test its fix, but the grading probe runs with settings and tolerances it never sees. A pass needs the edited object to behave like the reference, not just to look edited.</figcaption>
+  </figure>
+</section>
+
+<section id="episodes" aria-labelledby="ep-h">
+  <div class="sec-head">
+    <h2 id="ep-h"><span class="frame-mark" aria-hidden="true"></span>Episodes</h2>
+    <p>One tab per task. Each shows the complaint, every tool call the agent made with the frames Genesis rendered, the hidden probe’s curves before and after the edit, the checks, and the MJCF diff.</p>
+  </div>
+  <div id="ep-root" aria-live="polite"><p class="state">Loading episodes…</p></div>
+  <noscript><p class="state">This viewer needs JavaScript to read <code>episodes.json</code>.</p></noscript>
+</section>
+
+<section id="demo" aria-labelledby="wb-h">
+  <div class="sec-head">
+    <h2 id="wb-h">Try the lean test</h2>
+    <p>The mug-tip task, in your browser. <code>mug_017</code> came out of VLM-to-CAD with its centre of mass at the base, so it rights itself like a weighted toy. Lean it past 50° and let go, then load the agent’s fix and try again. Drag the view to orbit.</p>
+  </div>
+  <div class="bay">
+    <div class="viewport">
+      <canvas id="wb-canvas" role="img" aria-label="3D view of a mug on a 2 cm grid. The lean slider tilts it about its base edge; the teal dot is its centre of mass, with a dashed line straight down to the bench."></canvas>
+      <div class="gl-fallback" hidden>This 3D view needs WebGL, which this browser has turned off or doesn’t support. The episode above shows the same probe as a chart.</div>
+      <div class="hud" aria-live="polite">
+        <span class="c-com">COM height <em id="wb-com">0.3 cm</em></span>
+        <span>tips past <em id="wb-crit">85.7°</em></span>
+        <span>real mug tips past <em>45.4°</em></span>
+      </div>
+      <div class="controls">
+        <div class="ctl-row">
+          <div class="seg" role="group" aria-label="Object version">
+            <button type="button" data-wb-model="v3" aria-pressed="true">before · from CAD</button>
+            <button type="button" data-wb-model="v4" aria-pressed="false">after · agent’s edit</button>
+          </div>
+          <div class="lean"><label for="wb-lean">Lean</label><input id="wb-lean" type="range" min="0" max="89" value="0"><output id="wb-lean-out" for="wb-lean">0°</output></div>
+          <button type="button" class="btn pri" id="wb-release">Let go</button>
+        </div>
+        <p class="status" id="wb-status">Lean the mug, then let go.</p>
+      </div>
+    </div>
+    <aside class="bay-side" aria-label="What the agent changed">
+      <h3>What the agent changed</h3>
+      <p class="muted" style="font-size:14px">The CAD export wrote the inertial frame at the body origin. The fix recomputes it from the ceramic shell; nothing about the shape changes.</p>
+      <div class="call"><b>inspect()</b><span>body: ceramic · 0.284 kg · COM z 0.3 cm</span></div>
+      <div class="call"><b>set_inertial(link="body", from_material="ceramic")</b><span>0.284 kg · COM z 3.95 cm</span></div>
+      <div class="call"><b>run_probe(kind="tip")</b><span>topples from 43° on the tilt table · statics say 45.4°</span></div>
+      <button type="button" class="btn pri" data-wb-apply="1">Load the fix and lean it to 50°</button>
+      <p class="muted" style="font-size:12.5px" data-wb-show="v3">You are looking at the object as the CAD step wrote it.</p>
+      <p class="muted" style="font-size:12.5px" data-wb-show="v4" hidden>You are looking at the agent’s edit.</p>
+    </aside>
+    <p class="bay-note">The demo uses the rigid-body tipping rule, not Genesis: a body released at a lean falls once its centre of mass passes the edge it pivots on, at atan(radius ÷ COM height). With a 4 cm radius that is 85.7° before the fix and 45.4° after.</p>
+  </div>
+</section>
+
+<section id="run" aria-labelledby="run-h">
+  <div class="sec-head">
+    <h2 id="run-h">Run it yourself</h2>
+    <p>The plugin installs into an agentenv-framework environment and ships a bundle named <code>genesis-workbench</code> with the three tasks. Genesis runs on its CPU backend, so no GPU is needed.</p>
+  </div>
+  <div class="two">
+    <div style="display:grid;gap:12px;min-width:0">
+      <pre class="cmd"><span class="c"># install agentenv-framework, then add the plugin</span>
+agent-env plugin add 'agentenv-genesis @ git+https://github.com/earakely-scale/agentenv-genesis-plugin'
+
+<span class="c"># run the three tasks</span>
+agent-env run genesis-workbench</pre>
+      <p class="muted" style="font-size:13.5px">Claude Code needs a model endpoint that serves Anthropic’s Messages API, set in <code>[model]</code> of <code>.agentenv/config.toml</code>. Every run is recorded in agentenv’s local store.</p>
+    </div>
+    <ul class="list">
+      <li><b>mug-tip</b>The inertial frame of <code>mug_017</code> sits at its base. Probe: a tilt table, final tilt for each lean angle.</li>
+      <li><b>oven-door</b>A 1.2 kg door with 4.0 N·m of hinge friction never opens. Probe: hinge angle over time after release at 5°.</li>
+      <li><b>drawer-slide</b>The drawer has no joint at all. Probe: drawer travel over time under a 10 N pull.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>GenesisWorkbenchEnv is a prototype: three tasks, example objects built from primitives, and probe tolerances that are example values. The plugin, this viewer and the episode data are Apache-2.0, as is Genesis.</p>
+  <ul>
+    <li><a href="https://github.com/earakely-scale/agentenv-genesis-plugin" target="_blank" rel="noopener">agentenv-genesis-plugin on GitHub</a></li>
+    <li><a href="https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv" target="_blank" rel="noopener">GenesisWorkbenchEnv-AgentEnv dataset</a></li>
+    <li><a href="https://github.com/scaleapi/agentenv-framework" target="_blank" rel="noopener">agentenv-framework</a></li>
+    <li><a href="https://github.com/Genesis-Embodied-AI/genesis-world" target="_blank" rel="noopener">Genesis (genesis-world)</a></li>
+  </ul>
+</footer>
+</div>
+
+<dialog class="lb" id="lb" aria-label="Rendered frame">
+  <figure>
+    <img id="lb-img" alt="">
+    <div class="lb-bar"><figcaption id="lb-cap"></figcaption><button type="button" class="btn" id="lb-close">Close</button></div>
+  </figure>
+</dialog>
+
+<script>
+(() => {
+  const TASKS = {
+    "mug-tip": { title: "Mug tip", bug: "The CAD export left the inertial frame at the base (COM 0.3 cm), so the mug rights itself from almost any lean. A real ceramic mug’s COM sits about 3.95 cm up, and it tips past about 45.4°.", probe: "Tilt table" },
+    "oven-door": { title: "Oven door", bug: "The door weighs 1.2 kg and its hinge has 4.0 N·m of friction, more than gravity can ever supply, so once unlatched it stays wherever it is. Heavier and lower friction, it swings from 5° to its 90° stop.", probe: "Hinge swing" },
+    "drawer-slide": { title: "Drawer slide", bug: "The drawer is welded to the cabinet: there is no joint. It needs a slide joint with a range so a 10 N pull opens it to its stop.", probe: "Drawer pull" },
+  };
+  const ORDER = Object.keys(TASKS);
+  const root = document.getElementById("ep-root");
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const num = v => typeof v === "number" && isFinite(v);
+  const fmtNum = v => Number.isInteger(v) ? String(v) : String(+v.toPrecision(4));
+  const fmtVal = v => v == null ? "–" : num(v) ? fmtNum(v) : typeof v === "object" ? JSON.stringify(v) : String(v);
+  const fmtScore = v => num(v) ? v.toFixed(2) : "–";
+  const fmtDur = s => !num(s) ? "–" : s < 60 ? `${s.toFixed(1)} s` : `${Math.floor(s / 60)} min ${String(Math.round(s % 60)).padStart(2, "0")} s`;
+  const fmtArgs = a => a && typeof a === "object" && !Array.isArray(a) ? Object.entries(a).map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(", ") : a == null ? "" : JSON.stringify(a);
+  const safeSrc = p => typeof p === "string" && p && (!/^[a-z][a-z0-9+.-]*:/i.test(p) || /^https?:/i.test(p)) ? p : null;
+  let episodes = [], groups = [], active = null;
+
+  function callHTML(c, ep) {
+    const res = String(c.result ?? ""), long = res.length > 260;
+    const short = long ? res.slice(0, 260).replace(/\s+\S*$/, "") + " …" : res;
+    const src = safeSrc(c.image);
+    const cap = `${ep.object || ep.id} · call ${c.i} · ${c.tool}`;
+    return `<li class="tl-item">
+      <span class="tl-n" aria-label="Call ${esc(c.i)}">${esc(c.i)}</span>
+      <div class="tl-body">
+        <p class="tl-call"><b>${esc(c.tool)}</b>(${esc(fmtArgs(c.args))})</p>
+        ${res ? `<p class="tl-res" data-short="${esc(short)}" data-full="${esc(res)}">${esc(short)}</p>` : ""}
+        ${long ? `<button type="button" class="linkbtn" data-more aria-expanded="false">Show the full result</button>` : ""}
+        ${src ? `<button type="button" class="thumb" data-src="${esc(src)}" data-cap="${esc(cap)}" aria-label="Enlarge the frame from call ${esc(c.i)}"><img src="${esc(src)}" alt="Frame returned by ${esc(c.tool)}, call ${esc(c.i)}" loading="lazy" decoding="async"></button>` : ""}
+      </div></li>`;
+  }
+
+  function diffHTML(d) {
+    if (!d) return `<span class="ctx">No diff recorded.</span>`;
+    return String(d).replace(/\n$/, "").split("\n").map(l => {
+      const k = l.startsWith("+++") || l.startsWith("---") ? "hdr" : l.startsWith("@@") ? "hunk" : l.startsWith("+") ? "add" : l.startsWith("-") ? "del" : "ctx";
+      return `<span class="${k}">${esc(l) || " "}</span>`;
+    }).join("");
+  }
+
+  function metricsHTML(ep) {
+    const b = (ep.before && ep.before.metrics) || {}, a = (ep.after && ep.after.metrics) || {};
+    const keys = [...new Set([...Object.keys(b), ...Object.keys(a)])];
+    if (!keys.length) return `<p class="muted">No metrics recorded.</p>`;
+    return `<div class="tw"><table><thead><tr><th>Metric</th><th>Before</th><th>After</th></tr></thead><tbody>${keys.map(k => {
+      const chg = JSON.stringify(b[k]) !== JSON.stringify(a[k]);
+      return `<tr class="${chg ? "chg" : ""}"><td class="k">${esc(k)}</td><td class="v">${esc(fmtVal(b[k]))}</td><td class="v after">${esc(fmtVal(a[k]))}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+  }
+
+  function legendHTML(p) {
+    const sw = cls => `<svg viewBox="0 0 30 12" aria-hidden="true"><line x1="3" y1="6" x2="27" y2="6" class="${cls}"/></svg>`;
+    return `<div class="legend">
+      <span>${sw("ch-before")}Before the edit</span>
+      <span>${sw("ch-after")}After the edit</span>
+      ${Array.isArray(p.reference) ? `<span>${sw("ch-ref")}Reference</span>` : ""}
+    </div>`;
+  }
+
+  function epHTML(ep, k) {
+    const meta = TASKS[ep.task] || {};
+    const calls = Array.isArray(ep.calls) ? ep.calls : [], checks = Array.isArray(ep.checks) ? ep.checks : [];
+    const nPass = checks.filter(c => c.result).length, ok = !!ep.passed, p = ep.probe || {};
+    return `<article class="ep" data-k="${k}">
+      <div class="ep-head">
+        <div class="quote">
+          <span class="eyebrow">${esc(ep.object)} · ${esc(ep.task)}${ep.sample ? ` <span class="chip warn">sample</span>` : ""}</span>
+          <q>${esc(ep.complaint)}</q>
+          <p class="who">The contributor’s complaint, given to the agent as the task prompt.</p>
+          ${meta.bug ? `<p class="bug"><b>The bug.</b> ${esc(meta.bug)}</p>` : ""}
+        </div>
+        <div class="scorebox ${ok ? "ok" : "bad"}">
+          <span class="eyebrow">Score</span>
+          <strong>${fmtScore(ep.score)}</strong>
+          <span class="chip ${ok ? "ok" : "bad"}">${ok ? "passed" : "failed"}</span>
+        </div>
+      </div>
+      <dl class="meta">
+        <div><dt>Model</dt><dd>${esc(ep.model)}</dd></div>
+        <div><dt>Harness</dt><dd>${esc(ep.harness)}</dd></div>
+        <div><dt>Duration</dt><dd>${fmtDur(ep.duration_s)}</dd></div>
+        <div><dt>Tool calls</dt><dd>${calls.length}</dd></div>
+        <div><dt>Checks passed</dt><dd>${nPass} of ${checks.length}</dd></div>
+        <div><dt>Episode</dt><dd class="mono">${esc(ep.id)}</dd></div>
+      </dl>
+      <div class="ep-grid">
+        <div class="blk">
+          <div class="blk-head"><h3>Tool calls</h3><span class="eyebrow">in order · click a frame to enlarge</span></div>
+          ${calls.length ? `<ol class="tl">${calls.map(c => callHTML(c, ep)).join("")}</ol>` : `<p class="muted">No tool calls recorded.</p>`}
+        </div>
+        <div class="side">
+          <div class="blk">
+            <div class="blk-head"><h3>Hidden probe${meta.probe ? ` · ${esc(meta.probe)}` : ""}</h3><span class="eyebrow">${esc(p.kind)}</span></div>
+            <div class="chart-host" data-k="${k}"></div>
+            ${legendHTML(p)}
+            ${p.target ? `<p class="target"><b>Target</b>${esc(p.target)}</p>` : ""}
+          </div>
+          <div class="blk">
+            <div class="blk-head"><h3>Checks</h3><span class="chip ${ok ? "ok" : "bad"}">${nPass} / ${checks.length}</span></div>
+            ${checks.length ? `<ul class="checks">${checks.map(c => `<li class="${c.result ? "ok" : "bad"}"><span class="mk" aria-hidden="true">${c.result ? "✓" : "✗"}</span><div><code>${esc(c.id)}</code> <span class="vh">${c.result ? "passed" : "failed"}</span><p>${esc(c.description)}</p></div></li>`).join("")}</ul>` : `<p class="muted">No checks recorded.</p>`}
+          </div>
+          <div class="blk">
+            <div class="blk-head"><h3>Metrics</h3><span class="eyebrow">changed values in teal</span></div>
+            ${metricsHTML(ep)}
+          </div>
+        </div>
+      </div>
+      <div class="blk">
+        <div class="blk-head"><h3>MJCF diff</h3><span class="eyebrow">removed in red · added in green</span></div>
+        <pre class="diff" tabindex="0" aria-label="Unified diff of the MJCF">${diffHTML(ep.diff)}</pre>
+        <details class="full"><summary>Full MJCF, before and after</summary>
+          <div class="split">
+            <div style="min-width:0"><p class="code-head">Before</p><pre class="code" tabindex="0">${esc(ep.before && ep.before.mjcf)}</pre></div>
+            <div style="min-width:0"><p class="code-head">After</p><pre class="code" tabindex="0">${esc(ep.after && ep.after.mjcf)}</pre></div>
+          </div>
+        </details>
+      </div>
+    </article>`;
+  }
+
+  function ticks(lo, hi, n) {
+    if (!(hi > lo)) hi = lo + 1;
+    const raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), e = raw / mag;
+    const step = mag * (e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1);
+    const out = [];
+    for (let v = Math.floor(lo / step + 1e-9) * step; v <= hi + step * 1e-6; v += step) out.push(+v.toFixed(10));
+    return out;
+  }
+
+  function drawChart(host, p) {
+    const W = Math.max(280, Math.round(host.clientWidth || 0));
+    if (!host.clientWidth) return;
+    const xs = Array.isArray(p.x) ? p.x : [];
+    const series = [["ch-ref", p.reference], ["ch-after", p.after], ["ch-before", p.before]].filter(([, s]) => Array.isArray(s));
+    if (!xs.length || !series.length) { host.innerHTML = `<p class="muted">No probe data recorded.</p>`; return; }
+    const H = Math.round(Math.min(340, Math.max(230, W * 0.6)));
+    const m = { l: 54, r: 14, t: 12, b: 46 };
+    const ys = series.flatMap(([, s]) => s).filter(num);
+    let y0 = Math.min(0, ...ys), y1 = Math.max(...ys);
+    const deg = /°|deg/i.test(p.y_label || "") && y0 >= 0 && y1 <= 90 && y1 > 45;
+    let yt = deg ? [0, 30, 60, 90] : ticks(y0, y1, H < 280 ? 4 : 5);
+    y0 = Math.min(y0, yt[0]); y1 = Math.max(y1, yt[yt.length - 1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs);
+    const xt = ticks(x0, x1, W < 420 ? 4 : 6).filter(v => v >= x0 - 1e-9 && v <= x1 + 1e-9);
+    const sx = v => m.l + (x1 > x0 ? (v - x0) / (x1 - x0) : 0.5) * (W - m.l - m.r);
+    const sy = v => H - m.b - (y1 > y0 ? (v - y0) / (y1 - y0) : 0.5) * (H - m.t - m.b);
+    const path = s => { let d = "", pen = false; xs.forEach((x, i) => { const v = s[i]; if (!num(v) || !num(x)) { pen = false; return; } d += `${pen ? "L" : "M"}${sx(x).toFixed(1)},${sy(v).toFixed(1)}`; pen = true; }); return d; };
+    const tf = v => fmtNum(v);
+    let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(`${p.y_label} against ${p.x_label}: before the edit dashed, after the edit solid${Array.isArray(p.reference) ? ", reference as a wide grey band" : ""}.`)}">`;
+    yt.forEach(v => { const y = sy(v); s += `<line class="ch-grid" x1="${m.l}" x2="${W - m.r}" y1="${y}" y2="${y}"/><text class="ch-tick" x="${m.l - 8}" y="${y + 4}" text-anchor="end">${tf(v)}</text>`; });
+    xt.forEach(v => { const x = sx(v); s += `<line class="ch-axis" x1="${x}" x2="${x}" y1="${H - m.b}" y2="${H - m.b + 5}"/><text class="ch-tick" x="${x}" y="${H - m.b + 18}" text-anchor="middle">${tf(v)}</text>`; });
+    s += `<line class="ch-axis" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/><line class="ch-axis" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}"/>`;
+    s += `<text class="ch-lab" x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle">${esc(p.x_label)}</text>`;
+    s += `<text class="ch-lab" transform="translate(14 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">${esc(p.y_label)}</text>`;
+    series.forEach(([cls, data]) => { s += `<path class="${cls}" d="${path(data)}"/>`; });
+    if (xs.length <= 24) {
+      [["ch-mk-after", p.after], ["ch-mk-before", p.before]].forEach(([cls, data]) => {
+        if (!Array.isArray(data)) return;
+        xs.forEach((x, i) => { if (num(data[i]) && num(x)) s += `<circle class="${cls}" cx="${sx(x).toFixed(1)}" cy="${sy(data[i]).toFixed(1)}" r="3.2"><title>${esc(`${tf(x)} → ${tf(data[i])}`)}</title></circle>`; });
+      });
+    }
+    host.innerHTML = s + "</svg>";
+  }
+
+  function drawActiveCharts() {
+    root.querySelectorAll(".ep:not([hidden]) .chart-host").forEach(h => drawChart(h, episodes[+h.dataset.k].probe || {}));
+  }
+
+  function wireImages(scope) {
+    scope.querySelectorAll(".thumb img").forEach(img => {
+      const miss = () => {
+        const b = img.closest(".thumb"); if (!b) return;
+        const m = document.createElement("span");
+        m.className = "thumb missing";
+        m.innerHTML = `<span>Frame not available</span><code>${esc(b.dataset.src)}</code>`;
+        b.replaceWith(m);
+      };
+      img.addEventListener("error", miss, { once: true });
+      if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) miss();
+    });
+  }
+
+  function showGroup(task, push) {
+    const g = groups.find(x => x.task === task) || groups[0]; if (!g) return;
+    active = g.task;
+    root.querySelectorAll('[role="tab"]').forEach(t => { const on = t.dataset.task === g.task; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; });
+    root.querySelectorAll('[role="tabpanel"]').forEach(p => p.hidden = p.dataset.task !== g.task);
+    const panel = root.querySelector(`[role="tabpanel"][data-task="${CSS.escape(g.task)}"]`);
+    if (panel && !panel.dataset.ready) { panel.dataset.ready = "1"; wireImages(panel); }
+    drawActiveCharts();
+    if (push) try { history.replaceState(null, "", "#" + encodeURIComponent(g.task)); } catch (e) {}
+  }
+
+  function showRun(panel, k) {
+    panel.querySelectorAll(".ep").forEach(e => e.hidden = e.dataset.k !== String(k));
+    panel.querySelectorAll("[data-run]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.run === String(k))));
+    drawActiveCharts();
+  }
+
+  function render() {
+    const order = t => { const i = ORDER.indexOf(t); return i < 0 ? ORDER.length : i; };
+    const tasks = [...new Set(episodes.map(e => e.task))].sort((a, b) => order(a) - order(b) || String(a).localeCompare(String(b)));
+    groups = tasks.map(task => ({ task, eps: episodes.map((e, k) => [e, k]).filter(([e]) => e.task === task) }));
+    const passed = episodes.filter(e => e.passed).length, scores = episodes.map(e => e.score).filter(num);
+    const mean = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : NaN;
+    const models = [...new Set(episodes.map(e => e.model).filter(Boolean))];
+    const sample = episodes.some(e => e.sample);
+    let h = "";
+    if (sample) h += `<div class="banner"><b>Sample data</b><span>These episodes are illustrative, written before the first real runs so the viewer has something to show. Their numbers come from a simple rigid-body calculation, not from Genesis, and their frames don’t exist yet. The publish script replaces them with recorded runs.</span></div>`;
+    h += `<p class="stats"><span><b>${episodes.length}</b> episode${episodes.length === 1 ? "" : "s"}</span><span><b>${passed}</b> passed</span><span>mean score <b>${fmtScore(mean)}</b></span>${models.length ? `<span>${models.map(esc).join(", ")}</span>` : ""}</p>`;
+    h += `<div class="tabs" role="tablist" aria-label="Tasks">${groups.map(g => {
+      const meta = TASKS[g.task] || {}, best = g.eps.map(([e]) => e), okN = best.filter(e => e.passed).length;
+      const one = best.length === 1 ? best[0] : null;
+      const st = one ? `${fmtScore(one.score)} · ${one.passed ? "passed" : "failed"}` : `${okN} of ${best.length} passed`;
+      const dot = okN === best.length ? "ok" : okN === 0 ? "bad" : "";
+      return `<button type="button" role="tab" class="tab" id="tab_${esc(g.task)}" data-task="${esc(g.task)}" aria-controls="panel_${esc(g.task)}" aria-selected="false" tabindex="-1"><span class="tn">${esc(meta.title || g.task)}</span><span class="ts"><span class="dot ${dot}"></span>${esc(best[0].object)} · ${esc(st)}</span></button>`;
+    }).join("")}</div>`;
+    groups.forEach(g => {
+      h += `<div role="tabpanel" id="panel_${esc(g.task)}" data-task="${esc(g.task)}" aria-labelledby="tab_${esc(g.task)}" class="tp" hidden>`;
+      if (g.eps.length > 1) h += `<div class="runs"><span>Run</span><div class="seg" role="group" aria-label="Runs of this task">${g.eps.map(([e, k], i) => `<button type="button" data-run="${k}" aria-pressed="${i === 0}">${i + 1} · ${fmtScore(e.score)} ${e.passed ? "pass" : "fail"}</button>`).join("")}</div></div>`;
+      g.eps.forEach(([e, k], i) => { h += epHTML(e, k).replace(`<article class="ep" data-k="${k}">`, `<article class="ep" data-k="${k}"${i ? " hidden" : ""}>`); });
+      h += `</div>`;
+    });
+    root.innerHTML = h;
+    const want = decodeURIComponent((location.hash || "").slice(1));
+    showGroup(groups.some(g => g.task === want) ? want : groups[0].task, false);
+  }
+
+  root.addEventListener("click", e => {
+    const tab = e.target.closest('[role="tab"]'); if (tab) { showGroup(tab.dataset.task, true); return; }
+    const run = e.target.closest("[data-run]"); if (run) { showRun(run.closest('[role="tabpanel"]'), run.dataset.run); return; }
+    const more = e.target.closest("[data-more]");
+    if (more) {
+      const p = more.previousElementSibling, open = more.getAttribute("aria-expanded") === "true";
+      p.textContent = open ? p.dataset.short : p.dataset.full;
+      more.setAttribute("aria-expanded", String(!open)); more.textContent = open ? "Show the full result" : "Show less";
+      return;
+    }
+    const th = e.target.closest(".thumb[data-src]"); if (th) openLightbox(th.dataset.src, th.dataset.cap);
+  });
+  root.addEventListener("keydown", e => {
+    const tab = e.target.closest('[role="tab"]'); if (!tab || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    const tabs = [...root.querySelectorAll('[role="tab"]')], i = tabs.indexOf(tab);
+    const j = e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    e.preventDefault(); tabs[j].focus(); showGroup(tabs[j].dataset.task, true);
+  });
+
+  const lb = document.getElementById("lb"), lbImg = document.getElementById("lb-img"), lbCap = document.getElementById("lb-cap");
+  function openLightbox(src, cap) {
+    if (!lb || typeof lb.showModal !== "function") { window.open(src, "_blank", "noopener"); return; }
+    lbImg.src = src; lbImg.alt = cap || "Rendered frame"; lbCap.textContent = cap || src;
+    lb.showModal();
+  }
+  if (lb) {
+    lbImg.addEventListener("error", () => { lbCap.textContent = `Frame not available: ${lbImg.getAttribute("src")}`; });
+    document.getElementById("lb-close").addEventListener("click", () => lb.close());
+    lb.addEventListener("click", e => { if (e.target === lb) lb.close(); });
+  }
+
+  let rt = 0;
+  window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawActiveCharts, 120); });
+  window.addEventListener("hashchange", () => { const t = decodeURIComponent(location.hash.slice(1)); if (groups.some(g => g.task === t) && t !== active) showGroup(t, false); });
+
+  fetch("episodes.json", { cache: "no-cache" })
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+    .then(data => {
+      const list = Array.isArray(data) ? data : data && Array.isArray(data.episodes) ? data.episodes : [];
+      episodes = list.filter(e => e && typeof e === "object" && e.task && e.id);
+      if (!episodes.length) { root.innerHTML = `<p class="state">No episodes yet. Runs will appear here once they are published.</p>`; return; }
+      render();
+    })
+    .catch(err => {
+      root.innerHTML = `<p class="state bad">Couldn’t load <code>episodes.json</code> (${esc(err.message)}). If you opened this file from disk, serve its folder instead, for example with <code>python3 -m http.server</code>.</p>`;
+    });
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const col = n => new THREE.Color(css(n) || "#888");
+  const hasGL = (() => { try { const c = document.createElement("canvas"); return !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl"))); } catch (e) { return false; } })();
+  if (!window.THREE || !hasGL) {
+    document.querySelectorAll(".gl-fallback").forEach(e => e.hidden = false);
+    document.querySelectorAll("#demo .controls button, #demo .controls input, [data-wb-apply]").forEach(e => e.disabled = true);
+    return;
+  }
+
+  function makeRenderer(canvas) {
+    const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+    return r;
+  }
+  function orbit(canvas, state, onChange) {
+    let down = null;
+    canvas.addEventListener("pointerdown", e => { down = { x: e.clientX, y: e.clientY, yaw: state.yaw, pitch: state.pitch, type: e.pointerType }; canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener("pointermove", e => {
+      if (!down) return;
+      state.yaw = down.yaw - (e.clientX - down.x) * 0.008;
+      if (down.type === "mouse") state.pitch = Math.max(0.08, Math.min(1.25, down.pitch + (e.clientY - down.y) * 0.006));
+      state.user = true; onChange();
+    });
+    const up = () => { down = null; };
+    canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
+  }
+  function placeCam(cam, s) {
+    cam.position.set(s.target.x + s.dist * Math.cos(s.pitch) * Math.sin(s.yaw), s.target.y + s.dist * Math.sin(s.pitch), s.target.z + s.dist * Math.cos(s.pitch) * Math.cos(s.yaw));
+    cam.lookAt(s.target);
+  }
+  function lights(scene, size) {
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x8a8f8c, 0.85); scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.75);
+    dir.position.set(size * 0.6, size * 1.4, size * 0.9); dir.castShadow = true;
+    dir.shadow.mapSize.set(1024, 1024);
+    const c = dir.shadow.camera; c.left = -size; c.right = size; c.top = size; c.bottom = -size; c.near = 0.1; c.far = size * 4;
+    dir.shadow.bias = -0.0005;
+    scene.add(dir);
+    return { hemi, dir };
+  }
+  function mugMesh(s, mat) {
+    const pts = [[0, 0], [3.8, 0], [4.0, 0.25], [4.0, 9.5], [3.62, 9.5], [3.62, 0.6], [0, 0.6]].map(([x, y]) => new THREE.Vector2(x * s, y * s));
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.LatheGeometry(pts, 56), mat); body.castShadow = true; body.receiveShadow = true; g.add(body);
+    const hg = new THREE.Group();
+    const h = new THREE.Mesh(new THREE.TorusGeometry(2.3 * s, 0.5 * s, 12, 32, Math.PI), mat);
+    h.rotation.z = Math.PI / 2; h.castShadow = true; hg.add(h);
+    hg.position.set(-3.95 * s, 5 * s, 0); g.add(hg);
+    return g;
+  }
+  function axesTriad(len) {
+    const g = new THREE.Group();
+    [["--ax-x", [len, 0, 0]], ["--ax-y", [0, len, 0]], ["--ax-z", [0, 0, len]]].forEach(([tok, v]) => {
+      const m = new THREE.LineBasicMaterial({ color: col(tok) }); m.userData.tok = tok;
+      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(...v)]), m));
+    });
+    return g;
+  }
+  const visible = el => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight && !document.hidden; };
+
+  const canvas = document.getElementById("wb-canvas"); if (!canvas) return;
+  const R = 4.0, K2 = 9.0, G = 981;
+  const MODELS = { v3: { com: 0.3 }, v4: { com: 3.95 } };
+  const REAL_CRIT = Math.atan(R / 3.95);
+  const st = { model: "v3", lean: 0, phi: 0, omega: 0, mode: "hold" };
+  const crit = () => Math.atan(R / MODELS[st.model].com);
+  const renderer = makeRenderer(canvas);
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(34, 1, 0.5, 400);
+  const view = { yaw: 0.72, pitch: 0.42, dist: 38, target: new THREE.Vector3(1.5, 4.2, 0) };
+  const L = lights(scene, 30);
+  const groundMat = new THREE.MeshStandardMaterial({ roughness: 0.95 });
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), groundMat); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  let grid = null, dirty = true;
+  const mugMat = new THREE.MeshStandardMaterial({ roughness: 0.38, metalness: 0.0, side: THREE.DoubleSide });
+  const pivot = new THREE.Group(); pivot.position.set(R, 0, 0); scene.add(pivot);
+  const mug = mugMesh(1, mugMat); mug.position.set(-R, 0, 0); pivot.add(mug);
+  const comG = new THREE.Group(); mug.add(comG);
+  const comBall = new THREE.Mesh(new THREE.SphereGeometry(0.38, 20, 14), new THREE.MeshBasicMaterial({ depthTest: false })); comBall.renderOrder = 10; comG.add(comBall);
+  const triad = axesTriad(2.2); triad.children.forEach(l => { l.material.depthTest = false; l.renderOrder = 11; }); comG.add(triad);
+  const gLineMat = new THREE.LineDashedMaterial({ dashSize: 0.5, gapSize: 0.35, depthTest: false });
+  const gLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, -1, 0)]), gLineMat); gLine.renderOrder = 9; scene.add(gLine);
+  const pivotDot = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 10), new THREE.MeshBasicMaterial()); pivotDot.position.set(R, 0.05, 0); scene.add(pivotDot);
+  const arcMat = new THREE.LineBasicMaterial({ depthTest: false });
+  let arc = null;
+  function drawArc() {
+    if (arc) { scene.remove(arc); arc.geometry.dispose(); }
+    const a = crit(), pts = [];
+    for (let i = 0; i <= 40; i++) { const t = a * i / 40; pts.push(new THREE.Vector3(R + 7.5 * Math.sin(t), 7.5 * Math.cos(t), 0.01)); }
+    pts.push(new THREE.Vector3(R, 0, 0.01));
+    arc = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), arcMat); arc.renderOrder = 9; scene.add(arc);
+  }
+  function theme() {
+    scene.background = col("--vp-bg");
+    groundMat.color = col("--vp-ground");
+    if (grid) scene.remove(grid);
+    grid = new THREE.GridHelper(80, 40, col("--vp-grid-strong"), col("--vp-grid")); grid.position.y = 0.01; scene.add(grid);
+    mugMat.color = col("--vp-object");
+    comBall.material.color = col("--accent"); gLineMat.color = col("--accent"); arcMat.color = col("--accent");
+    pivotDot.material.color = col("--ink");
+    triad.children.forEach(l => l.material.color = col(l.material.userData.tok));
+    L.hemi.groundColor = col("--vp-ground");
+    dirty = true;
+  }
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => setTimeout(theme, 30));
+  const ui = {
+    lean: document.getElementById("wb-lean"), leanOut: document.getElementById("wb-lean-out"),
+    release: document.getElementById("wb-release"), status: document.getElementById("wb-status"),
+    crit: document.getElementById("wb-crit"), com: document.getElementById("wb-com"), ver: document.querySelectorAll("[data-wb-model]"),
+  };
+  function say(txt, tone) {
+    if (txt) { ui.status.textContent = txt; ui.status.dataset.tone = tone || ""; return; }
+    ui.status.textContent = `Lean the mug, then let go. It falls past ${(crit() * 180 / Math.PI).toFixed(1)}°.`; ui.status.dataset.tone = "";
+  }
+  function setModel(m) {
+    st.model = m; st.mode = "hold"; st.omega = 0; st.phi = st.lean;
+    comG.position.set(0, MODELS[m].com, 0);
+    ui.ver.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.wbModel === m)));
+    ui.crit.textContent = (crit() * 180 / Math.PI).toFixed(1) + "°";
+    ui.com.textContent = MODELS[m].com.toFixed(1) + " cm";
+    document.querySelectorAll("[data-wb-show]").forEach(el => el.hidden = el.dataset.wbShow !== m);
+    drawArc(); say(); dirty = true;
+  }
+  ui.lean.addEventListener("input", () => {
+    st.lean = +ui.lean.value * Math.PI / 180; ui.leanOut.textContent = ui.lean.value + "°";
+    st.mode = "hold"; st.omega = 0; st.phi = st.lean; say(); dirty = true;
+  });
+  ui.release.addEventListener("click", () => {
+    if (st.lean < 0.02) { say("Lean it first with the slider."); return; }
+    st.mode = "free"; st.omega = 0; dirty = true;
+    say(st.lean > crit() ? "Past the tipping angle. Falling." : "Below the tipping angle. Rocking back.");
+  });
+  ui.ver.forEach(b => b.addEventListener("click", () => setModel(b.dataset.wbModel)));
+  document.querySelectorAll("[data-wb-apply]").forEach(b => b.addEventListener("click", () => { setModel("v4"); ui.lean.value = 50; ui.lean.dispatchEvent(new Event("input")); canvas.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" }); }));
+  function stepPhysics(dt) {
+    const h = MODELS[st.model].com, beta = Math.atan(R / h), d2 = R * R + h * h, d = Math.sqrt(d2);
+    const sub = 8, s = dt / sub;
+    for (let i = 0; i < sub; i++) {
+      const alpha = G * d * Math.sin(st.phi - beta) / (d2 + K2);
+      st.omega += alpha * s; st.omega *= 0.9995; st.phi += st.omega * s;
+      if (st.phi <= 0) { st.phi = 0; st.omega = -st.omega * 0.35; if (Math.abs(st.omega) < 0.25) st.omega = 0; }
+      if (st.phi >= Math.PI / 2) { st.phi = Math.PI / 2; st.omega = -st.omega * 0.2; if (Math.abs(st.omega) < 0.3) st.omega = 0; }
+    }
+    if (st.omega === 0 && (st.phi === 0 || st.phi >= Math.PI / 2 - 1e-6)) {
+      st.mode = "rest";
+      const realTips = st.lean > REAL_CRIT;
+      if (st.phi > 0.1) say("Tipped over, as a real mug would at this lean.", "ok");
+      else if (realTips) say("Back upright. A real mug would have fallen at this lean.", "bad");
+      else say("Back upright, as a real mug would at this lean.", "ok");
+    }
+  }
+  function pose() {
+    pivot.rotation.z = -st.phi;
+    pivot.updateMatrixWorld(true);
+    const p = new THREE.Vector3(); comBall.getWorldPosition(p);
+    const pos = gLine.geometry.attributes.position; pos.setXYZ(0, p.x, p.y, p.z); pos.setXYZ(1, p.x, 0.02, p.z); pos.needsUpdate = true; gLine.computeLineDistances();
+  }
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+    if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) { renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); dirty = true; }
+  }
+  orbit(canvas, view, () => dirty = true);
+  theme(); setModel("v3");
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (visible(canvas)) {
+      resize();
+      if (!reduce && !view.user) { view.yaw += dt * 0.06; dirty = true; }
+      if (st.mode === "free") { stepPhysics(dt); dirty = true; }
+      if (dirty) { pose(); placeCam(cam, view); renderer.render(scene, cam); dirty = false; }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
