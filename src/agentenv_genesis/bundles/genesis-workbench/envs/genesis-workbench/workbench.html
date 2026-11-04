@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genesis Workbench</title>
+<style>
+:root {
+  --bg: #f4f2ee; --panel: #ffffff; --ink: #1d1f22; --muted: #6a6f76; --line: #e2ded6;
+  --accent: #0b7a72; --accent-ink: #ffffff; --agent: #eef5f4; --me: #1d1f22; --me-ink: #ffffff;
+  --warn: #bf3b2e; --ok: #2f7d32; --chip: #ece8e0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --panel: #1e2125; --ink: #e8e6e2; --muted: #9aa0a7; --line: #2e3237;
+    --accent: #3cb5aa; --accent-ink: #0d1412; --agent: #1f2c2b; --me: #e8e6e2; --me-ink: #15171a;
+    --warn: #e0705f; --ok: #6cc070; --chip: #2a2e33;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: baseline; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 16px; margin: 0; letter-spacing: .01em; }
+header .obj { font-weight: 600; }
+.pill { font-size: 12px; padding: 2px 9px; border-radius: 99px; background: var(--chip); color: var(--muted); }
+.pill.approved { background: var(--ok); color: #fff; } .pill.rejected { background: var(--warn); color: #fff; }
+main { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; padding: 16px 20px 24px; max-width: 1280px; margin: 0 auto; }
+@media (max-width: 860px) { main { grid-template-columns: 1fr; padding: 12px 16px; } header { padding: 12px 16px; } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+.view { position: relative; aspect-ratio: 4 / 3; background: #222; border-radius: 8px; overflow: hidden; display: grid; place-items: center; }
+.view img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.view .busy { position: absolute; right: 10px; top: 10px; font-size: 12px; color: #fff; background: rgba(0,0,0,.5); padding: 2px 8px; border-radius: 6px; display: none; }
+.desc { color: var(--muted); margin: 10px 0 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 7px 13px; border-radius: 8px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.danger { color: var(--warn); }
+.result { display: grid; gap: 10px; margin-top: 14px; }
+.result p { margin: 0; font-size: 15px; }
+.result img { width: 100%; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
+.history { margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); max-height: 150px; overflow: auto; }
+.history li { padding: 3px 0; border-top: 1px dashed var(--line); }
+.history b { color: var(--ink); font-weight: 600; }
+.side { display: grid; gap: 16px; align-content: start; }
+.chat { display: flex; flex-direction: column; gap: 8px; height: 430px; overflow: auto; padding-right: 4px; }
+.msg { max-width: 88%; padding: 8px 11px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; }
+.msg.agent { background: var(--agent); align-self: flex-start; border-top-left-radius: 3px; }
+.msg.contributor { background: var(--me); color: var(--me-ink); align-self: flex-end; border-top-right-radius: 3px; }
+.msg.system { align-self: center; font-size: 12px; color: var(--muted); background: none; padding: 2px; }
+.msg .who { display: block; font-size: 11px; opacity: .7; margin-bottom: 2px; }
+.tools { font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); margin: 0; padding: 0; list-style: none; max-height: 150px; overflow: auto; }
+.tools li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compose { display: grid; gap: 8px; margin-top: 10px; }
+textarea { font: inherit; width: 100%; min-height: 64px; resize: vertical; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--bg); color: var(--ink); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row .grow { flex: 1; }
+.status { font-size: 12px; color: var(--muted); }
+.empty { color: var(--muted); padding: 40px 20px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Genesis workbench</h1>
+  <span class="obj" id="obj">no object loaded</span>
+  <span class="pill" id="status">open</span>
+  <span class="status" id="edits"></span>
+  <span class="status" id="agentState"></span>
+</header>
+<main id="main" hidden>
+  <section class="card">
+    <h2>The object</h2>
+    <div class="view"><img id="view" alt="Genesis render of the object as it is now"><span class="busy" id="busy">simulating…</span></div>
+    <p class="desc" id="desc"></p>
+    <div class="actions" id="actions"></div>
+    <div class="result" id="result" hidden><p id="summary"></p><img id="chart" alt="What the last action measured"></div>
+    <ul class="history" id="history"></ul>
+  </section>
+  <section class="side">
+    <div class="card">
+      <h2>Chat with the agent</h2>
+      <div class="chat" id="chat"></div>
+      <div class="compose">
+        <textarea id="text" placeholder="Tell the agent what feels wrong, or answer its question"></textarea>
+        <div class="row"><button class="primary" id="send">Send</button><span class="grow"></span>
+          <button id="approve">Approve object</button><button class="danger" id="reject">Reject</button></div>
+      </div>
+    </div>
+    <div class="card"><h2>Agent's edits and probes</h2><ul class="tools" id="tools"></ul></div>
+  </section>
+</main>
+<div class="empty" id="empty">Waiting for the workbench to load an object…</div>
+<script>
+const base = location.pathname.replace(/\/+$/, "");
+const $ = id => document.getElementById(id);
+let shownRev = -1, shownChat = 0, shownLast = 0, open = true, acting = false;
+
+async function api(path, body) {
+  const r = await fetch(base + path, body === undefined ? {} : {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+
+function render(s) {
+  if (!s.object) return;
+  $("empty").hidden = true; $("main").hidden = false;
+  $("obj").textContent = `${s.label} · ${s.object}`;
+  $("desc").textContent = s.description;
+  $("status").textContent = s.status; $("status").className = "pill " + s.status;
+  $("edits").textContent = s.edits === 1 ? "1 edit by the agent" : `${s.edits} edits by the agent`;
+  $("agentState").textContent = "agent: " + s.agent_state;
+  open = s.status === "open";
+  if (!$("actions").childElementCount) {
+    for (const a of s.actions) {
+      const b = el("button", "", a.label); b.title = a.hint; b.dataset.action = a.id;
+      b.onclick = () => act(a.id); $("actions").append(b);
+    }
+  }
+  for (const b of $("actions").children) b.disabled = !open || acting;
+  for (const id of ["send", "approve", "reject", "text"]) $(id).disabled = !open;
+  if (s.edits !== shownRev) { shownRev = s.edits; $("view").src = `${base}/view.png?rev=${s.edits}&t=${Date.now()}`; }
+  if (s.chat.length !== shownChat) {
+    const box = $("chat"); box.textContent = "";
+    for (const m of s.chat) {
+      const d = el("div", "msg " + m.from);
+      if (m.from !== "system") d.append(el("span", "who", m.from === "agent" ? "agent" : "you"));
+      d.append(document.createTextNode(m.text)); box.append(d);
+    }
+    shownChat = s.chat.length; box.scrollTop = box.scrollHeight;
+  }
+  if (s.last && s.last.i !== shownLast) {
+    shownLast = s.last.i; $("result").hidden = false; $("summary").textContent = s.last.summary;
+    if (s.last.image_png_b64) { $("chart").hidden = false; $("chart").src = "data:image/png;base64," + s.last.image_png_b64; } else $("chart").hidden = true;
+  }
+  const h = $("history"); h.textContent = "";
+  for (const a of s.interactions.slice().reverse()) { const li = el("li"); li.append(el("b", "", a.action + " "), document.createTextNode(a.summary)); h.append(li); }
+  const t = $("tools"); t.textContent = "";
+  for (const c of s.agent.slice().reverse()) {
+    const args = Object.entries(c.args).map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(", ");
+    t.append(el("li", "", `${c.t.toFixed(0).padStart(4)}s  ${c.tool}(${args})`));
+  }
+}
+
+async function poll() {
+  try { render(await api("/state")); } catch (e) { $("agentState").textContent = "connection lost: " + e.message; }
+  setTimeout(poll, 1500);
+}
+
+async function act(action) {
+  acting = true; $("busy").style.display = "block";
+  for (const b of $("actions").children) b.disabled = true;
+  try { await api("/act", {action}); } catch (e) { alert(e.message); }
+  acting = false; $("busy").style.display = "none";
+  render(await api("/state"));
+}
+
+$("send").onclick = async () => {
+  const text = $("text").value.trim(); if (!text) return;
+  try { await api("/say", {text}); $("text").value = ""; render(await api("/state")); } catch (e) { alert(e.message); }
+};
+$("text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("send").click(); });
+for (const [id, decision] of [["approve", "approve"], ["reject", "reject"]]) {
+  $(id).onclick = async () => {
+    const note = prompt(decision === "approve" ? "Approve this object for the scene library? Add a note (optional):" : "Why reject it?");
+    if (note === null) return;
+    try { await api("/decide", {decision, note}); render(await api("/state")); } catch (e) { alert(e.message); }
+  };
+}
+poll();
+</script>
+</body>
+</html>

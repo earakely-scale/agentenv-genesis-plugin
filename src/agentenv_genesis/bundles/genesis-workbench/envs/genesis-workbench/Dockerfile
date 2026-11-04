@@ -9,9 +9,10 @@ RUN pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.15.0"
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-COPY workbench.py assets.py server.py warmup.py ./
+COPY workbench.py assets.py warmup.py ./
 COPY assets ./assets
 RUN useradd --create-home --uid 10001 appuser
 USER appuser
 RUN python warmup.py
+COPY session.py server.py workbench.html ./
 CMD ["python", "server.py"]

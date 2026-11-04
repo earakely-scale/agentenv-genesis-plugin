@@ -1,0 +1,51 @@
+[
+ {
+  "id": "deploy",
+  "type": "deploy_env",
+  "env_id": "genesis-workbench"
+ },
+ {
+  "id": "load",
+  "type": "apply_server_config",
+  "env_id": "genesis-workbench",
+  "directives": [
+   {
+    "service": "genesis-workbench",
+    "uri": "urn:genesis:load-object/v1",
+    "args": {
+     "object": "rcad_cupboard",
+     "complaint": "One of the lower doors on the kitchen cupboard won't open, and the one next to it sticks partway."
+    }
+   }
+  ]
+ },
+ {
+  "id": "deploy-agent",
+  "type": "deploy_agent",
+  "env_ids": [
+   "genesis-workbench"
+  ]
+ },
+ {
+  "id": "session",
+  "type": "workbench_session",
+  "env_id": "genesis-workbench",
+  "system_prompt": "You are the physics editor in a sim-asset workbench, working live with a contributor. Objects come out of a VLM-to-CAD or scanning pipeline, and the contributor tests them in a browser: they look at, lift, lean, drop, fill, shake or open the object in Genesis, and chat with you. Each of your replies goes to them, and their next message comes back to you. When they report a problem, see what they did with last_interaction, find the cause with the genesis-workbench tools, fix the object's physical properties so it behaves like the real object, and confirm with a probe. The contributor has the real object in front of them and you don't: when the fix depends on a fact you can't measure, such as its real size or weight, ask them rather than guess. Keep replies short and plain: what you found, what you changed, and what they should try. Make physically plausible edits for the real material and size; never tune values only to pass a probe. The contributor decides when the object is right by approving it.",
+  "prompt": "A contributor opened rcad_cupboard (kitchen cupboard) in the workbench and wrote:\n\n{contributor}\n\nWork with them until they approve it.",
+  "max_conversation_turns": 16,
+  "user_agent_timeout_seconds": 1800
+ },
+ {
+  "id": "save",
+  "type": "save_sim_asset",
+  "env_id": "genesis-workbench"
+ },
+ {
+  "id": "grade",
+  "type": "env_outcome_verifier",
+  "env_id": "genesis-workbench",
+  "file_artifact_id": "workbench-probes",
+  "verifier_id": "genesis-workbench",
+  "score_aggregator": "weighted_average"
+ }
+]
