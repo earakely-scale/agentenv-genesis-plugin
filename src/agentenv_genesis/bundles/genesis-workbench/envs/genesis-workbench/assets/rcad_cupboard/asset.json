@@ -1,0 +1,23 @@
+{
+ "id": "rcad_cupboard",
+ "task": "rcad-cupboard-doors",
+ "kind": "urdf",
+ "label": "kitchen cupboard",
+ "description": "Kitchen wall cupboard with eight hinged doors, from the ReplicaCAD apartment set.",
+ "complaint": "One of the lower doors on the kitchen cupboard won't open, and the one next to it sticks partway.",
+ "checks": [
+  {
+   "type": "joints_reach",
+   "min_fraction": 0.9
+  }
+ ],
+ "urdf": "object.urdf",
+ "self_collision": true,
+ "euler": [
+  0,
+  0,
+  0
+ ],
+ "credit": "ReplicaCAD (Meta AI / ai-habitat), CC BY 4.0",
+ "scale": 1.0
+}

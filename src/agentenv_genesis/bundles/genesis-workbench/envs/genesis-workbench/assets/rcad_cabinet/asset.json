@@ -1,0 +1,23 @@
+{
+ "id": "rcad_cabinet",
+ "task": "rcad-cabinet-sliders",
+ "kind": "urdf",
+ "label": "cabinet",
+ "description": "Low cabinet with two sliding doors, from the ReplicaCAD apartment set.",
+ "complaint": "The sliding doors on this cabinet won't slide.",
+ "checks": [
+  {
+   "type": "joints_reach",
+   "min_fraction": 0.9
+  }
+ ],
+ "urdf": "object.urdf",
+ "self_collision": true,
+ "euler": [
+  90,
+  0,
+  0
+ ],
+ "credit": "ReplicaCAD (Meta AI / ai-habitat), CC BY 4.0",
+ "scale": 1.0
+}

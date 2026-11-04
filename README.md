@@ -24,6 +24,19 @@ joints through MCP tools. A hidden probe suite in Genesis grades the result agai
 | `drawer-slide` | `cabinet_022` | "This drawer should slide." | The drawer has no joint | a 10 N pull opens it ≥ 0.30 m; it stops before leaving the cabinet; a slide joint along the depth axis |
 | `wiring` | `mug_017` | none | No agent: loads and grades the object as delivered | expected to fail |
 
+Eight more tasks use real assets and the defects [the asset audit](docs/asset-audit.md) found in them:
+
+| Task | Object (source) | Complaint | What is actually wrong | Hidden checks |
+|---|---|---|---|---|
+| `scan-mug-heavy` | `scan_mug` (Google Scanned Objects) | "This mug weighs a ton when I lift it, like it's full of sand." | No inertial in the file, so the loader fills it at water density: 1.25 kg | mass 0.30–0.45 kg; cavity open; rests upright; stable to 20° |
+| `scan-bowl-heavy` | `scan_mixing_bowl` (GSO) | "Lifting this plastic mixing bowl feels like lifting a bag of cement." | Same, 10.5 kg for a plastic bowl | mass 0.25–0.55 kg; cavity open; rests upright |
+| `cad-mug-small` | `cad_mug` (VLM-to-CAD) | "This mug is tiny, like an espresso cup next to my hand…" | The VLM built it at 0.7× scale; scaling it up then makes it too heavy | height 8.5–11.5 cm; mass 0.25–0.45 kg; cavity; upright |
+| `cad-bowl-small` | `cad_serving_bowl` (VLM-to-CAD) | "This is supposed to be a big serving bowl for the table, but it's the size of a cereal bowl." | Built at 0.5× scale | width 28–36 cm; mass 1.2–3.0 kg; cavity; upright |
+| `cad-coffeemaker-heavy` | `cad_coffee_maker` (VLM-to-CAD) | "The coffee maker is as heavy as a microwave…" | Solid plastic housing and a solid steel carafe: 10.7 kg | mass 2.2–3.6 kg; upright; stable to 20° |
+| `cad-frother-ring` | `cad_milk_frother` (VLM-to-CAD) | "There's a blue ring floating next to the milk frother…" | The power cord is a separate ring 2 cm from the body | no floating parts; mass 0.4–1.2 kg; upright |
+| `rcad-cabinet-sliders` | `rcad_cabinet` (ReplicaCAD) | "The sliding doors on this cabinet won't slide." | The doors' collision boxes collide with each other and the frame (self-collision) | every door reaches 90% of its travel, within limits |
+| `rcad-cupboard-doors` | `rcad_cupboard` (ReplicaCAD) | "One of the lower doors on the kitchen cupboard won't open…" | Same, between neighbouring doors | every door reaches 90% of its travel, within limits |
+
 ## Tools the agent gets
 
 | Tool | What it does |
@@ -34,7 +47,11 @@ joints through MCP tools. A hidden probe suite in Genesis grades the result agai
 | `set_material(link, material)` | Real material: friction plus recomputed mass properties |
 | `set_joint(name, type?, axis?, range?, damping?, frictionloss?)` | Create or edit a hinge or slide joint |
 | `run_probe(kind)` | Build a Genesis scene from the current MJCF and measure `tip`, `rest`, `hinge` or `travel`; numbers plus a plot |
-| `diff()` | MJCF diff against the object as delivered |
+| `diff()` | What changed against the object as delivered |
+| `set_shell(part, thickness)` | Mesh objects: make a part a hollow shell, its mass from surface area × thickness × density |
+| `set_scale(factor)` | Mesh objects: rescale uniformly; mass properties follow the geometry |
+| `remove_part(part, restore?)` | Mesh objects: drop a stray part, or put it back |
+| `set_self_collision(enabled)` | Articulated objects: whether the object's links collide with each other |
 
 The tilt-table probe rotates gravity per environment in one batched `scene.build(n_envs=12)`. That's a quasi-static
 tilt test, and it avoids the impulse Genesis applies when an object's pose is set directly into a leaning contact.
@@ -70,4 +87,4 @@ is not identical to MuJoCo's, so the same MJCF can behave differently in other e
 
 ## License
 
-Apache-2.0. Genesis is Apache-2.0.
+Apache-2.0. Genesis is Apache-2.0. The scanned and ReplicaCAD assets are CC BY 4.0; see NOTICE.

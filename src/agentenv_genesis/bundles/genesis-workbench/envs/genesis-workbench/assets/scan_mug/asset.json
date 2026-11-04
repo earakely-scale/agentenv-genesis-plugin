@@ -1,0 +1,77 @@
+{
+ "id": "scan_mug",
+ "task": "scan-mug-heavy",
+ "kind": "scan",
+ "label": "mug",
+ "description": "Ceramic 16 oz coffee mug, from a 3D scan of a real one.",
+ "complaint": "This mug weighs a ton when I lift it, like it's full of sand.",
+ "checks": [
+  {
+   "type": "mass_band",
+   "lo": 0.3,
+   "hi": 0.45
+  },
+  {
+   "type": "cavity_open"
+  },
+  {
+   "type": "rests_upright"
+  },
+  {
+   "type": "tilt_min_deg",
+   "value": 20
+  }
+ ],
+ "parts": [
+  {
+   "name": "body",
+   "material": "unspecified",
+   "density": 1000.0,
+   "mode": "solid",
+   "collision": [
+    "model_collision_0.obj",
+    "model_collision_1.obj",
+    "model_collision_2.obj",
+    "model_collision_3.obj",
+    "model_collision_4.obj",
+    "model_collision_5.obj",
+    "model_collision_6.obj",
+    "model_collision_7.obj",
+    "model_collision_8.obj",
+    "model_collision_9.obj",
+    "model_collision_10.obj",
+    "model_collision_11.obj",
+    "model_collision_12.obj",
+    "model_collision_13.obj",
+    "model_collision_14.obj",
+    "model_collision_15.obj",
+    "model_collision_16.obj",
+    "model_collision_17.obj",
+    "model_collision_18.obj",
+    "model_collision_19.obj",
+    "model_collision_20.obj",
+    "model_collision_21.obj",
+    "model_collision_22.obj",
+    "model_collision_23.obj",
+    "model_collision_24.obj",
+    "model_collision_25.obj",
+    "model_collision_26.obj",
+    "model_collision_27.obj",
+    "model_collision_28.obj",
+    "model_collision_29.obj",
+    "model_collision_30.obj",
+    "model_collision_31.obj"
+   ],
+   "visual": "model.obj",
+   "texture": "texture.png",
+   "area_factor": 0.5,
+   "mass_from": "collision"
+  }
+ ],
+ "override": {
+  "mass": 1.2519,
+  "source": "as loaded: no inertial in the file, density 1000 over every geom"
+ },
+ "credit": "Google Scanned Objects (Google Research), CC BY 4.0, via kevinzakka/mujoco_scanned_objects",
+ "scale": 1.0
+}

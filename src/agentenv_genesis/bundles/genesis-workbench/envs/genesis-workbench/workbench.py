@@ -150,8 +150,9 @@ class Sim:
     def _init(self):
         if self._gs is None:
             import genesis as gs
-            gs.init(backend=gs.cpu if os.environ.get("GENESIS_BACKEND", "cpu") == "cpu" else gs.gpu, seed=0,
-                    logging_level="warning")
+            if not getattr(gs, "_initialized", False):
+                gs.init(backend=gs.cpu if os.environ.get("GENESIS_BACKEND", "cpu") == "cpu" else gs.gpu, seed=0,
+                        logging_level="warning")
             self._gs = gs
         return self._gs
 

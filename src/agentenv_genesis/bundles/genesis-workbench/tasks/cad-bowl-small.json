@@ -1,0 +1,43 @@
+[
+ {
+  "id": "deploy",
+  "type": "deploy_env",
+  "env_id": "genesis-workbench"
+ },
+ {
+  "id": "load",
+  "type": "apply_server_config",
+  "env_id": "genesis-workbench",
+  "directives": [
+   {
+    "service": "genesis-workbench",
+    "uri": "urn:genesis:load-object/v1",
+    "args": {
+     "object": "cad_serving_bowl",
+     "complaint": "This is supposed to be a big serving bowl for the table, but it's the size of a cereal bowl."
+    }
+   }
+  ]
+ },
+ {
+  "id": "deploy-agent",
+  "type": "deploy_agent",
+  "env_ids": [
+   "genesis-workbench"
+  ]
+ },
+ {
+  "id": "fix",
+  "type": "prompt_agent",
+  "system_prompt": "You are the physics editor in a sim-asset workbench. Objects come out of a VLM-to-CAD pipeline as MJCF, and contributors test them in a browser. When a contributor reports that an object behaves wrongly, find the cause with the genesis-workbench tools, fix the object's physical properties so it behaves like the real object, and confirm the fix with a probe. Make physically plausible edits for the object's real material and size; never tune values only to pass a probe. Finish with a short summary of what was wrong and what you changed.",
+  "prompt": "A contributor tested cad_serving_bowl (serving bowl) in the workbench and wrote: \"This is supposed to be a big serving bowl for the table, but it's the size of a cereal bowl.\" Investigate and fix it."
+ },
+ {
+  "id": "grade",
+  "type": "env_outcome_verifier",
+  "env_id": "genesis-workbench",
+  "file_artifact_id": "workbench-probes",
+  "verifier_id": "genesis-workbench",
+  "score_aggregator": "weighted_average"
+ }
+]

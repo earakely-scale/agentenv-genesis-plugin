@@ -1,0 +1,14 @@
+GenesisWorkbenchEnv
+Copyright 2026 the agentenv-genesis-plugin authors. Licensed under the Apache License, Version 2.0.
+
+This repository includes third-party assets under src/agentenv_genesis/bundles/genesis-workbench/envs/genesis-workbench/assets/:
+
+- scan_mug, scan_mixing_bowl: meshes and textures from Google Scanned Objects (Google Research),
+  https://research.google/blog/scanned-objects-by-google-research-a-dataset-of-3d-scanned-common-household-items/,
+  licensed CC BY 4.0, as converted to MJCF by https://github.com/kevinzakka/mujoco_scanned_objects (MIT).
+  Changed: copied the visual mesh and convex collision pieces; mass properties are set by this env.
+- rcad_cabinet, rcad_cupboard: URDFs and meshes from ReplicaCAD (Meta AI),
+  https://huggingface.co/datasets/ai-habitat/ReplicaCAD_dataset, licensed CC BY 4.0.
+  Changed: comma-separated numbers in mesh scales and box sizes rewritten with spaces.
+- cad_*: generated in this project by Claude Sonnet 5.5 as CadQuery from renders of Google Scanned Objects models
+  (CC BY 4.0), then decimated and split into convex pieces with CoACD.
