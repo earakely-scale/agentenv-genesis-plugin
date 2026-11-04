@@ -54,8 +54,48 @@ Eight more tasks use real assets and the defects [the asset audit](docs/asset-au
 | `remove_part(part, restore?)` | Mesh objects: drop a stray part, or put it back |
 | `set_self_collision(enabled)` | Articulated objects: whether the object's links collide with each other |
 
+| `last_interaction(count?)` | What the contributor did in the browser: their latest actions, what each showed them, the numbers, and the latest image |
+
 The tilt-table probe rotates gravity per environment in one batched `scene.build(n_envs=12)`. That's a quasi-static
 tilt test, and it avoids the impulse Genesis applies when an object's pose is set directly into a leaning contact.
+
+## The contributor workbench
+
+![The contributor page: a Genesis render of the object, the actions, the last result and the chat with the agent](docs/workbench-page.png)
+
+In the tasks above the complaint is written into the task. In the `contributor-*` tasks a person (or a script standing
+in for one) is in the loop:
+
+1. The env serves a page at `/workbench`. The contributor can **look** at the object, **lift** it (its weight in
+   everyday terms, and its size), **lean** it on a tilting table, **drop** it, **fill** it with marbles, **shake** it
+   to find loose parts, or **open** and **pull** doors and drawers. Each action runs Genesis on the object as it is now.
+2. Each action is logged. The agent reads the log with `last_interaction`, and every message relayed to it lists what
+   the contributor tried since its last reply.
+3. The contributor chats with the agent on the same page. The `workbench_session` step is `prompt_agent` with the
+   contributor as the agent's counterpart: the env serves an A2A peer at `/workbench/peer`, which answers each agent
+   reply with the contributor's next message. The page also lists the agent's edits and probes as they happen.
+4. **Approve** locks the object and ends the conversation. `save_sim_asset` saves the approved object as a new version
+   of a file artifact (`@local/genesis-workbench/sim-assets/<object>`): a zip of the edited `asset.json`, its MJCF, the
+   acceptance checks and probe results run at approval, and the session (chat, actions, the agent's calls). The
+   artifact's metadata carries the checks' outcome. The hidden checks then grade the run as in the other tasks.
+
+| Task | Object | Why a contributor helps |
+|---|---|---|
+| `contributor-cad-mug` | `cad_mug` (VLM-to-CAD, 0.7× scale) | No agent fixed it alone: the real size isn't in the asset |
+| `contributor-cad-bowl` | `cad_serving_bowl` (VLM-to-CAD, 0.5× scale) | The same |
+| `contributor-rcad-cupboard` | `rcad_cupboard` (ReplicaCAD) | The contributor can see which doors stick |
+
+`scripts/contributor.py` is a scripted contributor for these tasks. It reads only what the page shows, answers the
+agent's questions with what someone holding the real object would know, checks each fix in the browser, and approves
+or rejects. To be the contributor yourself, start the run, open the address from its `WORKBENCH` log line, and play:
+
+```bash
+agent-env run genesis-workbench --task contributor-cad-mug   # logs: WORKBENCH contributor page for …: http://localhost:<port>/workbench
+python scripts/contributor.py --persona cad_mug --log run.log # or let the script play the contributor
+```
+
+The env uses the `server` env provider (`env.toml`), with no gateway in front, so the page is at the env's own
+address. The page has no authentication; on a remote host, reach it through an SSH tunnel.
 
 ## Run it
 
@@ -74,9 +114,11 @@ and after, and the probe curves. `scripts/publish_hub.py` turns those into the d
 ## Layout
 
 - `src/agentenv_genesis/bundles/genesis-workbench/`: the bundle
-  - `envs/genesis-workbench/`: the env image (`server.py` is the MCP server; `workbench.py` has the objects, MJCF, probes and renders)
+  - `envs/genesis-workbench/`: the env image (`server.py` is the MCP server; `workbench.py` and `assets.py` have the objects, MJCF, probes and renders; `session.py` and `workbench.html` are the contributor page)
   - `tasks/`: one JSON per task
   - `artifacts/workbench-probes/verify.py`: the verifier, which reads the hidden probe suite through `data/get`
+- `src/agentenv_genesis/steps.py`: the `workbench_session` and `save_sim_asset` steps
+- `scripts/contributor.py`: the scripted contributor
 - `hub/`: the Hugging Face Space and dataset card
 - `scripts/publish_hub.py`: publish episodes to the Hub
 

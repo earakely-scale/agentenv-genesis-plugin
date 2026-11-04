@@ -1,0 +1,1058 @@
+[
+ {
+  "object": "scan_mug",
+  "variant": "delivered",
+  "mass_kg": 1.2519,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 25,
+    "mujoco": 25,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.6,
+    "mujoco": 0.6,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.35,
+    "mujoco": 0.4,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 4.3,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.7,
+    0.9,
+    0.9,
+    78.3,
+    71.5,
+    24.0,
+    22.9,
+    98.8,
+    165.1,
+    79.8,
+    51.7,
+    34.4,
+    38.2
+   ],
+   "mujoco": [
+    0.7,
+    0.8,
+    0.9,
+    73.5,
+    74.6,
+    36.6,
+    16.2,
+    69.3,
+    41.5,
+    77.8,
+    16.2,
+    50.5,
+    149.6
+   ]
+  }
+ },
+ {
+  "object": "scan_mug",
+  "variant": "edited",
+  "mass_kg": 0.3382,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 25,
+    "mujoco": 25,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.6,
+    "mujoco": 0.6,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.35,
+    "mujoco": 0.4,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.4,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.7,
+    0.9,
+    0.9,
+    77.7,
+    110.8,
+    46.8,
+    132.9,
+    5.0,
+    2.7,
+    26.1,
+    17.8,
+    169.4,
+    22.9
+   ],
+   "mujoco": [
+    0.7,
+    0.8,
+    1.0,
+    69.2,
+    127.0,
+    53.3,
+    41.9,
+    71.8,
+    99.6,
+    115.3,
+    52.3,
+    6.6,
+    122.8
+   ]
+  }
+ },
+ {
+  "object": "scan_mixing_bowl",
+  "variant": "delivered",
+  "mass_kg": 10.4639,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 45,
+    "mujoco": 45,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.8,
+    "mujoco": 0.9,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.4,
+    "mujoco": 0.4,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.4,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.9,
+    0.9,
+    0.9,
+    1.0,
+    1.2,
+    1.2,
+    1.3,
+    176.9,
+    96.2,
+    48.7,
+    146.2,
+    130.7,
+    99.5
+   ],
+   "mujoco": [
+    0.9,
+    0.9,
+    0.9,
+    1.0,
+    1.0,
+    1.2,
+    1.3,
+    179.3,
+    172.4,
+    31.8,
+    112.8,
+    138.9,
+    98.9
+   ]
+  }
+ },
+ {
+  "object": "scan_mixing_bowl",
+  "variant": "edited",
+  "mass_kg": 0.2462,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 45,
+    "mujoco": 45,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.8,
+    "mujoco": 0.9,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.35,
+    "mujoco": 0.4,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.1,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.9,
+    0.9,
+    0.9,
+    1.0,
+    1.2,
+    1.2,
+    1.3,
+    176.9,
+    142.3,
+    9.5,
+    155.8,
+    132.9,
+    18.4
+   ],
+   "mujoco": [
+    0.9,
+    0.9,
+    0.9,
+    1.0,
+    1.0,
+    1.2,
+    1.3,
+    175.7,
+    164.3,
+    37.2,
+    142.8,
+    117.1,
+    42.5
+   ]
+  }
+ },
+ {
+  "object": "cad_mug",
+  "variant": "delivered",
+  "mass_kg": 0.2033,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 45,
+    "mujoco": 45,
+    "genesis_mode": "topple",
+    "mujoco_mode": "slide",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.25,
+    "mujoco": 0.3,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.5,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.1,
+    176.5,
+    53.7,
+    33.3,
+    40.0,
+    80.5,
+    56.6
+   ],
+   "mujoco": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.1,
+    2.4,
+    33.2,
+    28.0,
+    113.4,
+    41.5,
+    56.3
+   ]
+  }
+ },
+ {
+  "object": "cad_mug",
+  "variant": "edited",
+  "mass_kg": 0.35,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 50,
+    "mujoco": 45,
+    "genesis_mode": "topple",
+    "mujoco_mode": "slide",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.25,
+    "mujoco": 0.35,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.8,
+   "mujoco": 0.4
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.6,
+    61.7,
+    70.2,
+    108.6,
+    48.3,
+    44.8
+   ],
+   "mujoco": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.2,
+    130.0,
+    67.0,
+    126.4,
+    77.2,
+    111.5
+   ]
+  }
+ },
+ {
+  "object": "cad_serving_bowl",
+  "variant": "delivered",
+  "mass_kg": 0.417,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 45,
+    "mujoco": 45,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.25,
+    "mujoco": 0.3,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.7,
+   "mujoco": 0.2
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.1,
+    175.4,
+    177.1,
+    117.2,
+    129.8,
+    69.2,
+    54.5
+   ],
+   "mujoco": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    176.3,
+    179.4,
+    91.7,
+    105.5,
+    36.5,
+    67.5
+   ]
+  }
+ },
+ {
+  "object": "cad_serving_bowl",
+  "variant": "edited",
+  "mass_kg": 1.9,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 45,
+    "mujoco": 50,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.35,
+    "mujoco": 0.4,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   },
+   {
+    "probe": "cavity: marbles inside",
+    "genesis": 5,
+    "mujoco": 5,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.6,
+   "mujoco": 0.5
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    39.9,
+    138.9,
+    166.6,
+    112.4,
+    59.0,
+    35.1
+   ],
+   "mujoco": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.3,
+    62.0,
+    112.6,
+    162.7,
+    167.4,
+    38.7
+   ]
+  }
+ },
+ {
+  "object": "cad_coffee_maker",
+  "variant": "delivered",
+  "mass_kg": 10.6617,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 40,
+    "mujoco": 40,
+    "genesis_mode": "topple",
+    "mujoco_mode": "slide",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.5,
+    "mujoco": 0.55,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.8,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    90.0,
+    140.9,
+    86.3,
+    45.8,
+    48.3,
+    97.4,
+    77.6
+   ],
+   "mujoco": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    25.7,
+    92.9,
+    120.2,
+    170.2,
+    59.7,
+    46.9,
+    71.7
+   ]
+  }
+ },
+ {
+  "object": "cad_coffee_maker",
+  "variant": "edited",
+  "mass_kg": 4.3069,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 40,
+    "mujoco": 40,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.5,
+    "mujoco": 0.55,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.8,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    98.3,
+    137.6,
+    101.2,
+    40.1,
+    140.1,
+    30.9,
+    60.7
+   ],
+   "mujoco": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    48.5,
+    160.1,
+    127.2,
+    86.4,
+    11.8,
+    75.5,
+    29.5
+   ]
+  }
+ },
+ {
+  "object": "cad_milk_frother",
+  "variant": "delivered",
+  "mass_kg": 0.6724,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 40,
+    "mujoco": 35,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.35,
+    "mujoco": 0.4,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 2.4,
+   "mujoco": 0.2
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.2,
+    4.5,
+    139.7,
+    104.4,
+    91.3,
+    67.7,
+    81.3,
+    30.9,
+    72.8
+   ],
+   "mujoco": [
+    0.1,
+    0.1,
+    0.1,
+    0.2,
+    0.3,
+    98.5,
+    156.2,
+    127.1,
+    36.2,
+    122.2,
+    169.3,
+    10.8,
+    88.7
+   ]
+  }
+ },
+ {
+  "object": "cad_milk_frother",
+  "variant": "edited",
+  "mass_kg": 0.6636,
+  "rows": [
+   {
+    "probe": "tip: first failure (deg)",
+    "genesis": 35,
+    "mujoco": 40,
+    "genesis_mode": "topple",
+    "mujoco_mode": "topple",
+    "agree": true
+   },
+   {
+    "probe": "drop: final tilt (deg)",
+    "genesis": 0.0,
+    "mujoco": 0.0,
+    "agree": true
+   },
+   {
+    "probe": "drop: settles (s)",
+    "genesis": 0.3,
+    "mujoco": 0.4,
+    "agree": true
+   },
+   {
+    "probe": "rest: stable",
+    "genesis": true,
+    "mujoco": true,
+    "agree": true
+   }
+  ],
+  "seconds": {
+   "genesis": 1.0,
+   "mujoco": 0.1
+  },
+  "tip_curve": {
+   "x": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70
+   ],
+   "genesis": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.2,
+    49.8,
+    42.3,
+    167.6,
+    58.5,
+    7.9,
+    35.2,
+    17.7,
+    151.0
+   ],
+   "mujoco": [
+    0.1,
+    0.1,
+    0.1,
+    0.2,
+    0.3,
+    16.6,
+    67.1,
+    77.2,
+    76.3,
+    14.2,
+    150.3,
+    13.1,
+    86.3
+   ]
+  }
+ }
+]
