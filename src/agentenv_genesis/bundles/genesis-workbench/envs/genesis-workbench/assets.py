@@ -243,6 +243,12 @@ class MeshObject:
             f.write(self.mjcf(free=free))
         return path
 
+    def photos(self):
+        names = self.model.get("photos") or []
+        if not names:
+            raise ValueError(f"{self.name} has no source photos")
+        return self.model.get("photo_note", ""), [open(os.path.join(self.dir, n), "rb").read() for n in names]
+
     # tools
     def inspect(self):
         m = self.model
@@ -261,6 +267,7 @@ class MeshObject:
                 "mass_kg": round(mass, 4), "com_m": [round(float(v), 4) for v in com],
                 "inertia_diag_kg_m2": [round(float(v), 6) for v in np.diag(I)], "override": m.get("override"),
                 "parts": parts, "probes": ["rest", "drop", "tip", "cavity", "parts"],
+                "has_source_photos": bool(m.get("photos")),
                 "materials": {k: v for k, v in DENSITY.items()}}
 
     def part(self, name):

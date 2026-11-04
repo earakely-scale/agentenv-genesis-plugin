@@ -50,6 +50,7 @@ Eight more tasks use real assets and the defects [the asset audit](docs/asset-au
 | `diff()` | What changed against the object as delivered |
 | `set_shell(part, thickness)` | Mesh objects: make a part a hollow shell, its mass from surface area × thickness × density |
 | `set_scale(factor)` | Mesh objects: rescale uniformly; mass properties follow the geometry |
+| `source_photo()` | VLM-to-CAD objects: the photos of the real object the CAD was built from, on a 1 cm grid |
 | `remove_part(part, restore?)` | Mesh objects: drop a stray part, or put it back |
 | `set_self_collision(enabled)` | Articulated objects: whether the object's links collide with each other |
 

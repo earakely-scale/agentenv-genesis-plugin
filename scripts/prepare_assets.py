@@ -110,7 +110,13 @@ def prep_cad(t, vlmcad, d):
         parts.append({"name": name, "material": p["material"], "density": float(DENSITY[p["material"]]), "mode": "solid",
                       "collision": files, "visual": vis, "area_factor": 1.0, "mass_from": "visual"})
         print(f"  {name}: {len(m.faces)} faces, {len(files)} convex pieces")
-    return {"parts": parts, "credit": CAD_CREDIT}
+    photos = []
+    for f in ("view_34.png", "view_side.png"):
+        if os.path.isfile(os.path.join(src, f)):
+            shutil.copy2(os.path.join(src, f), os.path.join(d, f"source_{f}"))
+            photos.append(f"source_{f}")
+    return {"parts": parts, "credit": CAD_CREDIT, "photos": photos,
+            "photo_note": "The photos the CAD was built from: the real object on a 1 cm grid, every fifth line darker."}
 
 
 def prep_urdf(t, rcad, d):

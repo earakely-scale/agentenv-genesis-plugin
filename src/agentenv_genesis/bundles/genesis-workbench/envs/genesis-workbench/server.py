@@ -98,7 +98,7 @@ class GenesisWorkbench(AgentEnvEnvironment):
                 "probe that matches the complaint to see the behaviour, edit, then probe again to confirm. Units are SI: "
                 "kg, m, N, seconds. Objects come in three kinds, and inspect says which: primitive objects (edit with "
                 "set_inertial, set_material, set_joint), mesh objects made of parts (set_material, set_shell, set_scale, "
-                "remove_part, set_inertial), and articulated URDF furniture (set_self_collision, set_joint). Keep edits "
+                "remove_part, set_inertial; source_photo shows the real object for those built from photos), and articulated URDF furniture (set_self_collision, set_joint). Keep edits "
                 "physically plausible for the real object's material and size.")
 
     @extension("urn:genesis:load-object/v1", description="Load an object as delivered, with the contributor's complaint.")
@@ -168,6 +168,16 @@ class GenesisWorkbench(AgentEnvEnvironment):
         return CallToolResult(content=[TextContent(type="text", text=summary),
                                        ImageContent(type="image", data=base64.b64encode(png).decode(), mimeType="image/png")],
                               structuredContent={"summary": summary})
+
+    @tool()
+    def source_photo(self) -> Annotated[CallToolResult, Frame]:
+        """Mesh objects built from photos: the photos of the real object the CAD was made from, with a size reference."""
+        o = self._only("mesh")
+        note, pngs = o.photos()
+        self._log("source_photo", {}, note, pngs[0])
+        return CallToolResult(content=[TextContent(type="text", text=note)] +
+                              [ImageContent(type="image", data=base64.b64encode(p).decode(), mimeType="image/png") for p in pngs],
+                              structuredContent={"summary": note})
 
     @tool()
     def set_inertial(self, link: Annotated[str, Field(description="Link name for primitive objects; 'body' for mesh objects.")] = "body",
