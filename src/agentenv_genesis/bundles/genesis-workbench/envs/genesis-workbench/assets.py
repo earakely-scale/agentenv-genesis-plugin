@@ -25,6 +25,7 @@ ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 DENSITY = {"ceramic": 2300.0, "porcelain": 2400.0, "glass": 2500.0, "stainless_steel": 7900.0, "cast_iron": 7200.0,
            "aluminum": 2700.0, "plastic_pp": 905.0, "plastic_abs": 1050.0, "oak": 750.0, "wood": 700.0, "silicone": 1100.0,
            "sheet_steel": 7850.0, "abs_plastic": 1050.0}
+CAN = (0.033, 0.122)  # a 330 ml soda can, radius and height in m: the size reference in renders
 COLORS = {"ceramic": (0.93, 0.92, 0.88), "porcelain": (0.95, 0.95, 0.95), "stainless_steel": (0.72, 0.74, 0.76),
           "plastic_abs": (0.15, 0.15, 0.16), "plastic_pp": (0.85, 0.35, 0.25), "silicone": (0.25, 0.55, 0.85)}
 
@@ -482,15 +483,21 @@ class MeshObject:
             self.model = saved
 
     def render(self, last_probe=None):
+        """The object on the floor beside a 330 ml can, so its size shows in the picture."""
         g = gs()
         b = self._bounds()
-        ext = b[1] - b[0]
+        r, h = CAN
+        cx = float(b[1][0]) + 0.04 + r
+        lo, hi = np.minimum(b[0], [cx - r, -r, 0.0]), np.maximum(b[1], [cx + r, r, h])
+        ctr, ext = (lo + hi) / 2, hi - lo
         size = float(max(ext))
         with _lock:
             s = _scene()
             s.add_entity(g.morphs.MJCF(file=self._write(free=False), pos=(0, 0, self._lift())))
-            cam = s.add_camera(res=(640, 480), pos=(1.6 * size, -2.2 * size, 1.5 * size), lookat=(0, 0, 0.45 * float(ext[2])),
-                               fov=35, GUI=False)
+            s.add_entity(g.morphs.Cylinder(radius=r, height=h, pos=(cx, 0.0, h / 2 + 0.001), fixed=True),
+                         surface=g.surfaces.Default(color=(0.78, 0.13, 0.11)))
+            cam = s.add_camera(res=(640, 480), pos=(float(ctr[0]) + 1.3 * size, float(ctr[1]) - 1.9 * size, 1.25 * size),
+                               lookat=(float(ctr[0]), float(ctr[1]), 0.4 * float(ext[2])), fov=35, GUI=False)
             s.build()
             return _png(cam.render(rgb=True)[0])
 

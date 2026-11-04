@@ -51,6 +51,20 @@ button.danger { color: var(--warn); }
 .msg.contributor { background: var(--me); color: var(--me-ink); align-self: flex-end; border-top-right-radius: 3px; }
 .msg.system { align-self: center; font-size: 12px; color: var(--muted); background: none; padding: 2px; }
 .msg .who { display: block; font-size: 11px; opacity: .7; margin-bottom: 2px; }
+.msg.agent { white-space: normal; }
+.msg.agent p { margin: 0 0 6px; } .msg.agent p:last-child { margin-bottom: 0; }
+.msg.agent ul, .msg.agent ol { margin: 2px 0 6px; padding-left: 18px; }
+.msg.agent code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--chip); padding: 0 4px; border-radius: 4px; }
+.msg.agent table { border-collapse: collapse; margin: 4px 0 8px; font-size: 13px; }
+.msg.agent td, .msg.agent th { border: 1px solid var(--line); padding: 3px 7px; text-align: left; }
+.msg.typing { color: var(--muted); font-style: italic; }
+.msg.typing::after { content: "…"; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.caption { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.note { flex: 1; min-width: 120px; font: inherit; border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; background: var(--bg); color: var(--ink); }
+.banner { margin-top: 10px; padding: 8px 11px; border-radius: 8px; font-size: 13px; display: none; }
+.banner.approved { display: block; background: color-mix(in srgb, var(--ok) 16%, transparent); }
+.banner.rejected { display: block; background: color-mix(in srgb, var(--warn) 16%, transparent); }
 .tools { font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); margin: 0; padding: 0; list-style: none; max-height: 150px; overflow: auto; }
 .tools li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .compose { display: grid; gap: 8px; margin-top: 10px; }
@@ -73,6 +87,7 @@ textarea { font: inherit; width: 100%; min-height: 64px; resize: vertical; borde
   <section class="card">
     <h2>The object</h2>
     <div class="view"><img id="view" alt="Genesis render of the object as it is now"><span class="busy" id="busy">simulating…</span></div>
+    <p class="caption" id="scale" hidden>The red cylinder is a 330 ml can, 12.2 cm tall, for scale.</p>
     <p class="desc" id="desc"></p>
     <div class="actions" id="actions"></div>
     <div class="result" id="result" hidden><p id="summary"></p><img id="chart" alt="What the last action measured"></div>
@@ -84,8 +99,10 @@ textarea { font: inherit; width: 100%; min-height: 64px; resize: vertical; borde
       <div class="chat" id="chat"></div>
       <div class="compose">
         <textarea id="text" placeholder="Tell the agent what feels wrong, or answer its question"></textarea>
-        <div class="row"><button class="primary" id="send">Send</button><span class="grow"></span>
+        <div class="row"><button class="primary" id="send">Send</button><span class="grow"></span></div>
+        <div class="row"><input class="note" id="note" placeholder="Note for the record (optional)">
           <button id="approve">Approve object</button><button class="danger" id="reject">Reject</button></div>
+        <div class="banner" id="banner"></div>
       </div>
     </div>
     <div class="card"><h2>Agent's edits and probes</h2><ul class="tools" id="tools"></ul></div>
@@ -95,13 +112,36 @@ textarea { font: inherit; width: 100%; min-height: 64px; resize: vertical; borde
 <script>
 const base = location.pathname.replace(/\/+$/, "");
 const $ = id => document.getElementById(id);
-let shownRev = -1, shownChat = 0, shownLast = 0, open = true, acting = false;
+let shownRev = -1, shownChat = 0, shownWorking = false, shownLast = 0, open = true, acting = false;
 
 async function api(path, body) {
   const r = await fetch(base + path, body === undefined ? {} : {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(data.error || r.statusText);
   return data;
+}
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function inline(t) { return esc(t).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>"); }
+// The agent writes Markdown: paragraphs, bullet and numbered lists, tables, bold and code. Everything is escaped first.
+function markdown(text) {
+  const out = [], lines = text.split("\n"); let list = null, table = null;
+  const close = () => { if (list) { out.push(`</${list}>`); list = null; } if (table) { out.push("</table>"); table = null; } };
+  for (const raw of lines) {
+    const line = raw.trimEnd(), bullet = line.match(/^\s*[-*] (.*)/), num = line.match(/^\s*\d+[.)] (.*)/);
+    if (/^\|.*\|$/.test(line)) {
+      if (/^\|[\s:|-]+\|$/.test(line)) continue;
+      if (!table) { close(); out.push("<table>"); table = true; }
+      out.push("<tr>" + line.slice(1, -1).split("|").map(c => `<td>${inline(c.trim())}</td>`).join("") + "</tr>");
+    } else if (bullet || num) {
+      const kind = bullet ? "ul" : "ol";
+      if (list !== kind) { close(); out.push(`<${kind}>`); list = kind; }
+      out.push(`<li>${inline((bullet || num)[1])}</li>`);
+    } else if (!line.trim()) { close(); }
+    else { close(); out.push(`<p>${inline(line)}</p>`); }
+  }
+  close();
+  return out.join("");
 }
 
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
@@ -122,17 +162,26 @@ function render(s) {
     }
   }
   for (const b of $("actions").children) b.disabled = !open || acting;
-  for (const id of ["send", "approve", "reject", "text"]) $(id).disabled = !open;
+  for (const id of ["send", "approve", "reject", "text", "note"]) $(id).disabled = !open;
   if (s.edits !== shownRev) { shownRev = s.edits; $("view").src = `${base}/view.png?rev=${s.edits}&t=${Date.now()}`; }
-  if (s.chat.length !== shownChat) {
+  const working = s.agent_state === "working";
+  if (s.chat.length !== shownChat || working !== shownWorking) {
     const box = $("chat"); box.textContent = "";
     for (const m of s.chat) {
       const d = el("div", "msg " + m.from);
       if (m.from !== "system") d.append(el("span", "who", m.from === "agent" ? "agent" : "you"));
-      d.append(document.createTextNode(m.text)); box.append(d);
+      if (m.from === "agent") { const body = el("div"); body.innerHTML = markdown(m.text); d.append(body); }
+      else d.append(document.createTextNode(m.text));
+      box.append(d);
     }
-    shownChat = s.chat.length; box.scrollTop = box.scrollHeight;
+    if (working) box.append(el("div", "msg agent typing", "The agent is working on it"));
+    shownChat = s.chat.length; shownWorking = working; box.scrollTop = box.scrollHeight;
   }
+  $("scale").hidden = s.kind !== "mesh";
+  const b = $("banner"); b.className = "banner " + s.status;
+  if (s.decision) b.textContent = s.status === "approved"
+    ? "Approved. The session has ended, and the workbench saves this object as a new version of its sim asset."
+    : "Rejected. The session has ended; nothing is saved.";
   if (s.last && s.last.i !== shownLast) {
     shownLast = s.last.i; $("result").hidden = false; $("summary").textContent = s.last.summary;
     // Look and Lift show the object as the main view does; only probes have a chart of their own.
@@ -165,10 +214,9 @@ $("send").onclick = async () => {
   try { await api("/say", {text}); $("text").value = ""; render(await api("/state")); } catch (e) { alert(e.message); }
 };
 $("text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("send").click(); });
-for (const [id, decision] of [["approve", "approve"], ["reject", "reject"]]) {
-  $(id).onclick = async () => {
-    const note = prompt(decision === "approve" ? "Approve this object for the scene library? Add a note (optional):" : "Why reject it?");
-    if (note === null) return;
+for (const decision of ["approve", "reject"]) {
+  $(decision).onclick = async () => {
+    const note = $("note").value.trim();
     try { await api("/decide", {decision, note}); render(await api("/state")); } catch (e) { alert(e.message); }
   };
 }

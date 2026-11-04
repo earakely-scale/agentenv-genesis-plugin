@@ -37,6 +37,33 @@ PERSONAS = {
                      ("heavy", lambda r: r["mass_kg"], 1.2, 3.0, "around 2 kg")],
         "confirm": ["fill"],
     },
+    "scan_mug": {
+        "warmup": ["look", "lift"],
+        "opening": "This mug weighs a ton when I lift it, like it's full of sand.",
+        "facts": "It's an ordinary 16 oz ceramic coffee mug. Mine weighs about 380 g, a bit more than a can of soda.",
+        "check": "lift",
+        "measures": [("heavy", lambda r: r["mass_kg"], 0.28, 0.5, "about 380 g")],
+        "confirm": ["lean", "fill"],
+    },
+    "cad_coffee_maker": {
+        "warmup": ["look", "lift"],
+        "opening": "The coffee maker is as heavy as a microwave. I should be able to lift it with one hand.",
+        "facts": "It's a 12-cup drip coffee maker with a stainless thermal carafe: a plastic housing, mostly hollow inside. "
+                 "The whole thing weighs about 3 kg.",
+        "check": "lift",
+        "measures": [("heavy", lambda r: r["mass_kg"], 2.0, 3.8, "about 3 kg")],
+        "confirm": ["lean"],
+    },
+    "cad_milk_frother": {
+        "warmup": ["look", "shake"],
+        "opening": "There's a blue ring floating next to the milk frother, and it moves with the frother when I push it.",
+        "facts": "The real frother is a steel jug on a plastic base, with its cord coming out of the back of the base. There's "
+                 "no loose ring anywhere on it.",
+        "check": "shake",
+        "ok": lambda r: not r["floating"],
+        "wrong": lambda r: "Something still isn't attached: " + ", ".join(r["floating"]) + ".",
+        "confirm": ["lift", "lean"],
+    },
     "rcad_cupboard": {
         "warmup": ["look", "open"],
         "opening": "One of the lower doors on the kitchen cupboard won't open, and the one next to it sticks partway.",
