@@ -5,3 +5,4 @@ __pycache__/
 results/
 dist/
 .DS_Store
+hub/dataset/videos/

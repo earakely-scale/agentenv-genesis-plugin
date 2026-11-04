@@ -163,6 +163,8 @@ def main():
         outcome = play(rec, PERSONAS[a.persona])
         length = rec.now()
         video = page.video.path()
+        # The run tears the env down once the contributor decides; close the page first so no request to it holds the close.
+        page.close()
         ctx.close()
         browser.close()
     encode(Path(video), a.out, rec.segments, length)

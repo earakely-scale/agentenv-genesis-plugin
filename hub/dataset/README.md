@@ -103,30 +103,39 @@ Measuring metric size from photos needs a metric source: depth, a known-size ref
 
 ## With a contributor in the loop
 
-The scale tasks fail because the real size isn't in the asset. The `contributor-*` tasks put a person in the loop. The
-env serves a page where the contributor looks at, lifts, leans, drops, fills or shakes the object in Genesis, or opens
-its doors. They chat with the agent there, and approve or reject the object. The agent reads what they did with
-`last_interaction`. An approval saves the object as a new version of a sim-asset artifact, with its checks and probe
-results attached, and the same hidden checks grade the run.
+The scale tasks fail because the real size isn't in the asset. The `contributor-*` tasks put a contributor in the loop.
+The env serves a page where they look at, lift, lean, drop, fill or shake the object, or open its doors, and each
+action runs Genesis. They chat with the agent there, and approve or reject the object. The agent reads what they did
+with `last_interaction`. An approval saves the object as a new version of a sim-asset artifact, with its checks and
+probe results attached, and the same hidden checks grade the run.
 
-![The contributor page during the mug session: the Genesis render, the actions, what each showed, the chat and the agent's edits](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/workbench-page.png)
+<video src="https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/cad_mug.mp4" controls muted playsinline width="100%"></video>
 
-*The contributor page during the `contributor-cad-mug` session, replayed from the recorded session.*
+*`contributor-cad-mug`, recorded in Chrome: the contributor lifts the mug (the red cylinder is a 330 ml can, for scale),
+says it's tiny, gives its real size when the agent asks, checks the fix, and approves it. Stretches where the agent is
+working play at 8× speed. The other recordings: [the milk frother's loose ring](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/cad_milk_frother.mp4)
+and [the cupboard's jammed doors](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/rcad_cupboard.mp4).*
 
-These three sessions use a scripted contributor (`scripts/contributor.py`), not a person. It knows each object's real
-size and weight from the Google scan the CAD was built from. It judges each fix only from what the page shows it, and it
-never sees the hidden checks. The agent is Claude Code with `claude-sonnet-5-5`.
+A script plays the contributor in these 8 sessions, not a person. It knows each object's real size and weight from the
+Google scan the CAD was built from, judges each fix only from what the page shows it, and never sees the hidden checks.
+Three sessions went through the page in Chrome with `scripts/record_session.py`, and the rest through the page's HTTP
+API with `scripts/contributor.py`. The agent is Claude Code with `claude-sonnet-5-5`.
 
-| Task | Without a contributor (Sonnet / Opus) | With one | What happened | Saved as |
-|---|---|---|---|---|
-| `contributor-cad-mug` | 0.50 / 0.75 | **1.00**, approved | The agent asked for the real size instead of guessing. The CAD is wider for its height than the real mug, so it said no uniform scale fits both and split the difference at 1.4×. When the contributor said it was still short, it went to 1.516× (9.4 cm). It set the mass to 0.30 kg directly, saying a thin ceramic shell didn't come close. | `sim-assets/cad_mug` v2 |
-| `contributor-cad-bowl` | 0.50 / 0.75 | **1.00**, approved | Asked for the real size, scaled 1.99× to 32.1 cm across and 14.3 cm tall, and set the mass to 2 kg, saying a hollow shell would have needed 3 mm walls and moved the centre of mass up; approved on the first check | `sim-assets/cad_serving_bowl` v1 |
-| `contributor-rcad-cupboard` | (`rcad-cupboard-doors`: passed) | **1.00**, approved | The contributor's Open showed two stuck lower doors. The agent turned off self-collision and warned that the doors can now pass through each other, since the tool can't exempt one pair. It asked whether the real doors touch; the scripted contributor didn't answer that, and approved once every door opened. | `sim-assets/rcad_cupboard` v1 |
+| Task | Agent alone (Sonnet / Opus) | With a contributor | Contributor | The agent's edits | Saved as |
+|---|---|---|---|---|---|
+| `contributor-cad-bowl` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.99)`; `set_shell(part=body, thickness=0.006)`; `set_shell(part=body)`; `set_material(part=body, material=ceramic)`; `set_inertial(link=body, mass=2)` | `cad_serving_bowl` v1 |
+| `contributor-cad-coffeemaker` | 1.00 / 1.00 | 1.00, approved | scripted | `set_shell(part=housing, thickness=0.003)`; `set_shell(part=steel, thickness=0.001)`; `set_shell(part=steel_2, thickness=0.001)`; `set_shell(part=housing, thickness=0.002)`; `set_shell(part=steel, thickness=0.0009)`; `set_shell(part=steel_2, thickness=0.0009)` | `cad_coffee_maker` v1 |
+| `contributor-cad-frother` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `remove_part(part=cord, restore=False)` | `cad_milk_frother` v1 |
+| `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.004)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v2 |
+| `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | browser, recorded | `set_scale(factor=1.38)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v3 |
+| `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | scripted | `set_self_collision(enabled=False)` | `rcad_cupboard` v1 |
+| `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `set_self_collision(enabled=False)` | `rcad_cupboard` v2 |
+| `contributor-scan-mug` | 1.00 / 1.00 | 1.00, approved | scripted | `set_material(part=body, material=ceramic)`; `set_shell(part=body, thickness=0.004)` | `scan_mug` v1 |
 
 `sessions.jsonl` (config `contributor_sessions`) has one row per session: the chat, the contributor's actions and what
-each one showed them, the agent's calls and edits, the checks, and the saved sim asset's id, version and metadata. The
-mug's v1 came from a pilot run, left out here: its scripted contributor gave the agent a rim width that isn't the real
-mug's.
+each showed them, the agent's calls and edits, the checks, and the saved sim asset's id, version and metadata. Each
+approval of the same object adds a version, so the mug has several. A pilot mug run is left out: its scripted
+contributor gave the agent a rim width that isn't the real mug's.
 
 ### Can the browser run MuJoCo instead of Genesis?
 

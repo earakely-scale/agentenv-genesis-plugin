@@ -14,7 +14,11 @@ import json
 import zipfile
 from pathlib import Path
 
-TASKS = {"cad_mug": "contributor-cad-mug", "cad_serving_bowl": "contributor-cad-bowl", "rcad_cupboard": "contributor-rcad-cupboard"}
+TASKS = {"cad_mug": "contributor-cad-mug", "cad_serving_bowl": "contributor-cad-bowl", "rcad_cupboard": "contributor-rcad-cupboard",
+         "scan_mug": "contributor-scan-mug", "cad_coffee_maker": "contributor-cad-coffeemaker",
+         "cad_milk_frother": "contributor-cad-frother"}
+CONTRIBUTORS = {"scripted": "scripts/contributor.py, over the page's HTTP API",
+                "browser": "scripts/record_session.py, through the page in Chrome (recorded)"}
 
 
 def export(out: Path, tags: list[str]) -> None:
@@ -37,11 +41,13 @@ def export(out: Path, tags: list[str]) -> None:
                 art = FileArtifact.get(record["artifact_id"], version=record["artifact_version"])
                 (d / "sim_asset.zip").write_bytes(art.load())
                 (d / "artifact.json").write_text(json.dumps({"id": art.id, "version": art.version, "metadata": art.metadata}, default=str))
-        (d / "bot.log").write_text((home / "logs" / f"{tag}-bot.log").read_text())
+        bot = home / "logs" / f"{tag}-bot.log"
+        if bot.is_file():
+            (d / "bot.log").write_text(bot.read_text())
         print(tag, name, record)
 
 
-def convert(d: Path, model: str) -> dict:
+def convert(d: Path, model: str, contributor: str, video: str | None) -> dict:
     ep = json.loads((d / "episode.json").read_text())
     art = json.loads((d / "artifact.json").read_text()) if (d / "artifact.json").is_file() else None
     session = ep.get("session")
@@ -54,7 +60,7 @@ def convert(d: Path, model: str) -> dict:
     edits = {"set_inertial", "set_material", "set_shell", "set_scale", "remove_part", "set_self_collision", "set_joint"}
     return {
         "id": f"{TASKS[ep['object']]}-{d.name}", "task": TASKS[ep["object"]], "object": ep["object"], "model": model,
-        "contributor": "scripted (scripts/contributor.py)", "status": session["status"], "score": ep["score"],
+        "contributor": CONTRIBUTORS[contributor], "video": video, "status": session["status"], "score": ep["score"],
         "passed": ep["passed"], "checks": ep["checks"], "chat": session["chat"],
         "contributor_actions": [{k: v for k, v in a.items() if k in ("i", "t", "action", "summary", "object_edits")}
                                 for a in session["interactions"]],
@@ -70,7 +76,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--export", type=Path)
     ap.add_argument("tags", nargs="*")
-    ap.add_argument("--raw", action="append", default=[], help="DIR=MODEL")
+    ap.add_argument("--raw", action="append", default=[], help="DIR=MODEL=scripted|browser[=VIDEO]")
     ap.add_argument("--results", default="results")
     a = ap.parse_args()
     if a.export:
@@ -78,8 +84,8 @@ def main():
     out = Path(a.results) / "sessions"
     out.mkdir(parents=True, exist_ok=True)
     for spec in a.raw:
-        d, model = spec.split("=", 1)
-        row = convert(Path(d), model)
+        d, model, contributor, *video = spec.split("=")
+        row = convert(Path(d), model, contributor, video[0] if video else None)
         (out / f"{row['id']}.json").write_text(json.dumps(row, indent=1))
         print(row["id"], row["status"], row["score"], len(row["chat"]), "messages", len(row["agent_edits"]), "edits")
 

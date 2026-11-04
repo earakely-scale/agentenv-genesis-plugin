@@ -61,7 +61,12 @@ tilt test, and it avoids the impulse Genesis applies when an object's pose is se
 
 ## The contributor workbench
 
-![The contributor page: a Genesis render of the object, the actions, the last result and the chat with the agent](docs/workbench-page.png)
+![A recorded contributor session on the mug: lift, complain, answer the agent, check the fix, approve](docs/workbench-session.gif)
+
+*A contributor session on `contributor-cad-mug`, recorded in Chrome with `scripts/record_session.py`, sped up while the agent
+works. The red cylinder is a 330 ml can, for scale. Full videos are in the
+[dataset](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/tree/main/videos) and the
+[Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv).*
 
 In the tasks above the complaint is written into the task. In the `contributor-*` tasks a person (or a script standing
 in for one) is in the loop:
@@ -84,8 +89,12 @@ in for one) is in the loop:
 | `contributor-cad-mug` | `cad_mug` (VLM-to-CAD, 0.7× scale) | No agent fixed it alone: the real size isn't in the asset |
 | `contributor-cad-bowl` | `cad_serving_bowl` (VLM-to-CAD, 0.5× scale) | The same |
 | `contributor-rcad-cupboard` | `rcad_cupboard` (ReplicaCAD) | The contributor can see which doors stick |
+| `contributor-scan-mug` | `scan_mug` (Google Scanned Objects) | The contributor knows what the real mug weighs |
+| `contributor-cad-coffeemaker` | `cad_coffee_maker` (VLM-to-CAD) | The same, for a hollow appliance the CAD made solid |
+| `contributor-cad-frother` | `cad_milk_frother` (VLM-to-CAD) | Shake finds the loose cord ring, and the contributor knows the real one has none |
 
-`scripts/contributor.py` is a scripted contributor for these tasks. It reads only what the page shows, answers the
+`scripts/contributor.py` is a scripted contributor for these tasks, over the page's HTTP API, and
+`scripts/record_session.py` plays the same personas through the page in Chrome and records a video. It reads only what the page shows, answers the
 agent's questions with what someone holding the real object would know, checks each fix in the browser, and approves
 or rejects. To be the contributor yourself, start the run, open the address from its `WORKBENCH` log line, and play:
 
@@ -97,8 +106,8 @@ python scripts/contributor.py --persona cad_mug --log run.log # or let the scrip
 The env uses the `server` env provider (`env.toml`), with no gateway in front, so the page is at the env's own
 address. The page has no authentication; on a remote host, reach it through an SSH tunnel.
 
-With the scripted contributor and Claude Code on `claude-sonnet-5-5`, all three tasks scored 1.00 and were approved, in 1
-to 2 minutes each. Without a contributor, the mug and bowl had scored 0.50 (Sonnet) and 0.75 (Opus). In both, the agent
+With a scripted contributor and Claude Code on `claude-sonnet-5-5`, every contributor session so far scored 1.00 and was
+approved, in 1 to 3 minutes each (`sessions.jsonl` in the dataset has each one). Without a contributor, the mug and bowl had scored 0.50 (Sonnet) and 0.75 (Opus). In both, the agent
 asked the contributor for the real size instead of guessing. On the mug it also said why one scale factor can't match
 both the real height and rim. The sessions are in the dataset (`sessions.jsonl`).
 

@@ -268,6 +268,19 @@ footer { border-top: 1px solid var(--line2); padding-top: 18px; display: grid; g
 footer ul { margin: 0; padding-left: 18px; columns: 2; column-gap: 32px; }
 footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
 @media (max-width: 700px) { footer ul { columns: 1; } }
+
+.ct-vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.ct-fig { margin: 0; display: grid; gap: 8px; }
+.ct-fig video { width: 100%; height: auto; aspect-ratio: 1360 / 860; border-radius: 10px; border: 1px solid var(--line); background: #0E1213; }
+.ct-fig figcaption { font-size: 13.5px; color: var(--muted); }
+.ct-fig figcaption b { color: var(--ink); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; font-size: 12.5px; display: block; }
+.ct-tbl { overflow-x: auto; margin-top: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.ct-tbl table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.ct-tbl th, .ct-tbl td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.ct-tbl th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.ct-tbl tr:last-child td { border-bottom: 0; }
+.ct-tbl code { font-size: 12px; }
+.ct-note { font-size: 13.5px; color: var(--muted); margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -294,6 +307,19 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
   <img src="showcase.gif" width="960" height="540" alt="The mug, oven door and drawer as delivered beside the agent's fix, simulated and rendered in Genesis" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--line);background:#0E1213">
   <figcaption style="font-size:13.5px;color:var(--muted);max-width:80ch">Each object as delivered (red) beside the agent's fix (teal), simulated and rendered by Genesis from the MJCF recorded in the episodes: the mug on a tilt table, the oven door unlatched at 5°, the drawer pulled with 10 N.</figcaption>
 </figure>
+
+<section id="contributor" aria-labelledby="ct-h">
+  <div class="sec-head">
+    <h2 id="ct-h"><span class="frame-mark" aria-hidden="true"></span>With a contributor in the loop</h2>
+    <p>In the <code>contributor-*</code> tasks the complaint comes from a contributor on a page the env serves. They look at, lift, lean, drop, fill or shake the object, or open its doors, and each action runs Genesis. They chat with the agent, which reads what they did with <code>last_interaction</code>, and they approve or reject the object. An approval saves it as a new version of a sim-asset artifact, with its checks and probe results, and the hidden checks grade the run. The red cylinder in the renders is a 330 ml can, for scale. In these videos a script plays the contributor through the page in Chrome; it knows each object's real size and weight from the scan the CAD was built from. Stretches where the agent is working play at 8× speed.</p>
+  </div>
+  <div class="ct-vids"><figure class="ct-fig"><video src="videos/cad_mug.mp4" controls muted playsinline preload="metadata" poster="videos/cad_mug.jpg"></video><figcaption><b>contributor-cad-mug</b> A VLM-to-CAD mug built at 0.7× scale. The agent asks for the real size, scales it, and keeps the mass right.</figcaption></figure><figure class="ct-fig"><video src="videos/cad_milk_frother.mp4" controls muted playsinline preload="metadata" poster="videos/cad_milk_frother.jpg"></video><figcaption><b>contributor-cad-frother</b> A loose power-cord ring the CAD left floating 25 mm from the frother. Shake finds it; the agent removes it.</figcaption></figure><figure class="ct-fig"><video src="videos/rcad_cupboard.mp4" controls muted playsinline preload="metadata" poster="videos/rcad_cupboard.jpg"></video><figcaption><b>contributor-rcad-cupboard</b> ReplicaCAD doors that jam on each other. Open shows which; the agent turns off self-collision and says what that costs.</figcaption></figure></div>
+  <div class="ct-tbl"><table>
+    <thead><tr><th>Task</th><th>Contributor</th><th>Outcome</th><th>Grade</th><th>Agent replies</th><th>The agent's edits</th><th>Sim asset</th></tr></thead>
+    <tbody><tr><td><code>contributor-cad-bowl</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>2</td><td><code>set_scale(factor=1.99)</code>; <code>set_shell(part=body, thickness=0.006)</code>; <code>set_shell(part=body)</code>; <code>set_material(part=body, material=ceramic)</code>; <code>set_inertial(link=body, mass=2)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-coffeemaker</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>2</td><td><code>set_shell(part=housing, thickness=0.003)</code>; <code>set_shell(part=steel, thickness=0.001)</code>; <code>set_shell(part=steel_2, thickness=0.001)</code>; <code>set_shell(part=housing, thickness=0.002)</code>; <code>set_shell(part=steel, thickness=0.0009)</code>; <code>set_shell(part=steel_2, thickness=0.0009)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-frother</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>remove_part(part=cord, restore=False)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-mug</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>3</td><td><code>set_scale(factor=1.4)</code>; <code>set_shell(part=body, thickness=0.004)</code>; <code>set_shell(part=body)</code>; <code>set_inertial(link=body, mass=0.3)</code>; <code>set_scale(factor=1.516)</code>; <code>set_inertial(link=body, mass=0.3)</code></td><td>v2</td></tr><tr><td><code>contributor-cad-mug</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>3</td><td><code>set_scale(factor=1.38)</code>; <code>set_inertial(link=body, mass=0.3)</code>; <code>set_scale(factor=1.516)</code>; <code>set_inertial(link=body, mass=0.3)</code></td><td>v3</td></tr><tr><td><code>contributor-rcad-cupboard</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_self_collision(enabled=False)</code></td><td>v1</td></tr><tr><td><code>contributor-rcad-cupboard</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_self_collision(enabled=False)</code></td><td>v2</td></tr><tr><td><code>contributor-scan-mug</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_material(part=body, material=ceramic)</code>; <code>set_shell(part=body, thickness=0.004)</code></td><td>v1</td></tr></tbody>
+  </table></div>
+  <p class="ct-note">Agent: Claude Code with <code>claude-sonnet-5-5</code>. Without a contributor, the mug and bowl scale tasks had scored 0.50 (Sonnet) and 0.75 (Opus): the real size isn't in the asset. Each row is in the dataset's <code>sessions.jsonl</code>.</p>
+</section>
 
 <section id="loop" aria-labelledby="loop-h">
   <div class="sec-head">
