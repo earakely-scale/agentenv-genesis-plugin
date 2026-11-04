@@ -43,6 +43,7 @@ class GenesisWorkbench(AgentEnvEnvironment):
         super().__init__()
         self.pool = ThreadPoolExecutor(max_workers=1)
         self.sim = wb.Sim()
+        self.pool.submit(self.sim._init)
         self.reset()
 
     async def _run(self, fn, *args):
@@ -71,9 +72,8 @@ class GenesisWorkbench(AgentEnvEnvironment):
         self.original = wb.initial_model(object)
         self.model = wb.clone(self.original)
         self.complaint = complaint
-        rows, probes = await self._run(wb.suite, self.sim, self.original)
-        self.before = {"checks": rows, "probes": probes}
-        return {"object": object, "checks_failing": [r["id"] for r in rows if not r["result"]]}
+        self._before = asyncio.ensure_future(self._run(wb.suite, self.sim, self.original))
+        return {"object": object, "loaded": True}
 
     @reset_data
     def reset(self) -> None:
@@ -81,6 +81,7 @@ class GenesisWorkbench(AgentEnvEnvironment):
         self.model = None
         self.complaint = ""
         self.before = None
+        self._before = None
         self.calls = []
         self.last_probe = None
         self.t0 = time.time()
@@ -89,6 +90,9 @@ class GenesisWorkbench(AgentEnvEnvironment):
     async def episode(self) -> list[DataPart]:
         if self.model is None:
             return [DataPart(data={"object": None})]
+        if self.before is None:
+            rows0, probes0 = await self._before
+            self.before = {"checks": rows0, "probes": probes0}
         rows, probes = await self._run(wb.suite, self.sim, self.model)
         kind = self.original["probe"]
         b, a = self.before["probes"][kind], probes[kind]
