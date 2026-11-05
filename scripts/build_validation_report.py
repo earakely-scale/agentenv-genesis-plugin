@@ -7,9 +7,7 @@ on the object as delivered and with the edits that fix it.
 """
 
 import argparse
-import base64
 import json
-import os
 import shutil
 import sys
 from pathlib import Path

@@ -296,7 +296,7 @@ class MeshObject:
             for f in p["collision"]:
                 mid = re.sub(r"\W", "_", f)
                 assets.append(f'<mesh name="{mid}" file="{os.path.join(root, f)}" scale="{s:g} {s:g} {s:g}"/>')
-                geoms.append(f'<geom type="mesh" mesh="{mid}" group="3" rgba="1 1 1 0"/>')
+                geoms.append(f'<geom type="mesh" mesh="{mid}" solref="{mj.SOLREF}" group="3" rgba="1 1 1 0"/>')
             if p.get("visual"):
                 vid = "vis_" + re.sub(r"\W", "_", p["name"])
                 assets.append(f'<mesh name="{vid}" file="{os.path.join(root, p["visual"])}" scale="{s:g} {s:g} {s:g}"/>')
@@ -639,6 +639,13 @@ class MeshObject:
             return _png(cam.render(rgb=True)[0])
 
 
+def _overlap_text(r) -> str:
+    if r is None:
+        return "none"
+    at = f"{r['probe']}" + (f" at {r['lean_deg']} deg" if "lean_deg" in r else "") + f", {r['t']:g} s"
+    return f"{r['body']} {r['mm']:g} mm into {r['into']} ({at})"
+
+
 class SetObject:
     """A set of free bodies that fit together, like a knife block and its knives: an MJCF of bodies, each with a
     material per part, a designed pose, and collision as one convex hull per part. MuJoCo collides any mesh as its
@@ -682,14 +689,15 @@ class SetObject:
                 mid = b["hull"].removesuffix(".obj")
                 assets.append(f'<mesh name="{mid}" file="{b["hull"]}"/>')
                 fr = mats[self._material(m, b, b["parts"][0])]["friction"]
-                geoms.append(f'<geom type="mesh" mesh="{mid}" friction="{fr:g} 0.005 0.0001" group="3" rgba="1 1 1 0"/>')
+                geoms.append(f'<geom type="mesh" mesh="{mid}" friction="{fr:g} 0.005 0.0001" solref="{mj.SOLREF}" group="3" rgba="1 1 1 0"/>')
             for part in b["parts"]:
                 mat = mats[self._material(m, b, part)]
                 if not hull:
                     for f in part["collision"]:
                         mid = f.removesuffix(".obj")
                         assets.append(f'<mesh name="{mid}" file="{f}"/>')
-                        geoms.append(f'<geom type="mesh" mesh="{mid}" friction="{mat["friction"]:g} 0.005 0.0001" group="3" rgba="1 1 1 0"/>')
+                        geoms.append(f'<geom type="mesh" mesh="{mid}" friction="{mat["friction"]:g} 0.005 0.0001" solref="{mj.SOLREF}" '
+                                     'group="3" rgba="1 1 1 0"/>')
                 vid = "vis_" + part["visual"].removesuffix(".obj")
                 assets.append(f'<mesh name="{vid}" file="{part["visual"]}"/>')
                 r, g_, bb, a = mat.get("rgba", (0.8, 0.8, 0.8, 1))
@@ -815,6 +823,20 @@ class SetObject:
                     ok = r["first_failure_deg"] is None or r["first_failure_deg"] >= c["value"]
                     rows.append({"id": "set-stable", "result": bool(ok),
                                  "description": f"the set stays put on a tilt table to {c['value']} deg; first: {r['mode']} at {r['first_failure_deg']}"})
+                elif t == "set_no_overlap" and engine == "mujoco":
+                    for k in ("rest", "seat", "extract", "tip"):
+                        if k not in probes:
+                            probes[k] = self.probe(k, engine)
+                    tagged = [{**p["overlap"], "pairs": [{**r, "probe": k} for r in p["overlap"]["pairs"]],
+                               "end": {**p["overlap"]["end"], "pairs": [{**r, "probe": k} for r in p["overlap"]["end"]["pairs"]]}}
+                              for k, p in probes.items() if "overlap" in p]
+                    ov = mj.deepest(tagged)
+                    end, peak = ov["end"]["pairs"][:1], ov["pairs"][:1]
+                    ok = all(r["mm"] <= c["end_mm"] for r in end) and all(r["mm"] <= c["peak_mm"] for r in peak)
+                    rows.append({"id": "no-overlap", "result": bool(ok),
+                                 "description": f"after every probe, nothing rests more than {c['end_mm']:g} mm inside another body or the floor, "
+                                                f"and nothing ever goes more than {c['peak_mm']:g} mm in; at rest: {_overlap_text(end[0] if end else None)}; "
+                                                f"at any moment: {_overlap_text(peak[0] if peak else None)}"})
                 elif t == "set_mass_band":
                     mass = self.summary()["mass_kg"]
                     rows.append({"id": "set-mass", "result": bool(c["lo"] <= mass <= c["hi"]),

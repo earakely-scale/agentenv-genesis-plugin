@@ -1,5 +1,6 @@
 // A set's validation report: each probe's MuJoCo trace replayed in 3D, as delivered and after the fix, beside the
-// hidden checks in MuJoCo and Genesis, the static tipping margin, the per-knife numbers and the MJCF + OBJ export.
+// hidden checks in MuJoCo and Genesis, the static tipping margin, the per-knife numbers, how far anything went into
+// anything else, and the MJCF + OBJ export.
 import { SimViewer } from "./viewer.js";
 
 const $ = (id) => document.getElementById(id);
@@ -33,6 +34,29 @@ export async function mount(name) {
   }
   $("vr-replay").onclick = () => v.play(r.states[state].probes[probe].trace);
   $("vr-export").href = r.export;
+  const names = Object.fromEntries(r.bodies.map((b) => [b.name, b.label || b.name]));
+  names.floor = "the floor";
+  const say = (o) => `${names[o.body] || o.body} ${o.mm.toFixed(1)} mm into ${names[o.into] || o.into}`;
+
+  // how far anything went into anything else in the run on screen (for the lean, the angle replayed), with a button
+  // that stops the replay at that moment and lights up the body
+  function overlap(p) {
+    const box = $("vr-overlap");
+    box.textContent = "";
+    const ov = p.trace.kind === "tip" ? (p.result.rows.find((x) => x.deg === p.trace.lean_deg) || {}).overlap : p.result.overlap;
+    if (!ov) return;
+    const deep = ov.pairs[0], end = ov.end.pairs[0];
+    box.append(el("b", "", "Overlap. "));
+    if (!deep) { box.append("Nothing goes into anything else in this run."); return; }
+    box.append(`Deepest: ${say(deep)}, at ${deep.t.toFixed(2)} s. `);
+    const b = el("button", "btn", "Show it");
+    b.onclick = () => {
+      v.seek(deep.t, true);
+      v.playing = false;
+      v.highlight(v.meta.geoms.filter((g) => g.link === deep.body).map((g) => g.part));
+    };
+    box.append(b, ` Once it settles: ${end ? say(end) : "nothing is inside anything else"}.`);
+  }
 
   function draw() {
     const s = r.states[state], p = s.probes[probe];
@@ -60,14 +84,16 @@ export async function mount(name) {
     const k = $("vr-knives");
     k.textContent = "";
     const res = p.result;
-    const cols = probe === "extract" ? ["Knife", "Starts to come out at", "Block lift"] : probe === "tip" ? ["Tilt", "What happens", "Block tilt"] : ["Knife", "Out of its slot", "Turned"];
+    const cols = probe === "extract" ? ["Knife", "Starts to come out at", "Block lift"] : probe === "tip" ? ["Tilt", "What happens", "Block tilt", "Left inside, at rest"] : ["Knife", "Out of its slot", "Turned"];
     const hr = el("tr");
     cols.forEach((c) => hr.append(el("th", "", c)));
     k.append(hr);
     if (probe === "tip") {
       for (const row of res.rows.slice(0, 6)) {
         const tr = el("tr");
-        tr.append(el("td", "", `${row.deg}°`), el("td", row.mode === "holds" ? "ok" : "bad", row.mode.replace(/_/g, " ")), el("td", "", `${row.block_tilt_deg}°`));
+        const e = row.overlap && row.overlap.end.pairs[0];
+        tr.append(el("td", "", `${row.deg}°`), el("td", row.mode === "holds" ? "ok" : "bad", row.mode.replace(/_/g, " ")), el("td", "", `${row.block_tilt_deg}°`),
+          el("td", e && e.mm > 0.5 ? "bad" : "", e ? `${e.mm.toFixed(1)} mm` : "none"));
         k.append(tr);
       }
     } else {
@@ -84,6 +110,7 @@ export async function mount(name) {
         k.append(tr);
       }
     }
+    overlap(p);
     // stability: how far it can tilt each way before its centre of mass passes the edge of its footprint
     const st = s.stability.tip_angle_deg;
     $("vr-stab").textContent = "";

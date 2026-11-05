@@ -20,6 +20,8 @@ import zipfile
 import mujoco
 import numpy as np
 
+import mj
+
 
 def _object_docs(obj) -> dict[str, tuple[str, list[float]]]:
     """Each object's own MJCF (its body at the origin, meshes under meshes/) and where the scene places it."""
@@ -43,9 +45,10 @@ def _scene(name: str, docs: dict) -> str:
     frames = "\n    ".join(
         f'<frame pos="{p[0]:.6f} {p[1]:.6f} {p[2]:.6f}" quat="{p[3]:.6f} {p[4]:.6f} {p[5]:.6f} {p[6]:.6f}">'
         f'<attach model="{n}" body="{n}" prefix="{n}/"/></frame>' for n, (_, p) in docs.items())
-    return (f'<mujoco model="{name}_scene">\n  <option timestep="0.002"/>\n  <asset>\n    {models}\n  </asset>\n  <worldbody>\n'
+    return (f'<mujoco model="{name}_scene">\n  <option timestep="{mj.DT / mj.SUBSTEPS:g}"/>\n  <asset>\n    {models}\n  </asset>\n  <worldbody>\n'
             f'    <light pos="0 0 3" dir="0 0 -1" directional="true"/>\n'
-            f'    <geom name="floor" type="plane" size="3 3 0.1" friction="1 0.005 0.0001"/>\n    {frames}\n  </worldbody>\n</mujoco>\n')
+            f'    <geom name="floor" type="plane" size="3 3 0.1" friction="1 0.005 0.0001" solref="{mj.SOLREF}"/>\n    {frames}\n'
+            '  </worldbody>\n</mujoco>\n')
 
 
 def validate(folder: str, names: list[str]) -> dict:
@@ -58,7 +61,7 @@ def validate(folder: str, names: list[str]) -> dict:
     d = mujoco.MjData(m)
     mujoco.mj_forward(m, d)
     p0 = d.xpos.copy()
-    for _ in range(500):
+    for _ in range(int(round(1.0 / m.opt.timestep))):
         mujoco.mj_step(m, d)
     drift = {m.body(i).name: round(float(np.linalg.norm(d.xpos[i] - p0[i])) * 1000, 2) for i in range(1, m.nbody)}
     ok = bool(np.isfinite(d.qpos).all() and max(drift.values()) < 10)
@@ -77,6 +80,9 @@ README = """# {label}: MJCF and OBJ for MuJoCo
   mesh as its convex hull); visual geoms are in group 2 and don't collide.
 - Every body has an explicit `<inertial>` (mass, centre of mass, full inertia). Friction is set per geom from its
   part's material; `report.json` lists the materials, the acceptance checks and every probe.
+- Contacts are stiff: every collision geom has `solref="{solref}"`, against MuJoCo's default of 0.02, so thin parts
+  don't sink into each other and get pushed through a wall. That time constant needs a 1 ms step, which `scene.xml`
+  sets; at 2 ms MuJoCo raises it to 4 ms.
 
 Units are SI, z is up, quaternions are w x y z. Checked in MuJoCo {mujoco}: every file loads, and the scene settles
 with no body drifting more than {drift:.1f} mm in 1 s.
@@ -103,7 +109,7 @@ def export(obj, folder: str, report: dict | None = None) -> dict:
     objects = ("`" + "`, `".join(f"{n}.xml" for n in docs) + "`: each object alone, its body at the origin."
                if len(docs) > 1 else f"`{next(iter(docs))}.xml`: the object alone, its body at the origin.")
     open(os.path.join(folder, "README.md"), "w").write(README.format(
-        label=label[:1].upper() + label[1:], description=description, objects=objects, mujoco=check["mujoco"],
+        label=label[:1].upper() + label[1:], description=description, objects=objects, mujoco=check["mujoco"], solref=mj.SOLREF,
         drift=max(check["scene"]["drift_mm_after_1s"].values())))
     json.dump({"object": obj.name, "kind": obj.kind, "load_check": check, **(report or {})},
               open(os.path.join(folder, "report.json"), "w"), indent=1, default=float)

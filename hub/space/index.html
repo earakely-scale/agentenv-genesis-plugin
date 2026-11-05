@@ -374,7 +374,7 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
 <section id="validation" aria-labelledby="vr-h">
   <div class="sec-head">
     <h2 id="vr-h"><span class="frame-mark" aria-hidden="true"></span>A knife block, validated in MuJoCo and exported as MJCF and OBJ</h2>
-    <p>The workbench grades in MuJoCo, the engine these objects ship for, and Genesis runs the same checks as a second opinion. This knife block is a set: a beech block and six free knives that sit in its slots. Its probes ask what a robot would. Do the knives stay seated? Do they drop into their slots? Do they pull out without lifting the block? How far can the table tilt? As delivered, the chef's and bread knives were each given to MuJoCo as one collision mesh. MuJoCo collides a mesh as its convex hull, so those knives are as wide as their handles, and they can't enter a 4 mm slot. The fix gives them a convex hull per part. Pick a state and a probe to replay what MuJoCo simulated.</p>
+    <p>The workbench grades in MuJoCo, the engine these objects ship for, and Genesis runs the same checks as a second opinion. This knife block is a set: a beech block and six free knives that sit in its slots. Its probes ask what a robot would. Do the knives stay seated? Do they drop into their slots? Do they pull out without lifting the block? How far can the table tilt? As delivered, the chef's and bread knives were each given to MuJoCo as one collision mesh. MuJoCo collides a mesh as its convex hull, so those knives are as wide as their handles, and they can't enter a 4 mm slot. The fix gives them a convex hull per part. One check asks whether anything goes into anything else: after every probe nothing may rest more than 0.5 mm inside another body or the floor, or ever go more than 3 mm in. A reviewer caught a chef's knife blade showing through the block's front wall in the lean replay. MuJoCo had pushed it there. Its default contacts are soft, so on impact the blade sank further into the wall than it is thick, and the wall then pushed it out sideways. The block now collides as whole walls rather than strips a few mm wide, contacts are stiffer, and the check fails any object where that happens. Pick a state and a probe to replay what MuJoCo simulated.</p>
   </div>
   <div class="vr">
     <div class="vr-bar"><span>State</span><div id="vr-states" class="vr-btns"></div><span>Probe</span><div id="vr-probes" class="vr-btns"></div>
@@ -391,6 +391,7 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
         <div class="vr-tbl"><table id="vr-checks"></table></div>
         <h3>This probe, knife by knife</h3>
         <div class="vr-tbl"><table id="vr-knives"></table></div>
+        <p class="vr-small" id="vr-overlap"></p>
         <p class="vr-dl"><a class="btn pri" id="vr-export" download>Download the MJCF + OBJ (zip)</a> <span id="vr-load"></span></p>
         <p class="vr-small">The zip has <code>scene.xml</code>, which attaches each object from its own MJCF file, plus the OBJ meshes and <code>report.json</code>. Approving an object in the workbench writes the same export, and loads it back in MuJoCo before it counts.</p>
       </div>
