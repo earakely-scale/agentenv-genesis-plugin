@@ -22,6 +22,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
 import assets as A
+import export as X
 import session as S
 import workbench as wb
 from agentenv_protocol import (
@@ -38,7 +39,8 @@ from agentenv_protocol import (
 PRIMITIVE_JOINTS = {"oven_004": {"door_hinge": ("oven", "door")}, "cabinet_022": {"drawer_slide": ("carcass", "drawer")}}
 Material = Literal["ceramic", "porcelain", "glass", "stainless_steel", "cast_iron", "aluminum", "plastic_pp", "plastic_abs",
                    "oak", "wood", "silicone", "sheet_steel", "abs_plastic"]
-Probe = Literal["tip", "rest", "drop", "cavity", "parts", "hinge", "travel", "joints"]
+Probe = Literal["tip", "rest", "drop", "cavity", "parts", "hinge", "travel", "joints", "seat", "extract"]
+Engine = Literal["mujoco", "genesis"]
 
 
 class Frame(BaseModel):
@@ -88,7 +90,10 @@ class GenesisWorkbench(AgentEnvEnvironment):
                 "probe that matches the complaint to see the behaviour, edit, then probe again to confirm. Units are SI: "
                 "kg, m, N, seconds. Objects come in three kinds, and inspect says which: primitive objects (edit with "
                 "set_inertial, set_material, set_joint), mesh objects made of parts (set_material, set_shell, set_scale, "
-                "remove_part, set_inertial; source_photo shows the real object for those built from photos), and articulated URDF furniture (set_self_collision, set_joint). Keep edits "
+                "remove_part, set_inertial; source_photo shows the real object for those built from photos), sets of bodies that fit "
+                "together like a knife block and its knives (set_collision, set_material, set_inertial), and articulated URDF "
+                "furniture (set_self_collision, set_joint). Probes and grading run in MuJoCo, the engine the objects ship for; "
+                "run_probe with engine='genesis' asks Genesis for a second opinion. Keep edits "
                 "physically plausible for the real object's material and size. When a contributor is testing the object in the "
                 "browser, last_interaction shows what they did there and what they saw.")
 
@@ -121,6 +126,12 @@ class GenesisWorkbench(AgentEnvEnvironment):
             rows0, probes0, kind0 = await self._before
             self.before = {"checks": rows0, "probes": probes0, "kind": kind0}
         rows, probes, kind = await self._run(self.obj.checks, "current")
+        second = None
+        if self.obj.kind in ("mesh", "set"):
+            g_rows, _, _ = await self._run(self.obj.checks, "current", "genesis")
+            graded = {r["id"]: r["result"] for r in rows}
+            second = {"engine": "genesis", "checks": g_rows,
+                      "disagree": [r["id"] for r in g_rows if r["id"] in graded and graded[r["id"]] != r["result"]]}
         if kind not in probes and probes:
             kind = next(iter(probes))
         b, a = self.before["probes"].get(kind, {}), probes.get(kind, {})
@@ -132,7 +143,7 @@ class GenesisWorkbench(AgentEnvEnvironment):
                 "diff": self._diff(),
                 "probe": {"kind": kind, "x": a.get("x"), "x_label": a.get("x_label"), "y_label": a.get("y_label"),
                           "before": b.get("y"), "after": a.get("y")},
-                "calls": self.calls, "duration_s": round(time.time() - self.t0, 1)}
+                "calls": self.calls, "duration_s": round(time.time() - self.t0, 1), "engine": A.ENGINE, "second_opinion": second}
         s = self.session
         if s.connected:
             data["session"] = {"status": s.status, "chat": s.chat, "interactions": s.actions, "traces": s.traces,
@@ -186,8 +197,10 @@ class GenesisWorkbench(AgentEnvEnvironment):
                                                                                  "link's geometry at this material.")] = None) -> str:
         """Set mass properties directly. On a mesh object this overrides what its parts compute; setting only mass
         keeps the computed centre of mass and scales the inertia with it."""
-        o = self._only("primitive", "mesh", edit=True)
-        if o.kind == "mesh":
+        o = self._only("primitive", "mesh", "set", edit=True)
+        if o.kind == "set":
+            out = o.set_inertial(mass, com, inertia, link=None if link == "body" else link)
+        elif o.kind == "mesh":
             out = o.set_inertial(mass, com, inertia)
         else:
             m = o.model
@@ -208,11 +221,12 @@ class GenesisWorkbench(AgentEnvEnvironment):
         return text
 
     @tool()
-    def set_material(self, part: Annotated[str, Field(description="Part name (mesh objects) or link name (primitive objects).")],
-                     material: Material) -> str:
+    def set_material(self, part: Annotated[str, Field(description="Part name (mesh objects), body.part (sets, e.g. knife_block.pads) "
+                                                                    "or link name (primitive objects).")],
+                     material: str) -> str:
         """Give a part or link a real material: its density, and on primitive objects its friction too."""
-        o = self._only("primitive", "mesh", edit=True)
-        if o.kind == "mesh":
+        o = self._only("primitive", "mesh", "set", edit=True)
+        if o.kind in ("mesh", "set"):
             out = o.set_material(part, material)
         else:
             if part not in o.model["links"] or o.model["links"][part].get("fixed"):
@@ -250,6 +264,17 @@ class GenesisWorkbench(AgentEnvEnvironment):
         o = self._only("mesh", edit=True)
         text = json.dumps(o.remove_part(part, restore), default=float)
         self._log("remove_part", {"part": part, "restore": restore}, text)
+        return text
+
+    @tool()
+    def set_collision(self, body: Annotated[str, Field(description="Body name, from inspect.")],
+                      mode: Annotated[Literal["parts", "hull"], Field(description="'parts': one convex hull per part (blade, "
+                                                                                   "bolster, handle); 'hull': one convex hull of the whole body.")]) -> str:
+        """Sets: how a body collides. MuJoCo collides every mesh as its convex hull, so a body given as one mesh collides
+        as the hull of all of it, which can't go into a slot narrower than its widest part."""
+        o = self._only("set", edit=True)
+        text = json.dumps(o.set_collision(body, mode))
+        self._log("set_collision", {"body": body, "mode": mode}, text)
         return text
 
     @tool()
@@ -301,16 +326,20 @@ class GenesisWorkbench(AgentEnvEnvironment):
     @tool()
     async def run_probe(self, kind: Annotated[Probe, Field(description="Mesh objects: rest, drop, tip (tilt table), cavity "
                                                                         "(drop spheres into an opening), parts (gaps between "
-                                                                        "parts). Primitive objects: tip, rest, hinge, travel. "
-                                                                        "Articulated objects: joints.")]
+                                                                        "parts). Sets: rest (every knife from its seat), seat "
+                                                                        "(knives dropped into their slots), extract (each pulled "
+                                                                        "out), tip. Primitive objects: tip, rest, hinge, travel. "
+                                                                        "Articulated objects: joints.")],
+                        engine: Annotated[Engine, Field(description="mujoco (the default, the engine that grades) or genesis "
+                                                                    "(a second opinion; mesh objects, and the rest probe of sets).")] = "mujoco"
                         ) -> Annotated[CallToolResult, Frame]:
-        """Build a Genesis scene from the current object and measure one behaviour. Returns the numbers and a plot."""
+        """Build a scene from the current object and measure one behaviour, in MuJoCo by default. Returns the numbers and a plot."""
         o = self._need()
-        result = await self._run(o.probe, kind)
+        result = await (self._run(o.probe, kind, engine) if o.kind in ("mesh", "set") else self._run(o.probe, kind))
         self.last_probe = result
         png = await self._run(chart, result) if o.kind != "primitive" else (await self._run(wb.render, o.model, result) if "x" in result else None)
         text = json.dumps(result, default=float)
-        self._log("run_probe", {"kind": kind}, text, png)
+        self._log("run_probe", {"kind": kind, "engine": engine}, text, png)
         content = [TextContent(type="text", text=text)]
         if png:
             content.append(ImageContent(type="image", data=base64.b64encode(png).decode(), mimeType="image/png"))
@@ -367,6 +396,11 @@ class GenesisWorkbench(AgentEnvEnvironment):
                 if o.kind != "primitive":
                     glb, meta = await self._web_scene(which)
                     out[f"scene_{which}"] = {"glb_b64": base64.b64encode(glb).decode(), "meta": meta}
+            if o.kind in ("mesh", "set"):
+                folder = os.path.join("/tmp", f"export-{o.name}")
+                check = await self._run(X.export, o, folder, {"acceptance": report["acceptance"], "probes": report["probes"],
+                                                              "second_opinion": report.get("second_opinion"), "stability": report.get("stability")})
+                out["mujoco_export"] = {"zip_b64": base64.b64encode(X.zipped(folder)).decode(), "load_check": check}
             out.update({"asset": spec, "model_text": text, "diff": self._diff(),
                         "model_filename": f"{o.name}.{'edits.json' if o.kind == 'urdf' else 'xml'}", **report})
         return json.loads(json.dumps(out, default=float))

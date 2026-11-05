@@ -15,7 +15,8 @@ OUT = ROOT / "hub" / "space" / "replay"
 EDITS = {"set_inertial", "set_material", "set_shell", "set_scale", "remove_part", "set_self_collision", "set_joint"}
 TITLES = {"contributor-cad-mug": "Mug, rebuilt at 0.7× scale", "contributor-cad-bowl": "Serving bowl, rebuilt at 0.5× scale",
           "contributor-cad-frother": "Milk frother with a loose cord ring", "contributor-cad-coffeemaker": "Coffee maker, solid plastic",
-          "contributor-scan-mug": "Scanned mug, loaded at water density", "contributor-rcad-cupboard": "Cupboard doors that jam"}
+          "contributor-scan-mug": "Scanned mug, loaded at water density", "contributor-rcad-cupboard": "Cupboard doors that jam",
+          "contributor-knife-block": "Knife block: two knives won't go in"}
 
 
 def main():

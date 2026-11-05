@@ -64,6 +64,16 @@ PERSONAS = {
         "wrong": lambda r: "Something still isn't attached: " + ", ".join(r["floating"]) + ".",
         "confirm": ["lift", "lean"],
     },
+    "knife_block": {
+        "warmup": ["look", "insert"],
+        "opening": "The two big knives won't go into the block. They sit on top of their slots and fall over.",
+        "facts": "It's an ordinary knife block: all six knives should slide all the way into their slots, so only the handles stick out.",
+        "check": "insert",
+        "ok": lambda r: all(abs(k["out_of_slot_mm"]) <= 2 for k in r["knives"].values()),
+        "wrong": lambda r: "Still not right: " + ", ".join(f"the {n.split('_')[0]} knife stops {k['out_of_slot_mm']:.0f} mm out"
+                                                          for n, k in r["knives"].items() if abs(k["out_of_slot_mm"]) > 2) + ".",
+        "confirm": ["extract", "lean"],
+    },
     "rcad_cupboard": {
         "warmup": ["look", "open"],
         "opening": "One of the lower doors on the kitchen cupboard won't open, and the one next to it sticks partway.",

@@ -40,7 +40,7 @@ main { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); g
 .tabs button { padding: 4px 11px; font-size: 13px; border-radius: 99px; }
 .tabs button[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
 .ov { position: absolute; font-size: 12px; color: #fff; background: rgba(15, 20, 22, .55); padding: 3px 8px; border-radius: 6px; pointer-events: none; }
-.ov.tl { left: 10px; top: 10px; font-weight: 600; } .ov.br { right: 10px; bottom: 10px; }
+.ov.tl { left: 10px; top: 10px; font-weight: 600; } .ov.br { right: 10px; bottom: 10px; } .ov.bl { left: 10px; bottom: 10px; }
 .player { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .player input[type=range] { flex: 1; min-width: 120px; accent-color: var(--accent); }
 .player label { display: inline-flex; gap: 4px; align-items: center; }
@@ -109,7 +109,7 @@ textarea { font: inherit; width: 100%; min-height: 64px; resize: vertical; borde
       <button role="tab" data-pane="pphoto" aria-selected="false" hidden id="tab-photo">Real object</button>
     </div>
     <div class="view">
-      <div class="pane" id="p3d"><span class="ov tl" id="ov-label" hidden></span><span class="ov br" id="ov-grid"></span></div>
+      <div class="pane" id="p3d"><span class="ov tl" id="ov-label" hidden></span><span class="ov br" id="ov-grid"></span><span class="ov bl" id="ov-engine">graded in MuJoCo</span></div>
       <div class="pane" id="prender" hidden><img id="view" alt="Genesis render of the object as it is now"></div>
       <div class="pane photos" id="pphoto" hidden></div>
       <span class="busy" id="busy">simulating in Genesis…</span>
@@ -292,7 +292,10 @@ async function action(last, traced) {
   if (last.action === "lift") return v.play({ kind: "lift" }), enable(true);
   if (!traced) return v.reset(), enable(false);
   const tr = await (await fetch(`${base}/trace/${last.i}`)).json();
-  if (!tr.error) { v.play(tr); enable(!!(tr.frames && tr.frames.length)); }
+  if (!tr.error) {
+    v.play(tr); enable(!!(tr.frames && tr.frames.length));
+    $("ov-engine").textContent = tr.engine === "genesis" ? "simulated in Genesis" : "simulated in MuJoCo";
+  }
 }
 function enable(on) { $("pl-play").disabled = $("pl-seek").disabled = !on; }
 $("pl-play").onclick = () => {

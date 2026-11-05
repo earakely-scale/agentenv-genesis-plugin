@@ -24,6 +24,8 @@ ACTIONS = {
     "shake": ("Shake", "Check that its parts hold together"),
     "open": ("Open", "Open every door and drawer"),
     "pull": ("Pull", "Pull the drawer with 10 N"),
+    "insert": ("Insert", "Drop every knife into its slot from 2 cm above"),
+    "extract": ("Pull", "Pull each knife out of its slot in turn"),
 }
 PROBE = {"lean": "tip", "drop": "drop", "fill": "cavity", "shake": "parts", "pull": "travel"}
 EVERYDAY = [(0.06, "an egg"), (0.15, "an apple"), (0.33, "a can of soda"), (0.5, "a 500 ml bottle of water"),
@@ -56,7 +58,9 @@ def chart(probe: dict) -> bytes | None:
 
 
 def actions_for(obj) -> list[dict]:
-    if obj.kind == "mesh":
+    if obj.kind == "set":
+        keys = ["look", "lift", "insert", "extract", "lean"]
+    elif obj.kind == "mesh":
         keys = ["look", "lift", "lean", "drop", "fill", "shake"]
     elif obj.kind == "urdf":
         keys = ["look", "open"]
@@ -66,11 +70,16 @@ def actions_for(obj) -> list[dict]:
 
 
 def label(obj) -> str:
-    return obj.model.get("label") if obj.kind == "mesh" else obj.spec["label"] if obj.kind == "urdf" else obj.name.split("_")[0]
+    return obj.model.get("label") if obj.kind == "mesh" else obj.spec["label"] if obj.kind in ("urdf", "set") else obj.name.split("_")[0]
 
 
 def description(obj) -> str:
     return obj.model["description"] if obj.kind in ("mesh", "primitive") else obj.spec["description"]
+
+
+def _knives(names, labels=None) -> str:
+    names = [(labels or {}).get(n, n.replace("_", " ")).lower() for n in names]
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
 
 
 def _heft(kg: float) -> str:
@@ -78,6 +87,13 @@ def _heft(kg: float) -> str:
 
 
 def _lift(obj) -> tuple[str, dict]:
+    if obj.kind == "set":
+        masses = {b["name"]: obj._inertial(obj.model, b)["mass"] for b in obj.spec["bodies"]}
+        block = masses.pop(obj.block)
+        total = block + sum(masses.values())
+        text = (f"The set weighs {total:.2f} kg, about as heavy as {_heft(total)}: the block {block:.2f} kg, the knives "
+                f"{min(masses.values()) * 1000:.0f} to {max(masses.values()) * 1000:.0f} g each.")
+        return text, {"mass_kg": round(total, 4), "block_kg": round(block, 4), "knives_kg": {k: round(v, 4) for k, v in masses.items()}}
     if obj.kind == "mesh":
         s = obj.summary()
         mass, (x, y, z) = s["mass_kg"], s["bbox_m"]
@@ -89,6 +105,8 @@ def _lift(obj) -> tuple[str, dict]:
 
 
 def summarize(kind: str, r: dict) -> str:
+    if "knives" in r or (kind == "tip" and "rows" in r):
+        return _summarize_set(kind, r)
     if r.get("error"):
         return {"hinge": "The door won't open at all: it seems welded shut.",
                 "travel": "The drawer doesn't move at all."}.get(kind, r["error"])
@@ -125,6 +143,41 @@ def summarize(kind: str, r: dict) -> str:
     return f"{kind}: done."
 
 
+def _summarize_set(kind: str, r: dict) -> str:
+    lab = r.get("labels", {})
+    one = lambda n: lab.get(n, n.replace("_", " ")).lower()
+    if kind == "seat":
+        out = {n: k["out_of_slot_mm"] for n, k in r["knives"].items() if abs(k["out_of_slot_mm"]) > 2}
+        if not out:
+            return f"All {len(r['knives'])} knives drop into their slots and go all the way in."
+        return (f"The {_knives(list(out), lab)} {'doesn' if len(out) == 1 else 'don'}'t go in: "
+                + ", ".join(f"the {one(n)} stops {v:.0f} mm out" for n, v in out.items()) + ".")
+    if kind == "rest":
+        off = {n: k for n, k in r["knives"].items() if abs(k["out_of_slot_mm"]) > 2 or k["rotation_deg"] > 3}
+        if not off:
+            return "Every knife sits in its slot without moving."
+        return f"The {_knives(list(off), lab)} {'doesn' if len(off) == 1 else 'don'}'t stay in {'its slot' if len(off) == 1 else 'their slots'}."
+    if kind == "extract":
+        ratios = {n: k["freed_at_weight_ratio"] for n, k in r["knives"].items()}
+        stuck = [n for n, v in ratios.items() if v is None]
+        lift = max(k["block_lift_mm"] for k in r["knives"].values())
+        moved = [v for v in ratios.values() if v is not None]
+        text = (f"Each knife comes out with a pull of {min(moved):.1f} to {max(moved):.1f} times its weight" if moved else "No knife comes out")
+        if stuck:
+            text += f"; the {_knives(stuck, lab)} won't come out even at {r['ratio_max']:g} times"
+        return text + ("; the block stays put." if lift < 1 else f"; the block lifts {lift:.0f} mm.")
+    if kind == "tip":
+        a = r["first_failure_deg"]
+        if a is None:
+            return "On a table tilting toward its back, the set stays put up to 70°."
+        held = [row["deg"] for row in r["rows"] if row["mode"] == "holds" and row["deg"] < a]
+        what = ("tips over" if r["mode"] == "topple" else "slides" if r["mode"] == "slide"
+                else f"stays up but the {one(r['mode'].removesuffix(' slides out'))} slides out")
+        return (f"On a table tilting toward its back, the set holds to {held[-1]}° and {what} at {a}°." if held
+                else f"On a table tilting toward its back, the set {what} at {a}°, the first angle tried.")
+    return f"{kind}: done."
+
+
 def run_action(obj, action: str, last_probe: dict | None) -> dict:
     """One contributor action on ``obj`` as it is now: what they'd notice, the numbers, and an image."""
     if action not in {a["id"] for a in actions_for(obj)}:
@@ -138,8 +191,11 @@ def run_action(obj, action: str, last_probe: dict | None) -> dict:
     if action == "lift":
         text, numbers = _lift(obj)
         return {"summary": text, "result": numbers, "png": obj.render(last_probe)}
-    kind = "joints" if action == "open" and obj.kind == "urdf" else "hinge" if action == "open" else PROBE[action]
-    traced = obj.kind in ("mesh", "urdf")
+    if obj.kind == "set":
+        kind = {"insert": "seat", "extract": "extract", "lean": "tip"}[action]
+    else:
+        kind = "joints" if action == "open" and obj.kind == "urdf" else "hinge" if action == "open" else PROBE[action]
+    traced = obj.kind in ("mesh", "urdf", "set")
     if traced:
         obj._trace = {"frames": [], "t": []}
     try:
@@ -147,25 +203,33 @@ def run_action(obj, action: str, last_probe: dict | None) -> dict:
     finally:
         raw, obj._trace = getattr(obj, "_trace", None), None
     trace = None
-    if traced and raw and raw["frames"]:
+    if traced and raw and raw.get("engine") == "mujoco":
+        trace = {**A.node_frames(raw, obj.visual_nodes()), "kind": kind}
+    elif traced and raw and raw["frames"]:
         env = 0
         if kind == "tip":
             env = next((i for i, m in enumerate(r["modes"]) if m != "holds"), len(r["modes"]) - 1)
-        trace = {"kind": kind, **A.finish_trace(raw, env)}
+        trace = {"kind": kind, "engine": "genesis", **A.finish_trace(raw, env)}
         if kind == "tip":
             trace["lean_deg"] = r["x"][env]
-        if kind == "parts":
-            trace["floating"] = r["floating"]
     return {"summary": summarize(kind, r), "result": r, "png": chart(r) or obj.render(r), "probe": r, "trace": trace}
 
 
 def final_report(obj) -> dict:
     """What an approval attaches: the hidden acceptance checks and every probe the object takes, on the approved object."""
     rows, probes, _ = obj.checks("current")
-    for kind in {"mesh": ("rest", "drop", "tip", "parts"), "urdf": ("joints",)}.get(obj.kind, ()):
+    for kind in {"mesh": ("rest", "drop", "tip", "parts"), "urdf": ("joints",), "set": ("rest", "seat", "extract", "tip")}.get(obj.kind, ()):
         if kind not in probes:
             probes[kind] = obj.probe(kind)
-    return {"acceptance": rows, "passed": all(r["result"] for r in rows), "probes": probes}
+    out = {"engine": "mujoco", "acceptance": rows, "passed": all(r["result"] for r in rows), "probes": probes}
+    if obj.kind in ("mesh", "set"):
+        g_rows, _, _ = obj.checks("current", "genesis")
+        graded = {r["id"]: r["result"] for r in rows}
+        out["second_opinion"] = {"engine": "genesis", "checks": g_rows,
+                                 "disagree": [r["id"] for r in g_rows if r["id"] in graded and graded[r["id"]] != r["result"]]}
+    if obj.kind == "set":
+        out["stability"] = obj.stability()
+    return out
 
 
 class Session:

@@ -130,12 +130,17 @@ def _bundle(export: dict) -> bytes:
         z.writestr("checks.json", json.dumps({k: export[k] for k in ("acceptance", "passed", "probes")}, indent=1))
         z.writestr("session.json", json.dumps({k: export[k] for k in ("decision", "diff", "chat", "interactions", "agent_calls")},
                                               indent=1))
+        if export.get("mujoco_export"):  # the MJCF and OBJ files the object ships as, checked to load in plain MuJoCo
+            with zipfile.ZipFile(io.BytesIO(base64.b64decode(export["mujoco_export"]["zip_b64"]))) as m:
+                for item in m.infolist():
+                    if not item.is_dir():
+                        z.writestr("mujoco/" + item.filename.split("/", 1)[-1], m.read(item))
         for which, name in (("current", "scene"), ("original", "as_delivered")):
             if f"scene_{which}" in export:
                 z.writestr(f"{name}.glb", base64.b64decode(export[f"scene_{which}"]["glb_b64"]))
                 z.writestr(f"{name}.json", json.dumps(export[f"scene_{which}"]["meta"]))
         z.writestr("README.txt", f"{export['label']} {export['object']} as the contributor approved it. Meshes and textures are "
-                                 "the source asset's, unchanged; asset.json holds the edits and model file the result. scene.glb is the approved object "
+                                 "the source asset's, unchanged; asset.json holds the edits and model file the result. mujoco/ holds it as MJCF and OBJ for MuJoCo (scene.xml loads it). scene.glb is the approved object "
                                  "as the workbench's 3D view draws it, one node per visual geom posed by scene.json; as_delivered.glb is the same "
                                  "before the edits.\n")
     return buf.getvalue()

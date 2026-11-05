@@ -1,0 +1,607 @@
+{
+ "kind": "set",
+ "materials": {
+  "beech_wood": {
+   "density": 710.0,
+   "friction": 0.45,
+   "rgba": [
+    0.8,
+    0.62,
+    0.4,
+    1
+   ]
+  },
+  "stainless_steel": {
+   "density": 7700.0,
+   "friction": 0.35,
+   "rgba": [
+    0.74,
+    0.76,
+    0.78,
+    1
+   ]
+  },
+  "pom": {
+   "density": 1410.0,
+   "friction": 0.35,
+   "rgba": [
+    0.08,
+    0.08,
+    0.09,
+    1
+   ]
+  },
+  "rubber": {
+   "density": 1100.0,
+   "friction": 0.9,
+   "rgba": [
+    0.12,
+    0.12,
+    0.12,
+    1
+   ]
+  }
+ },
+ "bodies": [
+  {
+   "name": "knife_block",
+   "label": "Knife block",
+   "pose": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   "inertial": {
+    "mass": 2.54053,
+    "com": [
+     0.000158,
+     0.037024,
+     0.105786
+    ],
+    "fullinertia": [
+     0.014494696468096027,
+     0.012525499493649759,
+     0.008396570335661135,
+     1.0285250496705575e-05,
+     5.483165479688571e-06,
+     -0.0023834746883258573
+    ]
+   },
+   "parts": [
+    {
+     "name": "body",
+     "material": "beech_wood",
+     "collision": [
+      "knife_block_c00.obj",
+      "knife_block_c01.obj",
+      "knife_block_c02.obj",
+      "knife_block_c03.obj",
+      "knife_block_c04.obj",
+      "knife_block_c05.obj",
+      "knife_block_c06.obj",
+      "knife_block_c07.obj",
+      "knife_block_c08.obj",
+      "knife_block_c09.obj",
+      "knife_block_c10.obj",
+      "knife_block_c11.obj",
+      "knife_block_c12.obj",
+      "knife_block_c13.obj",
+      "knife_block_c14.obj",
+      "knife_block_c15.obj",
+      "knife_block_c16.obj",
+      "knife_block_c17.obj",
+      "knife_block_c18.obj",
+      "knife_block_c19.obj",
+      "knife_block_c20.obj",
+      "knife_block_c21.obj",
+      "knife_block_c22.obj",
+      "knife_block_c23.obj",
+      "knife_block_c24.obj",
+      "knife_block_c25.obj",
+      "knife_block_c26.obj",
+      "knife_block_c27.obj",
+      "knife_block_c28.obj"
+     ],
+     "visual": "knife_block_visual.obj"
+    },
+    {
+     "name": "pads",
+     "material": "rubber",
+     "collision": [
+      "pads_c0.obj",
+      "pads_c1.obj",
+      "pads_c2.obj",
+      "pads_c3.obj"
+     ],
+     "visual": "pads_visual.obj"
+    }
+   ]
+  },
+  {
+   "name": "chef_20cm",
+   "label": "Chef's knife 20 cm",
+   "slot": "chef_20cm",
+   "pose": [
+    -0.031,
+    0.014104,
+    0.229157,
+    0.698401,
+    -0.110616,
+    0.698401,
+    -0.110616
+   ],
+   "inertial": {
+    "mass": 0.27603,
+    "com": [
+     0.019526,
+     0.016107,
+     0.0
+    ],
+    "fullinertia": [
+     3.957564810345015e-05,
+     0.0017253183666823832,
+     0.0017562339865745446,
+     -5.78159102560211e-05,
+     -2.653871131940964e-23,
+     9.039748543173908e-23
+    ]
+   },
+   "parts": [
+    {
+     "name": "blade",
+     "material": "stainless_steel",
+     "collision": [
+      "chef_20cm_blade_c.obj"
+     ],
+     "visual": "chef_20cm_blade.obj"
+    },
+    {
+     "name": "bolster",
+     "material": "stainless_steel",
+     "collision": [
+      "chef_20cm_bolster_c.obj"
+     ],
+     "visual": "chef_20cm_bolster.obj"
+    },
+    {
+     "name": "handle",
+     "material": "pom",
+     "collision": [
+      "chef_20cm_handle_c.obj"
+     ],
+     "visual": "chef_20cm_handle.obj"
+    }
+   ],
+   "hull": "chef_20cm_hull.obj"
+  },
+  {
+   "name": "bread_20cm",
+   "label": "Bread knife 20 cm",
+   "slot": "bread_20cm",
+   "pose": [
+    0.0,
+    0.014104,
+    0.229157,
+    0.698401,
+    -0.110616,
+    0.698401,
+    -0.110616
+   ],
+   "inertial": {
+    "mass": 0.20256,
+    "com": [
+     0.012748,
+     0.01278,
+     0.0
+    ],
+    "fullinertia": [
+     1.608649754830083e-05,
+     0.0015573737223975306,
+     0.0015663709953058313,
+     -4.104573019600158e-05,
+     -7.961613395822891e-23,
+     -2.073336821828878e-25
+    ]
+   },
+   "parts": [
+    {
+     "name": "blade",
+     "material": "stainless_steel",
+     "collision": [
+      "bread_20cm_blade_c.obj"
+     ],
+     "visual": "bread_20cm_blade.obj"
+    },
+    {
+     "name": "bolster",
+     "material": "stainless_steel",
+     "collision": [
+      "bread_20cm_bolster_c.obj"
+     ],
+     "visual": "bread_20cm_bolster.obj"
+    },
+    {
+     "name": "handle",
+     "material": "pom",
+     "collision": [
+      "bread_20cm_handle_c.obj"
+     ],
+     "visual": "bread_20cm_handle.obj"
+    }
+   ],
+   "hull": "bread_20cm_hull.obj"
+  },
+  {
+   "name": "santoku_17cm",
+   "label": "Santoku 17 cm",
+   "slot": "santoku_17cm",
+   "pose": [
+    0.031,
+    0.014104,
+    0.229157,
+    0.698401,
+    -0.110616,
+    0.698401,
+    -0.110616
+   ],
+   "inertial": {
+    "mass": 0.21798,
+    "com": [
+     0.013456,
+     0.016751,
+     -0.0
+    ],
+    "fullinertia": [
+     3.489645193493434e-05,
+     0.0011994118506697222,
+     0.0012276314723393658,
+     -0.00010068260203202674,
+     5.352814514194866e-22,
+     -4.869887283180163e-23
+    ]
+   },
+   "parts": [
+    {
+     "name": "blade",
+     "material": "stainless_steel",
+     "collision": [
+      "santoku_17cm_blade_c.obj"
+     ],
+     "visual": "santoku_17cm_blade.obj"
+    },
+    {
+     "name": "bolster",
+     "material": "stainless_steel",
+     "collision": [
+      "santoku_17cm_bolster_c.obj"
+     ],
+     "visual": "santoku_17cm_bolster.obj"
+    },
+    {
+     "name": "handle",
+     "material": "pom",
+     "collision": [
+      "santoku_17cm_handle_c.obj"
+     ],
+     "visual": "santoku_17cm_handle.obj"
+    }
+   ],
+   "hull": "santoku_17cm_hull.obj"
+  },
+  {
+   "name": "utility_13cm",
+   "label": "Utility knife 13 cm",
+   "slot": "utility_13cm",
+   "pose": [
+    -0.024,
+    0.073069,
+    0.209998,
+    0.698401,
+    -0.110616,
+    0.698401,
+    -0.110616
+   ],
+   "inertial": {
+    "mass": 0.09375,
+    "com": [
+     -0.009994,
+     0.008598,
+     -0.0
+    ],
+    "fullinertia": [
+     4.360734976978759e-06,
+     0.0002817097724887059,
+     0.00028352278512519617,
+     -2.2721040624942576e-06,
+     -6.369442074467372e-23,
+     -2.2818915619550593e-24
+    ]
+   },
+   "parts": [
+    {
+     "name": "blade",
+     "material": "stainless_steel",
+     "collision": [
+      "utility_13cm_blade_c.obj"
+     ],
+     "visual": "utility_13cm_blade.obj"
+    },
+    {
+     "name": "bolster",
+     "material": "stainless_steel",
+     "collision": [
+      "utility_13cm_bolster_c.obj"
+     ],
+     "visual": "utility_13cm_bolster.obj"
+    },
+    {
+     "name": "handle",
+     "material": "pom",
+     "collision": [
+      "utility_13cm_handle_c.obj"
+     ],
+     "visual": "utility_13cm_handle.obj"
+    }
+   ],
+   "hull": "utility_13cm_hull.obj"
+  },
+  {
+   "name": "boning_15cm",
+   "label": "Boning knife 15 cm",
+   "slot": "boning_15cm",
+   "pose": [
+    0.0,
+    0.073069,
+    0.209998,
+    0.698401,
+    -0.110616,
+    0.698401,
+    -0.110616
+   ],
+   "inertial": {
+    "mass": 0.12175,
+    "com": [
+     -0.019135,
+     0.00924,
+     0.0
+    ],
+    "fullinertia": [
+     6.560976712766788e-06,
+     0.0004135175257669819,
+     0.000415394328690785,
+     -4.489998619886588e-07,
+     1.326935565970482e-23,
+     1.6586694574631025e-24
+    ]
+   },
+   "parts": [
+    {
+     "name": "blade",
+     "material": "stainless_steel",
+     "collision": [
+      "boning_15cm_blade_c.obj"
+     ],
+     "visual": "boning_15cm_blade.obj"
+    },
+    {
+     "name": "bolster",
+     "material": "stainless_steel",
+     "collision": [
+      "boning_15cm_bolster_c.obj"
+     ],
+     "visual": "boning_15cm_bolster.obj"
+    },
+    {
+     "name": "handle",
+     "material": "pom",
+     "collision": [
+      "boning_15cm_handle_c.obj"
+     ],
+     "visual": "boning_15cm_handle.obj"
+    }
+   ],
+   "hull": "boning_15cm_hull.obj"
+  },
+  {
+   "name": "paring_9cm",
+   "label": "Paring knife 9 cm",
+   "slot": "paring_9cm",
+   "pose": [
+    0.024,
+    0.073069,
+    0.209998,
+    0.698401,
+    -0.110616,
+    0.698401,
+    -0.110616
+   ],
+   "inertial": {
+    "mass": 0.08136,
+    "com": [
+     -0.021478,
+     0.00814,
+     0.0
+    ],
+    "fullinertia": [
+     3.7892927752179166e-06,
+     0.00015158586524277647,
+     0.00015266398902883543,
+     -2.1261186069007048e-07,
+     3.1858916821791842e-22,
+     2.1601430602455588e-24
+    ]
+   },
+   "parts": [
+    {
+     "name": "blade",
+     "material": "stainless_steel",
+     "collision": [
+      "paring_9cm_blade_c.obj"
+     ],
+     "visual": "paring_9cm_blade.obj"
+    },
+    {
+     "name": "bolster",
+     "material": "stainless_steel",
+     "collision": [
+      "paring_9cm_bolster_c.obj"
+     ],
+     "visual": "paring_9cm_bolster.obj"
+    },
+    {
+     "name": "handle",
+     "material": "pom",
+     "collision": [
+      "paring_9cm_handle_c.obj"
+     ],
+     "visual": "paring_9cm_handle.obj"
+    }
+   ],
+   "hull": "paring_9cm_hull.obj"
+  }
+ ],
+ "slots": {
+  "chef_20cm": {
+   "x": -0.031,
+   "v0": -0.058,
+   "width": 0.0045,
+   "length": 0.052,
+   "depth": 0.208,
+   "entry": [
+    -0.031,
+    0.03817,
+    0.22102
+   ],
+   "axis_out": [
+    0.0,
+    0.309017,
+    0.951057
+   ]
+  },
+  "bread_20cm": {
+   "x": 0.0,
+   "v0": -0.058,
+   "width": 0.0036,
+   "length": 0.034,
+   "depth": 0.208,
+   "entry": [
+    0.0,
+    0.02961,
+    0.2238
+   ],
+   "axis_out": [
+    0.0,
+    0.309017,
+    0.951057
+   ]
+  },
+  "santoku_17cm": {
+   "x": 0.031,
+   "v0": -0.058,
+   "width": 0.004,
+   "length": 0.048,
+   "depth": 0.178,
+   "entry": [
+    0.031,
+    0.03627,
+    0.22164
+   ],
+   "axis_out": [
+    0.0,
+    0.309017,
+    0.951057
+   ]
+  },
+  "utility_13cm": {
+   "x": -0.024,
+   "v0": 0.004,
+   "width": 0.0032,
+   "length": 0.027,
+   "depth": 0.138,
+   "entry": [
+    -0.024,
+    0.08525,
+    0.20573
+   ],
+   "axis_out": [
+    0.0,
+    0.309017,
+    0.951057
+   ]
+  },
+  "boning_15cm": {
+   "x": 0.0,
+   "v0": 0.004,
+   "width": 0.0035,
+   "length": 0.025,
+   "depth": 0.158,
+   "entry": [
+    0.0,
+    0.08429,
+    0.20604
+   ],
+   "axis_out": [
+    0.0,
+    0.309017,
+    0.951057
+   ]
+  },
+  "paring_9cm": {
+   "x": 0.024,
+   "v0": 0.004,
+   "width": 0.003,
+   "length": 0.024,
+   "depth": 0.098,
+   "entry": [
+    0.024,
+    0.08382,
+    0.20619
+   ],
+   "axis_out": [
+    0.0,
+    0.309017,
+    0.951057
+   ]
+  }
+ },
+ "collision": {
+  "chef_20cm": "hull",
+  "bread_20cm": "hull"
+ },
+ "frame": "z up; the block's footprint centre on the floor plane",
+ "id": "knife_block",
+ "label": "knife block",
+ "description": "A slanted beech knife block on rubber pads, with six knives: chef, bread, santoku, utility, boning, paring.",
+ "credit": "Procedural geometry, generated by scripts/build_knife_block.py",
+ "checks": [
+  {
+   "type": "set_seated",
+   "mm": 2.0,
+   "deg": 3.0
+  },
+  {
+   "type": "set_inserts",
+   "mm": 2.0
+  },
+  {
+   "type": "set_pull_free",
+   "max_weight_ratio": 2.0,
+   "max_block_lift_mm": 2.0
+  },
+  {
+   "type": "set_tilt_min_deg",
+   "value": 12
+  },
+  {
+   "type": "set_mass_band",
+   "lo": 2.0,
+   "hi": 4.5
+  }
+ ],
+ "task": "knife-block-hull",
+ "complaint": "The two big knives won't go into the block. They sit on top of their slots and fall over."
+}

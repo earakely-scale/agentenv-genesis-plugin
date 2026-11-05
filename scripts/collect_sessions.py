@@ -17,7 +17,7 @@ from pathlib import Path
 
 TASKS = {"cad_mug": "contributor-cad-mug", "cad_serving_bowl": "contributor-cad-bowl", "rcad_cupboard": "contributor-rcad-cupboard",
          "scan_mug": "contributor-scan-mug", "cad_coffee_maker": "contributor-cad-coffeemaker",
-         "cad_milk_frother": "contributor-cad-frother"}
+         "cad_milk_frother": "contributor-cad-frother", "knife_block": "contributor-knife-block"}
 CONTRIBUTORS = {"scripted": "scripts/contributor.py, over the page's HTTP API",
                 "browser": "scripts/record_session.py, through the page in Chrome (recorded)",
                 "person": "a person, through the page"}

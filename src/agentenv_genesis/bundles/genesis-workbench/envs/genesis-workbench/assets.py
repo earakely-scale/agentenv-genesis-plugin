@@ -16,12 +16,15 @@ import re
 import tempfile
 import threading
 
+import mujoco
 import numpy as np
 import trimesh
 
+import mj
 import workbench as wb
 
 ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+ENGINE = "mujoco"  # the engine that grades; Genesis gives the second opinion
 DENSITY = {"ceramic": 2300.0, "porcelain": 2400.0, "glass": 2500.0, "stainless_steel": 7900.0, "cast_iron": 7200.0,
            "aluminum": 2700.0, "plastic_pp": 905.0, "plastic_abs": 1050.0, "oak": 750.0, "wood": 700.0, "silicone": 1100.0,
            "sheet_steel": 7850.0, "abs_plastic": 1050.0}
@@ -52,7 +55,7 @@ def load(name: str):
     if name in ("mug_017", "oven_004", "cabinet_022"):
         return PrimitiveObject(name)
     spec = json.load(open(os.path.join(ASSETS, name, "asset.json")))
-    return (UrdfObject if spec["kind"] == "urdf" else MeshObject)(name, spec)
+    return {"urdf": UrdfObject, "set": SetObject}.get(spec["kind"], MeshObject)(name, spec)
 
 
 def _scene(self_collision=True, friction=1.0, n_envs=1):
@@ -108,9 +111,20 @@ def _shrink_textures(tm, size=512):
             setattr(mat, attr, img.resize((max(1, int(img.size[0] * k)), max(1, int(img.size[1] * k)))))
 
 
+def node_frames(raw: dict, nodes: list[dict]) -> dict:
+    """A MuJoCo trace (each body's pose per frame) as each browser node's pose per frame: a node is drawn in its body's frame."""
+    idx = [raw["bodies"].index(n["link"]) for n in nodes]
+    out = {k: v for k, v in raw.items() if k not in ("bodies", "frames")}
+    out["frames"] = [[f[j] for j in idx] for f in raw["frames"]]
+    return out
+
+
 def web_scene(obj, original=False) -> tuple[bytes, dict]:
-    """The object as the browser draws it: one GLB with a node per Genesis visual geom (named v0, v1, ..., each in its
-    own frame) and their poses at rest, with what each one is, the bounds and the centre of mass."""
+    """The object as the browser draws it: one GLB with a node per visual mesh (named v0, v1, ...) and their poses at
+    rest, with what each one is, the bounds and the centre of mass. Mesh objects and sets are drawn from their own OBJ
+    files in their bodies' frames, the frames MuJoCo reports; articulated URDF objects from Genesis's visual geoms."""
+    if obj.kind in ("mesh", "set"):
+        return obj.web_scene(original)
     g = gs()
     with _lock:
         s = _scene()
@@ -404,10 +418,58 @@ class MeshObject:
                 "bbox_m": [round(float(v), 4) for v in b[1] - b[0]], "scale": self.model["scale"]}
 
     # probes
-    def probe(self, kind):
-        with _lock:
-            return {"rest": self._rest, "drop": self._drop, "tip": self._tip, "cavity": self._cavity,
-                    "parts": self._parts}.get(kind, self._bad(kind))()
+    def probe(self, kind, engine=ENGINE):
+        if kind == "parts":
+            return self._parts()
+        if engine == "genesis":
+            with _lock:
+                return {"rest": self._rest, "drop": self._drop, "tip": self._tip, "cavity": self._cavity}.get(kind, self._bad(kind))()
+        traced = getattr(self, "_trace", None) is not None
+        b = self._bounds()
+        if kind == "rest":
+            out, tr = mj.rest(self.mjcf(), self._lift(), traced)
+        elif kind == "drop":
+            out, tr = mj.drop(self.mjcf(), self._lift(), float(b[1][2] - b[0][2]), traced)
+        elif kind == "tip":
+            out, tr = mj.tip(self.mjcf(), self._lift(), traced)
+        elif kind == "cavity":
+            out, tr = mj.cavity(self.mjcf(free=False), self._lift(), b, traced)
+        else:
+            return self._bad(kind)()
+        if traced:
+            self._trace = tr
+        return out
+
+    def web_scene(self, original=False):
+        saved = self.model
+        self.model = self.original if original else self.model
+        try:
+            s, z = self.model["scale"], self._lift()
+            mass, com, _ = self.props()
+            b = self._bounds()
+            scene, geoms = trimesh.Scene(), []
+            for i, n in enumerate(self.visual_nodes()):
+                p = self.part(n["part"])
+                tm = trimesh.load(os.path.join(self.dir, p["visual"]), force="mesh", process=False).copy()
+                tm.apply_scale(s)
+                if not isinstance(tm.visual, trimesh.visual.TextureVisuals):
+                    r, g_, bb = COLORS.get(p["material"], (0.8, 0.8, 0.8))
+                    tm.visual = trimesh.visual.ColorVisuals(tm, face_colors=[int(r * 255), int(g_ * 255), int(bb * 255), 255])
+                _shrink_textures(tm)
+                scene.add_geometry(tm, node_name=f"v{i}", geom_name=f"g{i}")
+                geoms.append({"i": i, "link": "body", "part": p["name"], "pose": [0.0, 0.0, round(z, 5), 1.0, 0.0, 0.0, 0.0]})
+            meta = {"kind": "mesh", "engine": ENGINE, "geoms": geoms, "lift": round(z, 5), "scale": s,
+                    "bounds": [[round(float(b[0][0]), 4), round(float(b[0][1]), 4), round(float(b[0][2]) + z, 4)],
+                               [round(float(b[1][0]), 4), round(float(b[1][1]), 4), round(float(b[1][2]) + z, 4)]],
+                    "com": [round(float(com[0]), 4), round(float(com[1]), 4), round(float(com[2]) + z, 4)],
+                    "mass_kg": round(float(mass), 4), "size_m": [round(float(v), 4) for v in b[1] - b[0]]}
+            return scene.export(file_type="glb"), meta
+        finally:
+            self.model = saved
+
+    def visual_nodes(self):
+        """The browser scene's nodes: one per visual part, each in the body's frame."""
+        return [{"part": p["name"], "link": "body"} for p in self.model["parts"] if not p.get("removed") and p.get("visual")]
 
     def _bad(self, kind):
         def f():
@@ -515,7 +577,7 @@ class MeshObject:
                 "note": "Closest distance from each part's surface to any other part's surface; over 2 mm counts as floating."}
 
     # checks
-    def checks(self, which="current"):
+    def checks(self, which="current", engine=ENGINE):
         saved = self.model
         if which == "original":
             self.model = self.original
@@ -537,20 +599,20 @@ class MeshObject:
                     rows.append({"id": "width", "result": bool(c["lo"] <= w <= c["hi"]),
                                  "description": f"width within {c['lo'] * 100:.0f}-{c['hi'] * 100:.0f} cm; got {w * 100:.1f} cm"})
                 elif t == "cavity_open":
-                    probes["cavity"] = r = self.probe("cavity")
+                    probes["cavity"] = r = self.probe("cavity", engine)
                     rows.append({"id": "cavity-open", "result": bool(r["open"]),
                                  "description": f"the opening holds dropped objects; {r['balls_inside']} of 5 spheres inside"})
                 elif t == "rests_upright":
-                    probes["rest"] = r = self.probe("rest")
+                    probes["rest"] = r = self.probe("rest", engine)
                     rows.append({"id": "rests-upright", "result": bool(r["stable"]),
                                  "description": f"rests upright on a flat bench; tilt {r['tilt_deg']} deg, speed {r['max_speed']}"})
                 elif t == "tilt_min_deg":
-                    probes["tip"] = r = self.probe("tip")
+                    probes["tip"] = r = self.probe("tip", engine)
                     ok = r["first_failure_deg"] is None or r["first_failure_deg"] >= c["value"]
                     rows.append({"id": "not-top-heavy", "result": bool(ok),
                                  "description": f"stays put on a tilt table up to {c['value']} deg; first {r['mode']} at {r['first_failure_deg']}"})
                 elif t == "no_floating_parts":
-                    probes["parts"] = r = self.probe("parts")
+                    probes["parts"] = r = self.probe("parts", engine)
                     rows.append({"id": "no-floating-parts", "result": not r["floating"],
                                  "description": f"every part touches another; floating: {r['floating'] or 'none'}"})
             return rows, probes, next(iter(probes), "rest")
@@ -575,6 +637,292 @@ class MeshObject:
                                lookat=(float(ctr[0]), float(ctr[1]), 0.4 * float(ext[2])), fov=35, GUI=False)
             s.build()
             return _png(cam.render(rgb=True)[0])
+
+
+class SetObject:
+    """A set of free bodies that fit together, like a knife block and its knives: an MJCF of bodies, each with a
+    material per part, a designed pose, and collision as one convex hull per part. MuJoCo collides any mesh as its
+    convex hull, so a body whose whole mesh was given as one collision geom (collision "hull") can't enter a slot."""
+
+    kind = "set"
+
+    def __init__(self, name, spec):
+        self.name, self.dir, self.spec = name, os.path.join(ASSETS, name), spec
+        self.check_specs = spec["checks"]
+        self.original = {"collision": dict(spec.get("collision") or {}), "materials": {}, "inertial": {}}
+        self.model = copy.deepcopy(self.original)
+        self.block = spec["bodies"][0]["name"]
+        self.axis = spec["slots"][next(iter(spec["slots"]))]["axis_out"]
+        self.seats = {b["name"]: b["pose"] for b in spec["bodies"][1:]}
+
+    def body(self, name):
+        for b in self.spec["bodies"]:
+            if b["name"] == name:
+                return b
+        raise ValueError(f"no body {name!r}; bodies: {[b['name'] for b in self.spec['bodies']]}")
+
+    def _material(self, model, body, part):
+        return model["materials"].get(f"{body['name']}.{part['name']}", part["material"])
+
+    def _inertial(self, model, body):
+        out = dict(body["inertial"])
+        out.update(model["inertial"].get(body["name"], {}))
+        return out
+
+    def mjcf(self, model=None, free=True, absolute=True, bodies=None, meshdir=None):
+        m = model or self.model
+        mats = self.spec["materials"]
+        assets, worlds = [], []
+        for b in self.spec["bodies"]:
+            if bodies is not None and b["name"] not in bodies:
+                continue
+            geoms = []
+            hull = m["collision"].get(b["name"]) == "hull"
+            if hull:
+                mid = b["hull"].removesuffix(".obj")
+                assets.append(f'<mesh name="{mid}" file="{b["hull"]}"/>')
+                fr = mats[self._material(m, b, b["parts"][0])]["friction"]
+                geoms.append(f'<geom type="mesh" mesh="{mid}" friction="{fr:g} 0.005 0.0001" group="3" rgba="1 1 1 0"/>')
+            for part in b["parts"]:
+                mat = mats[self._material(m, b, part)]
+                if not hull:
+                    for f in part["collision"]:
+                        mid = f.removesuffix(".obj")
+                        assets.append(f'<mesh name="{mid}" file="{f}"/>')
+                        geoms.append(f'<geom type="mesh" mesh="{mid}" friction="{mat["friction"]:g} 0.005 0.0001" group="3" rgba="1 1 1 0"/>')
+                vid = "vis_" + part["visual"].removesuffix(".obj")
+                assets.append(f'<mesh name="{vid}" file="{part["visual"]}"/>')
+                r, g_, bb, a = mat.get("rgba", (0.8, 0.8, 0.8, 1))
+                geoms.append(f'<geom type="mesh" mesh="{vid}" contype="0" conaffinity="0" group="2" rgba="{r:.3f} {g_:.3f} {bb:.3f} {a:g}"/>')
+            i = self._inertial(m, b)
+            pose = b["pose"]
+            worlds.append(f'<body name="{b["name"]}" pos="{pose[0]:.6f} {pose[1]:.6f} {pose[2]:.6f}" quat="{" ".join(f"{v:.6f}" for v in pose[3:])}">'
+                          + ("<freejoint/>" if free else "")
+                          + f'<inertial pos="{" ".join(f"{v:.6f}" for v in i["com"])}" mass="{i["mass"]:.6f}" fullinertia="{" ".join(f"{v:.6e}" for v in i["fullinertia"])}"/>'
+                          + "".join(geoms) + "</body>")
+        root = meshdir if meshdir is not None else (self.dir if absolute else ".")
+        return (f'<mujoco model="{self.name}">\n  <compiler meshdir="{root}"/>\n  <asset>\n    ' + "\n    ".join(dict.fromkeys(assets))
+                + "\n  </asset>\n  <worldbody>\n    " + "\n    ".join(worlds) + "\n  </worldbody>\n</mujoco>\n")
+
+    def _lift(self):
+        return 0.0
+
+    def text(self, original=False):
+        return json.dumps(self.original if original else self.model, indent=1, sort_keys=True) + "\n"
+
+    def summary(self):
+        mass = sum(self._inertial(self.model, b)["mass"] for b in self.spec["bodies"])
+        return {"mass_kg": round(mass, 4), "bodies": len(self.spec["bodies"])}
+
+    def visual_nodes(self):
+        return [{"part": f"{b['name']}.{p['name']}", "link": b["name"]} for b in self.spec["bodies"] for p in b["parts"]]
+
+    def web_scene(self, original=False):
+        m = self.original if original else self.model
+        scene, geoms, verts = trimesh.Scene(), [], []
+        i = 0
+        for b in self.spec["bodies"]:
+            for part in b["parts"]:
+                tm = trimesh.load(os.path.join(self.dir, part["visual"]), force="mesh", process=False).copy()
+                r, g_, bb, a = self.spec["materials"][self._material(m, b, part)].get("rgba", (0.8, 0.8, 0.8, 1))
+                tm.visual = trimesh.visual.ColorVisuals(tm, face_colors=[int(r * 255), int(g_ * 255), int(bb * 255), int(a * 255)])
+                scene.add_geometry(tm, node_name=f"v{i}", geom_name=f"g{i}")
+                geoms.append({"i": i, "link": b["name"], "part": f"{b['name']}.{part['name']}", "pose": b["pose"]})
+                R = trimesh.transformations.quaternion_matrix(b["pose"][3:])[:3, :3]
+                verts.append(tm.vertices @ R.T + np.asarray(b["pose"][:3]))
+                i += 1
+        v = np.concatenate(verts)
+        mass = sum(self._inertial(m, b)["mass"] for b in self.spec["bodies"])
+        meta = {"kind": "set", "engine": ENGINE, "geoms": geoms, "lift": 0.0, "scale": 1.0, "mass_kg": round(mass, 4),
+                "bounds": np.round([v.min(0), v.max(0)], 4).tolist(), "size_m": np.round(v.max(0) - v.min(0), 4).tolist()}
+        return scene.export(file_type="glb"), meta
+
+    # probes
+    def probe(self, kind, engine=ENGINE):
+        if engine == "genesis":
+            return self._genesis(kind)
+        traced = getattr(self, "_trace", None) is not None
+        doc = self.mjcf()
+        fn = {"rest": lambda: mj.set_rest(doc, self.block, self.seats, self.axis, traced),
+              "seat": lambda: mj.set_seat(doc, self.block, self.seats, self.axis, trace=traced),
+              "extract": lambda: mj.set_extract(doc, self.block, self.seats, self.axis, trace=traced),
+              "tip": lambda: mj.set_tip(doc, self.block, self.seats, traced)}.get(kind)
+        if fn is None:
+            raise ValueError(f"{self.name} takes the rest, seat, extract and tip probes")
+        out, tr = fn()
+        out["labels"] = {b["name"]: b.get("label", b["name"]) for b in self.spec["bodies"][1:]}
+        if traced:
+            self._trace = tr
+        return out
+
+    def _genesis(self, kind):
+        """A second opinion in Genesis: every body as its own entity at its designed pose, settled for 1.5 s."""
+        if kind != "rest":
+            raise ValueError("Genesis gives a second opinion on the rest probe of a set")
+        g = gs()
+        with _lock:
+            s = _scene()
+            ents = {}
+            for b in self.spec["bodies"]:
+                path = os.path.join(tempfile.mkdtemp(prefix="wbset-"), f"{b['name']}.xml")
+                doc = self.mjcf(bodies=[b["name"]])
+                pose = b["pose"]
+                doc = re.sub(r'<body name="([^"]+)" pos="[^"]*" quat="[^"]*">', r'<body name="\1">', doc)
+                open(path, "w").write(doc)
+                ents[b["name"]] = s.add_entity(g.morphs.MJCF(file=path, pos=tuple(pose[:3]), quat=tuple(pose[3:])))
+            s.build()
+            for _ in range(750):
+                s.step()
+            blk = ents[self.block]
+            bp, bq = blk.get_pos().cpu().numpy().ravel(), blk.get_quat().cpu().numpy().ravel()
+            knives = {}
+            for name, seat in self.seats.items():
+                e = ents[name]
+                p = np.concatenate([e.get_pos().cpu().numpy().ravel(), e.get_quat().cpu().numpy().ravel()])
+                rel_p, rel_q = mj._relative(np.concatenate([bp, bq]), p)
+                dp = rel_p - np.asarray(seat[:3])
+                knives[name] = {"shift_mm": round(float(np.linalg.norm(dp)) * 1000, 2), "out_of_slot_mm": round(float(dp @ np.asarray(self.axis)) * 1000, 2),
+                                "rotation_deg": round(mj.rotation_deg(rel_q, np.asarray(seat[3:])), 2)}
+            return {"kind": "rest", "engine": "genesis", "knives": knives, "block_tilt_deg": round(float(_tilt(blk)[0]), 2)}
+
+    def checks(self, which="current", engine=ENGINE):
+        saved = self.model
+        if which == "original":
+            self.model = self.original
+        try:
+            rows, probes = [], {}
+            for c in self.check_specs:
+                t = c["type"]
+                if t == "set_seated":
+                    probes["rest"] = r = self.probe("rest", engine)
+                    bad = [n for n, k in r["knives"].items() if abs(k.get("out_of_slot_mm", k["shift_mm"])) > c["mm"] or k["rotation_deg"] > c["deg"]]
+                    rows.append({"id": "knives-seated", "result": not bad,
+                                 "description": f"every knife rests within {c['mm']:g} mm of its seat's depth and {c['deg']:g} deg of its angle; off: {bad or 'none'}"})
+                elif t == "set_inserts" and engine == "mujoco":
+                    probes["seat"] = r = self.probe("seat", engine)
+                    bad = [n for n, k in r["knives"].items() if abs(k["out_of_slot_mm"]) > c["mm"]]
+                    rows.append({"id": "knives-insert", "result": not bad,
+                                 "description": f"every knife dropped 2 cm above its slot goes all the way in, within {c['mm']:g} mm; not: {bad or 'none'}"})
+                elif t == "set_pull_free" and engine == "mujoco":
+                    probes["extract"] = r = self.probe("extract", engine)
+                    bad = [n for n, k in r["knives"].items() if k["freed_at_weight_ratio"] is None
+                           or k["freed_at_weight_ratio"] > c["max_weight_ratio"] or k["block_lift_mm"] > c["max_block_lift_mm"]]
+                    rows.append({"id": "knives-pull-free", "result": not bad,
+                                 "description": f"every knife pulls free under {c['max_weight_ratio']:g}x its weight without lifting the block "
+                                                f"{c['max_block_lift_mm']:g} mm; not: {bad or 'none'}"})
+                elif t == "set_tilt_min_deg" and engine == "mujoco":
+                    probes["tip"] = r = self.probe("tip", engine)
+                    ok = r["first_failure_deg"] is None or r["first_failure_deg"] >= c["value"]
+                    rows.append({"id": "set-stable", "result": bool(ok),
+                                 "description": f"the set stays put on a tilt table to {c['value']} deg; first: {r['mode']} at {r['first_failure_deg']}"})
+                elif t == "set_mass_band":
+                    mass = self.summary()["mass_kg"]
+                    rows.append({"id": "set-mass", "result": bool(c["lo"] <= mass <= c["hi"]),
+                                 "description": f"the set weighs {c['lo']}-{c['hi']} kg; got {mass:.3f} kg"})
+            return rows, probes, "seat"
+        finally:
+            self.model = saved
+
+    # tools
+    def inspect(self):
+        m = self.model
+        bodies = []
+        for b in self.spec["bodies"]:
+            row = {"name": b["name"], "label": b.get("label"), "inertial": self._inertial(m, b),
+                   "collision": "one convex hull of the whole body" if m["collision"].get(b["name"]) == "hull" else "a convex hull per part",
+                   "parts": [{"name": p["name"], "material": self._material(m, b, p), "convex_pieces": len(p["collision"])} for p in b["parts"]]}
+            if b.get("slot"):
+                sl = self.spec["slots"][b["slot"]]
+                blade = trimesh.load(os.path.join(self.dir, next(p for p in b["parts"] if p["name"] == "blade")["collision"][0]), force="mesh")
+                hull = trimesh.load(os.path.join(self.dir, b["hull"]), force="mesh")
+                row["slot"] = {"width_mm": round(sl["width"] * 1000, 2), "length_mm": round(sl["length"] * 1000, 1), "depth_mm": round(sl["depth"] * 1000, 1)}
+                row["collision_thickness_mm"] = {"blade_hull": round(float(np.ptp(blade.vertices[:, 2])) * 1000, 2),
+                                                 "whole_knife_hull": round(float(np.ptp(hull.vertices[:, 2])) * 1000, 2)}
+            bodies.append(row)
+        return {"object": self.name, "description": self.spec["description"], "label": self.spec["label"], "source": self.spec.get("credit"),
+                "bodies": bodies, "materials": {k: {kk: v[kk] for kk in ("density", "friction")} for k, v in self.spec["materials"].items()},
+                "probes": ["rest", "seat", "extract", "tip"], "engine": ENGINE,
+                "note": "MuJoCo collides every mesh geom as its convex hull. Poses are [x, y, z, qw, qx, qy, qz] in metres, z up."}
+
+    def stability(self):
+        """The set's static margin: how far it can tilt toward each side before its centre of mass passes the edge of
+        what it stands on (its pads' footprint), at its designed poses."""
+        m = mj.compile(self.mjcf())
+        d = mujoco.MjData(m)
+        mujoco.mj_forward(m, d)
+        total = float(m.body_subtreemass[0])
+        com = d.subtree_com[0].copy()
+        pts = []
+        for g in range(m.ngeom):
+            if m.geom_contype[g] and m.geom_type[g] == mujoco.mjtGeom.mjGEOM_MESH:
+                k = m.geom_dataid[g]
+                v = m.mesh_vert[m.mesh_vertadr[k]:m.mesh_vertadr[k] + m.mesh_vertnum[k]] @ d.geom_xmat[g].reshape(3, 3).T + d.geom_xpos[g]
+                pts.append(v[v[:, 2] < v[:, 2].min() + 0.0005][:, :2] if v[:, 2].min() < 0.002 else np.zeros((0, 2)))
+        from scipy.spatial import ConvexHull
+        foot = np.concatenate(pts)
+        hull = ConvexHull(foot)
+        out = {}
+        for side, n in (("back", (0, 1)), ("front", (0, -1)), ("left", (-1, 0)), ("right", (1, 0))):
+            edge = max(float(np.dot(p, n)) for p in foot[hull.vertices])
+            out[side] = round(math.degrees(math.atan2(edge - float(np.dot(com[:2], n)), float(com[2]))), 1)
+        return {"mass_kg": round(total, 4), "com_m": np.round(com, 4).tolist(), "tip_angle_deg": out,
+                "footprint_m": np.round(foot[hull.vertices], 4).tolist(), "least_stable": min(out, key=out.get)}
+
+    def set_collision(self, body, mode):
+        b = self.body(body)
+        if mode not in ("parts", "hull"):
+            raise ValueError("mode is 'parts' (a convex hull per part) or 'hull' (one convex hull of the whole body)")
+        if mode == "hull" and not b.get("hull"):
+            raise ValueError(f"{body} has no whole-body hull")
+        self.model["collision"][body] = mode
+        return {"body": body, "collision": mode}
+
+    def set_material(self, part, material):
+        body, _, pname = part.partition(".")
+        b = self.body(body)
+        if not any(p["name"] == pname for p in b["parts"]):
+            raise ValueError(f"{body} has no part {pname!r}; give a part as body.part, e.g. {body}.{b['parts'][0]['name']}")
+        if material not in self.spec["materials"]:
+            raise ValueError(f"unknown material {material!r}; known: {sorted(self.spec['materials'])}")
+        self.model["materials"][part] = material
+        return {"part": part, "material": material, "friction": self.spec["materials"][material]["friction"]}
+
+    def set_inertial(self, mass=None, com=None, inertia=None, link=None):
+        b = self.body(link or self.block)
+        cur = self.model["inertial"].setdefault(b["name"], {})
+        if mass is not None:
+            base = self._inertial(self.model, b)
+            k = mass / base["mass"]
+            cur["mass"], cur["fullinertia"] = float(mass), [v * k for v in base["fullinertia"]]
+        if com is not None:
+            cur["com"] = [float(c) for c in com]
+        if inertia is not None:
+            cur["fullinertia"] = [float(inertia[0]), float(inertia[1]), float(inertia[2]), 0.0, 0.0, 0.0]
+        return {"body": b["name"], **self._inertial(self.model, b)}
+
+    def render(self, last_probe=None):
+        """A MuJoCo render of the set at its designed poses; a plain schematic where MuJoCo can't render."""
+        try:
+            m = mj.compile(self.mjcf(free=False))
+            d = mujoco.MjData(m)
+            mujoco.mj_forward(m, d)
+            with mujoco.Renderer(m, 480, 640) as r:
+                cam = mujoco.MjvCamera()
+                cam.lookat[:] = [0, 0.03, 0.15]
+                cam.distance, cam.azimuth, cam.elevation = 0.75, 135, -22
+                r.update_scene(d, cam)
+                return _png(r.render())
+        except Exception:
+            import matplotlib
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(figsize=(6.4, 4.8), dpi=100)
+            ax.text(0.5, 0.5, f"{self.spec['label']}: {len(self.spec['bodies'])} bodies\n(open the 3D view)", ha="center", va="center")
+            ax.axis("off")
+            buf = io.BytesIO()
+            fig.savefig(buf, format="png")
+            plt.close(fig)
+            return buf.getvalue()
 
 
 def sum_inertia(d, mk):

@@ -94,7 +94,8 @@ def play(rec, p, rounds=6):
     rec.caption("A contributor opens the object in the workbench")
     rec.pause(3500)
     names = {"look": "looks at it", "lift": "lifts it", "lean": "leans it on a tilting table", "drop": "drops it",
-             "fill": "drops marbles into it", "shake": "shakes it to see what's loose", "open": "opens every door"}
+             "fill": "drops marbles into it", "shake": "shakes it to see what's loose", "open": "opens every door",
+             "insert": "drops every knife into its slot", "extract": "pulls each knife out"}
     for action in p["warmup"]:
         rec.act(action, f"The contributor {names[action]}")
     rec.say(p["opening"])
