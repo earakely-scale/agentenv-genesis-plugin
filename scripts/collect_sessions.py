@@ -19,7 +19,8 @@ TASKS = {"cad_mug": "contributor-cad-mug", "cad_serving_bowl": "contributor-cad-
          "scan_mug": "contributor-scan-mug", "cad_coffee_maker": "contributor-cad-coffeemaker",
          "cad_milk_frother": "contributor-cad-frother"}
 CONTRIBUTORS = {"scripted": "scripts/contributor.py, over the page's HTTP API",
-                "browser": "scripts/record_session.py, through the page in Chrome (recorded)"}
+                "browser": "scripts/record_session.py, through the page in Chrome (recorded)",
+                "person": "a person, through the page"}
 
 
 def export(out: Path, tags: list[str]) -> None:
@@ -86,7 +87,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--export", type=Path)
     ap.add_argument("tags", nargs="*")
-    ap.add_argument("--raw", action="append", default=[], help="DIR=MODEL=scripted|browser[=VIDEO]")
+    ap.add_argument("--raw", action="append", default=[], help="DIR=MODEL=scripted|browser|person[=VIDEO]")
     ap.add_argument("--results", default="results")
     a = ap.parse_args()
     if a.export:

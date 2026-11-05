@@ -39,7 +39,7 @@ export async function mount(root) {
   for (const s of index) {
     const b = el("button", "rp-tab");
     b.setAttribute("role", "tab");
-    b.append(el("b", "", s.title), el("span", "", `${s.contributor.includes("Chrome") ? "browser" : "scripted"} · ${s.status} · ${s.score.toFixed(2)}`));
+    b.append(el("b", "", s.title), el("span", "", `${s.contributor.startsWith("a person") ? "person" : s.contributor.includes("Chrome") ? "browser" : "scripted"} · ${s.status} · ${s.score.toFixed(2)}`));
     b.onclick = () => select(s.id);
     b.dataset.id = s.id;
     $("rp-tabs").append(b);
@@ -127,7 +127,8 @@ export async function mount(root) {
     add("Outcome", `${row.status}, grade ${row.score.toFixed(2)}`);
     add("Saved as", row.sim_asset ? `${row.sim_asset.id.split("/").pop()} v${row.sim_asset.version}` : "not saved");
     add("Hidden checks", row.checks.map((c) => `${c.result ? "✓" : "✗"} ${c.id}`).join("  "));
-    add("Contributor", row.contributor.includes("Chrome") ? "scripted, through the page in Chrome" : "scripted, over the page's API");
+    add("Contributor", row.contributor.startsWith("a person") ? "a person, through the page"
+      : row.contributor.includes("Chrome") ? "scripted, through the page in Chrome" : "scripted, over the page's API");
     if (row.video) { const d = el("div"); const a = el("a", "", "Watch the recording"); a.href = row.video; a.target = "_blank"; d.append(el("span", "", "Video"), a); f.append(d); }
   }
 
