@@ -321,6 +321,27 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
 .rp-ev .md p { margin: 0 0 5px; } .rp-ev .md ul, .rp-ev .md ol { margin: 2px 0 5px; padding-left: 18px; } .rp-ev .md table { border-collapse: collapse; font-size: 12px; }
 .rp-ev .md td { border: 1px solid var(--line); padding: 2px 6px; }
 .ct-more { margin-top: 18px; } .ct-more summary { cursor: pointer; font-weight: 600; margin-bottom: 12px; }
+
+.vr-bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 12px; font-size: 13px; color: var(--muted); }
+.vr-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.vr-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; }
+@media (max-width: 900px) { .vr-grid { grid-template-columns: 1fr; } }
+.vr-about { font-size: 13.5px; color: var(--muted); margin: 8px 0 12px; }
+.vr-verdict { font-weight: 600; padding: 8px 12px; border-radius: 8px; margin: 0 0 10px; }
+.vr-verdict.ok { background: color-mix(in srgb, var(--pass, #2f7d32) 16%, transparent); } .vr-verdict.bad { background: color-mix(in srgb, var(--fail, #bf3b2e) 14%, transparent); }
+.vr-tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); margin-bottom: 12px; }
+.vr-tbl table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.vr-tbl th, .vr-tbl td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.vr-tbl th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.vr-tbl td.ok { color: var(--pass, #2f7d32); font-weight: 600; } .vr-tbl td.bad { color: var(--fail, #bf3b2e); font-weight: 600; } .vr-tbl td.na { color: var(--muted); }
+.vr h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 4px 0 8px; }
+.vr-stab-wrap { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 12px 14px; }
+.vr-stab { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.vr-stab div { text-align: center; padding: 8px 4px; border-radius: 8px; background: var(--sub); }
+.vr-stab div.bad { background: color-mix(in srgb, var(--fail, #bf3b2e) 14%, transparent); }
+.vr-stab span { display: block; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; } .vr-stab b { font-size: 18px; }
+.vr-small { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+.vr-dl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; margin: 4px 0 0; }
 </style>
 <script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head>
@@ -340,7 +361,7 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
   <div class="answers">
     <div><b>The agent gets</b><strong>A complaint and an object</strong><p>One MJCF file with one physics bug from the CAD step, and a contributor’s sentence about how it misbehaves. Nothing says which parameter is wrong.</p></div>
     <div><b>It can use</b><strong>Seven MCP tools</strong><p><code>inspect</code>, <code>render</code> (returns PNG frames), <code>set_inertial</code>, <code>set_material</code>, <code>set_joint</code>, <code>run_probe</code> and <code>diff</code>, all backed by a live Genesis scene.</p></div>
-    <div><b>It is graded by</b><strong>A hidden probe suite</strong><p>Genesis runs the edited object through the task’s probe (tilt table, hinge swing or drawer pull) and checks it against reference behaviour, for a score from 0 to 1 and a pass or fail.</p></div>
+    <div><b>It is graded by</b><strong>A hidden probe suite, in MuJoCo</strong><p>MuJoCo, the engine the objects ship for, runs the edited object through the task’s probes and checks it against reference behaviour, for a score from 0 to 1 and a pass or fail. Genesis runs the same checks as a second opinion. An approved object is exported as MJCF and OBJ that load in plain MuJoCo.</p></div>
   </div>
 </header>
 
@@ -349,6 +370,34 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
   <figcaption style="font-size:13.5px;color:var(--muted);max-width:80ch">Each object as delivered (red) beside the agent's fix (teal), simulated and rendered by Genesis from the MJCF recorded in the episodes: the mug on a tilt table, the oven door unlatched at 5°, the drawer pulled with 10 N.</figcaption>
 </figure>
 
+
+<section id="validation" aria-labelledby="vr-h">
+  <div class="sec-head">
+    <h2 id="vr-h"><span class="frame-mark" aria-hidden="true"></span>A knife block, validated in MuJoCo and exported as MJCF and OBJ</h2>
+    <p>The workbench grades in MuJoCo, the engine these objects ship for, and Genesis runs the same checks as a second opinion. This knife block is a set: a beech block and six free knives that sit in its slots. Its probes ask what a robot would. Do the knives stay seated? Do they drop into their slots? Do they pull out without lifting the block? How far can the table tilt? As delivered, the chef's and bread knives were each given to MuJoCo as one collision mesh. MuJoCo collides a mesh as its convex hull, so those knives are as wide as their handles, and they can't enter a 4 mm slot. The fix gives them a convex hull per part. Pick a state and a probe to replay what MuJoCo simulated.</p>
+  </div>
+  <div class="vr">
+    <div class="vr-bar"><span>State</span><div id="vr-states" class="vr-btns"></div><span>Probe</span><div id="vr-probes" class="vr-btns"></div>
+      <button type="button" class="btn" id="vr-replay">Replay</button></div>
+    <div class="vr-grid">
+      <div>
+        <div class="rp-view" id="vr-view"><span class="ov tl" id="vr-label" hidden></span><span class="ov tr">simulated in MuJoCo</span><span class="ov br" id="vr-grid"></span></div>
+        <p class="vr-about" id="vr-about"></p>
+        <div class="vr-stab-wrap"><h3>How far it can tilt before it tips</h3><div id="vr-stab" class="vr-stab"></div>
+          <p class="vr-small">The static margin: the angle at which the set's centre of mass, with every knife in, passes the edge of its rubber feet. It's least to the back, where the block and the handles lean.</p></div>
+      </div>
+      <div>
+        <p class="vr-verdict" id="vr-verdict"></p>
+        <div class="vr-tbl"><table id="vr-checks"></table></div>
+        <h3>This probe, knife by knife</h3>
+        <div class="vr-tbl"><table id="vr-knives"></table></div>
+        <p class="vr-dl"><a class="btn pri" id="vr-export" download>Download the MJCF + OBJ (zip)</a> <span id="vr-load"></span></p>
+        <p class="vr-small">The zip has <code>scene.xml</code>, which attaches each object from its own MJCF file, plus the OBJ meshes and <code>report.json</code>. Approving an object in the workbench writes the same export, and loads it back in MuJoCo before it counts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="module">import { mount as mountValidation } from "./validate.js"; mountValidation("knife_block").catch((e) => { document.getElementById("vr-verdict").textContent = "The report needs WebGL and JavaScript: " + e.message; });</script>
 
 <section id="contributor" aria-labelledby="ct-h">
   <div class="sec-head">

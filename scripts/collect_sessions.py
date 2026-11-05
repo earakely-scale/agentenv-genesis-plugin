@@ -66,7 +66,7 @@ def convert(d: Path, model: str, contributor: str, video: str | None) -> dict:
         session = {"status": "approved", "chat": s["chat"], "interactions": s["interactions"], "decision": s["decision"]}
     if session is None:
         raise ValueError(f"{d}: no session in the episode and no sim asset")
-    edits = {"set_inertial", "set_material", "set_shell", "set_scale", "remove_part", "set_self_collision", "set_joint"}
+    edits = {"set_inertial", "set_material", "set_shell", "set_scale", "remove_part", "set_self_collision", "set_joint", "set_collision"}
     return {
         "id": f"{TASKS[ep['object']]}-{d.name}", "task": TASKS[ep["object"]], "object": ep["object"], "model": model,
         "contributor": CONTRIBUTORS[contributor], "video": video, "status": session["status"], "score": ep["score"],

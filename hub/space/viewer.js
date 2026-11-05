@@ -279,11 +279,15 @@ export class SimViewer {
       let i = 0;
       while (i < tr.t.length - 1 && tr.t[i + 1] <= this.t) i++;
       this.setPose(tr.frames[i]);
-      if (tr.kind === "tip") this.world.rotation.y = THREE.MathUtils.degToRad(tr.lean_deg * (tr.ramp ? tr.ramp[i] : 1));
+      if (tr.kind === "tip") {
+        const a = THREE.MathUtils.degToRad(tr.lean_deg * (tr.ramp ? tr.ramp[i] : 1));
+        // gravity tilted toward +x turns the table about y; toward +y (a set leaning back), about x
+        if (tr.tilt_axis === "x") { this.world.rotation.set(-a, 0, 0); } else { this.world.rotation.set(0, a, 0); }
+      }
       if (tr.balls) tr.balls[i].forEach((p, k) => this.balls[k] && this.balls[k].position.set(p[0], p[1], p[2]));
       this.index = i;
     }
-    if (tr.kind !== "tip") this.world.rotation.y = 0;
+    if (tr.kind !== "tip") this.world.rotation.set(0, 0, 0);
     if (this.onFrame) this.onFrame(this.status());
   }
 
@@ -296,6 +300,10 @@ export class SimViewer {
     if (tr.kind === "drop") out.label = `t = ${this.t.toFixed(2)} s after release`;
     if (tr.kind === "cavity") out.label = "five 8 mm marbles dropped in";
     if (tr.kind === "parts") out.label = tr.floating && tr.floating.length ? `loose: ${tr.floating.join(", ")}` : "no loose parts";
+    if (tr.kind === "seat") out.label = "every knife dropped into its slot from 2 cm above";
+    if (tr.kind === "extract") { const n = tr.pulling && tr.pulling[this.index || 0]; out.label = n ? `pulling ${n.replace(/_/g, " ")} out` : "letting go"; }
+    if (tr.kind === "rest") out.label = "settling from the designed poses";
+    if (tr.engine) out.engine = tr.engine;
     return out;
   }
 
@@ -303,7 +311,7 @@ export class SimViewer {
     if (this.can) this.can.visible = true;
     this.trace = null;
     this.playing = false;
-    this.world.rotation.y = 0;
+    this.world.rotation.set(0, 0, 0);
     for (const b of this.balls) this.world.remove(b);
     this.balls = [];
     if (this.meta) { this.highlight(null); this.setPose(this.rest); }

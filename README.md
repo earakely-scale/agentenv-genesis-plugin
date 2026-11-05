@@ -5,12 +5,14 @@
 *Each object as delivered (red) beside the agent's fix (teal), simulated and rendered by Genesis from the MJCF recorded in the episodes: the mug on a tilt table, the oven door unlatched at 5°, the drawer pulled with 10 N.*
 
 An [AgentEnv](https://github.com/scaleapi/agentenv-framework) environment where an agent fixes the physics of
-sim-ready objects, measured by the [Genesis](https://github.com/Genesis-Embodied-AI/genesis-world) physics simulator.
+sim-ready objects. Every probe and hidden check runs in [MuJoCo](https://mujoco.org), the engine the objects ship for,
+and the [Genesis](https://github.com/Genesis-Embodied-AI/genesis-world) simulator runs the same checks as a second opinion.
+An approved object is written as MJCF and OBJ files that load in plain MuJoCo.
 
 Objects come out of a VLM-to-CAD pipeline as MJCF, and they're often physically wrong. A mug that rights itself like a
 weighted toy, an oven door too light to swing open, a drawer welded shut. In this env a contributor's complaint is the
-task. The agent inspects the object, renders it and runs Genesis probes, then edits mass properties, materials and
-joints through MCP tools. A hidden probe suite in Genesis grades the result against how the real object behaves.
+task. The agent inspects the object, renders it and runs probes, then edits mass properties, materials, collision and
+joints through MCP tools. A hidden probe suite grades the result against how the real object behaves.
 
 - Dataset of recorded episodes: [earakely-scale/GenesisWorkbenchEnv-AgentEnv](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
 - Episode viewer: [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
@@ -24,7 +26,7 @@ joints through MCP tools. A hidden probe suite in Genesis grades the result agai
 | `drawer-slide` | `cabinet_022` | "This drawer should slide." | The drawer has no joint | a 10 N pull opens it ≥ 0.30 m; it stops before leaving the cabinet; a slide joint along the depth axis |
 | `wiring` | `mug_017` | none | No agent: loads and grades the object as delivered | expected to fail |
 
-Eight more tasks use real assets and the defects [the asset audit](docs/asset-audit.md) found in them:
+Eight more tasks use real assets and the defects [the asset audit](docs/asset-audit.md) found in them, and one uses a knife-block set:
 
 | Task | Object (source) | Complaint | What is actually wrong | Hidden checks |
 |---|---|---|---|---|
@@ -36,6 +38,7 @@ Eight more tasks use real assets and the defects [the asset audit](docs/asset-au
 | `cad-frother-ring` | `cad_milk_frother` (VLM-to-CAD) | "There's a blue ring floating next to the milk frother…" | The power cord is a separate ring 2 cm from the body | no floating parts; mass 0.4–1.2 kg; upright |
 | `rcad-cabinet-sliders` | `rcad_cabinet` (ReplicaCAD) | "The sliding doors on this cabinet won't slide." | The doors' collision boxes collide with each other and the frame (self-collision) | every door reaches 90% of its travel, within limits |
 | `rcad-cupboard-doors` | `rcad_cupboard` (ReplicaCAD) | "One of the lower doors on the kitchen cupboard won't open…" | Same, between neighbouring doors | every door reaches 90% of its travel, within limits |
+| `knife-block-hull` | `knife_block` (procedural set) | "The two big knives won't go into the block. They sit on top of their slots and fall over." | The chef's and bread knives collide as one convex hull each, 21 mm wide, against 4.5 mm slots | every knife seats, drops in and pulls free; the set stays put to 12°; mass 2.0–4.5 kg |
 
 ## Tools the agent gets
 
@@ -46,7 +49,8 @@ Eight more tasks use real assets and the defects [the asset audit](docs/asset-au
 | `set_inertial(link, mass?, com?, inertia?, from_material?)` | Set mass properties, or recompute them from the link's geometry at a material's density |
 | `set_material(link, material)` | Real material: friction plus recomputed mass properties |
 | `set_joint(name, type?, axis?, range?, damping?, frictionloss?)` | Create or edit a hinge or slide joint |
-| `run_probe(kind)` | Build a Genesis scene from the current MJCF and measure `tip`, `rest`, `hinge` or `travel`; numbers plus a plot |
+| `run_probe(kind, engine?)` | Build a scene from the current object and measure one behaviour, in MuJoCo by default or in Genesis for a second opinion; numbers plus a plot |
+| `set_collision(body, mode)` | Sets: collide a body as one convex hull per part, or as one hull of the whole body |
 | `diff()` | What changed against the object as delivered |
 | `set_shell(part, thickness)` | Mesh objects: make a part a hollow shell, its mass from surface area × thickness × density |
 | `set_scale(factor)` | Mesh objects: rescale uniformly; mass properties follow the geometry |
@@ -58,6 +62,44 @@ Eight more tasks use real assets and the defects [the asset audit](docs/asset-au
 
 The tilt-table probe rotates gravity per environment in one batched `scene.build(n_envs=12)`. That's a quasi-static
 tilt test, and it avoids the impulse Genesis applies when an object's pose is set directly into a leaning contact.
+
+## MuJoCo grades, Genesis gives a second opinion, and approved objects ship as MJCF and OBJ
+
+Objects ship as MJCF and OBJ for MuJoCo, so they pass or fail in MuJoCo (`mj.py`). Every probe a contributor runs, every
+probe the agent runs by default, and every hidden check runs there: the same floor, 2 ms step and thresholds as the
+Genesis probes. Genesis then runs the same checks, and each graded episode lists `second_opinion` and where the engines
+disagree. [`docs/parity.md`](docs/parity.md) compares them probe by probe. The articulated ReplicaCAD furniture is the
+exception: it still grades in Genesis, until its URDF meshes (GLB) are converted for MuJoCo.
+
+Approving an object writes it as it ships (`export.py`), into the sim asset's zip under `mujoco/`:
+
+- `scene.xml`, which attaches each object from its own MJCF file at its place (`<model>` and `<attach>`);
+- one MJCF per object, every body with an explicit `<inertial>` and friction per geom from its material;
+- the OBJ meshes and textures, with collision as convex pieces in group 3 and visuals in group 2;
+- `report.json`, with the checks, the probes, the second opinion and the load check.
+
+Every file is loaded back and the scene stepped in MuJoCo before the export counts. It also loads in a clean
+environment with only `mujoco` installed.
+
+### A set: the knife block
+
+![The knife block in the Space's validation report: knives dropped into their slots, the checks in MuJoCo and Genesis, the tipping margin](docs/knife-block-report.png)
+
+A set is a group of free bodies that fit together: a slanted beech block on rubber feet, and six knives that sit in its
+slots (`scripts/build_knife_block.py`). The block's collision is 29 convex pieces that leave the slots open, and each
+knife collides as a convex hull per part (blade, bolster, handle). Its probes ask what a robot would:
+
+- `rest`: does each knife stay seated?
+- `seat`: dropped in from 2 cm above, does each knife go all the way into its slot?
+- `extract`: pulled out along its slot, when does each knife come free, and does the block lift?
+- `tip`: on a table tilted toward the block's back, where it leans, at what angle does it go?
+
+Alongside these, `stability` reports its static tipping margin in each direction.
+
+The `knife-block-hull` and `contributor-knife-block` tasks seed a defect common in generated assets. The chef's and
+bread knives were each given to MuJoCo as one collision mesh, so they collide as one convex hull as wide as their
+handles (21 mm), and they can't enter a 4.5 mm slot. The [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
+replays every probe in 3D, as delivered and fixed, and has the exported MJCF and OBJ to download.
 
 ## The contributor workbench
 
@@ -97,6 +139,7 @@ in for one) is in the loop:
 | `contributor-scan-mug` | `scan_mug` (Google Scanned Objects) | The contributor knows what the real mug weighs |
 | `contributor-cad-coffeemaker` | `cad_coffee_maker` (VLM-to-CAD) | The same, for a hollow appliance the CAD made solid |
 | `contributor-cad-frother` | `cad_milk_frother` (VLM-to-CAD) | Shake finds the loose cord ring, and the contributor knows the real one has none |
+| `contributor-knife-block` | `knife_block` (procedural set) | Insert shows two knives that won't go in; the contributor knows every knife should |
 
 `scripts/contributor.py` is a scripted contributor for these tasks, over the page's HTTP API, and
 `scripts/record_session.py` plays the same personas through the page in Chrome and records a video. It reads only what the page shows, answers the
@@ -163,9 +206,10 @@ and after, and the probe curves. `scripts/publish_hub.py` turns those into the d
 
 ## Limitations
 
-This is a prototype. The three objects are built from primitives rather than CAD meshes, the renders are schematics drawn
-from simulator state, and the probe tolerances and material bands are example values. Genesis's default contact model
-is not identical to MuJoCo's, so the same MJCF can behave differently in other engines.
+This is a prototype. The probe tolerances and material bands are example values, and the three original objects are built
+from primitives. MuJoCo grades the mesh objects and sets; the articulated ReplicaCAD furniture still grades in Genesis.
+Where the two engines disagree (tipping against sliding near the friction limit, say; see `docs/parity.md`), the
+episode says so, and MuJoCo's result counts.
 
 ## License
 

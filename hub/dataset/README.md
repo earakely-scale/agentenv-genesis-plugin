@@ -101,6 +101,31 @@ The scale tasks are the open problem. Even with `source_photo`, neither model re
 That matches the VLM-to-CAD step itself, which misjudged these same objects' size from these same photos.
 Measuring metric size from photos needs a metric source: depth, a known-size reference, or a person.
 
+## MuJoCo grades, and approved objects ship as MJCF and OBJ
+
+The objects ship as MJCF and OBJ for MuJoCo, so the workbench grades in MuJoCo. Every contributor action, every agent
+probe by default, and every hidden check runs there. Genesis runs the same checks as a second opinion, and each graded
+episode lists where the two engines disagree. Approving an object exports it as it ships:
+
+- `scene.xml`, which attaches each object from its own MJCF file;
+- one MJCF per object, with an explicit `<inertial>` per body and friction per geom;
+- the OBJ meshes, with collision as convex pieces;
+- `report.json`.
+
+The export is loaded back and stepped in MuJoCo before it counts. Episodes and sessions recorded before this change
+were graded in Genesis.
+
+![The knife block's validation: knives dropped into their slots, the checks in MuJoCo and Genesis, the tipping margin](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/knife-block-report.png)
+
+**A set: a knife block with six knives.** A beech block on rubber feet with six free knives that sit in its slots. Its
+probes ask what a robot would: do the knives stay seated, drop in, and pull free without lifting the block, and how far
+can the table tilt? As delivered in `knife-block-hull` and `contributor-knife-block`, the chef's and bread knives were each
+given to MuJoCo as one collision mesh. MuJoCo collides a mesh as its convex hull, so those knives are 21 mm wide and
+can't enter their 4.5 mm slots, and the set fails four of five checks. With a convex hull per part (`set_collision`) it
+passes all five, and Genesis agrees on every check it runs. Its static tipping margin is 13.4° to the back, where the
+block and handles lean, and 22–37° in other directions. The [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
+replays every probe in 3D. [`exports/knife_block.zip`](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/exports/knife_block.zip) is the fixed set as MJCF and OBJ.
+
 ## With a contributor in the loop
 
 The scale tasks fail because the real size isn't in the asset. The `contributor-*` tasks put a contributor in the loop.
