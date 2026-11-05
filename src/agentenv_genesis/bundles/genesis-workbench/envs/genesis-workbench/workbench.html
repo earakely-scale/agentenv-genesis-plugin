@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Genesis Workbench</title>
 <link rel="icon" href="data:,">
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <style>
 :root {
   --bg: #f4f2ee; --panel: #ffffff; --ink: #1d1f22; --muted: #6a6f76; --line: #e2ded6;
@@ -32,6 +34,19 @@ main { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); g
 .card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
 .view { position: relative; aspect-ratio: 4 / 3; background: #222; border-radius: 8px; overflow: hidden; display: grid; place-items: center; }
 .view img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.view .pane { position: absolute; inset: 0; }
+.view canvas { display: block; touch-action: none; }
+.tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+.tabs button { padding: 4px 11px; font-size: 13px; border-radius: 99px; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.ov { position: absolute; font-size: 12px; color: #fff; background: rgba(15, 20, 22, .55); padding: 3px 8px; border-radius: 6px; pointer-events: none; }
+.ov.tl { left: 10px; top: 10px; font-weight: 600; } .ov.br { right: 10px; bottom: 10px; }
+.player { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.player input[type=range] { flex: 1; min-width: 120px; accent-color: var(--accent); }
+.player label { display: inline-flex; gap: 4px; align-items: center; }
+.player select { font: inherit; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+.photos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; height: 100%; background: #111; }
+.photos img { object-fit: contain; }
 .view .busy { position: absolute; right: 10px; top: 10px; font-size: 12px; color: #fff; background: rgba(0,0,0,.5); padding: 2px 8px; border-radius: 6px; display: none; }
 .desc { color: var(--muted); margin: 10px 0 0; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -88,8 +103,25 @@ textarea { font: inherit; width: 100%; min-height: 64px; resize: vertical; borde
 <main id="main" hidden>
   <section class="card">
     <h2>The object</h2>
-    <div class="view"><img id="view" alt="Genesis render of the object as it is now"><span class="busy" id="busy">simulating…</span></div>
-    <p class="caption" id="scale" hidden>The red cylinder is a 330 ml can, 12.2 cm tall, for scale.</p>
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-pane="p3d" aria-selected="true">3D</button>
+      <button role="tab" data-pane="prender" aria-selected="false">Genesis render</button>
+      <button role="tab" data-pane="pphoto" aria-selected="false" hidden id="tab-photo">Real object</button>
+    </div>
+    <div class="view">
+      <div class="pane" id="p3d"><span class="ov tl" id="ov-label" hidden></span><span class="ov br" id="ov-grid"></span></div>
+      <div class="pane" id="prender" hidden><img id="view" alt="Genesis render of the object as it is now"></div>
+      <div class="pane photos" id="pphoto" hidden></div>
+      <span class="busy" id="busy">simulating in Genesis…</span>
+    </div>
+    <div class="player" id="player">
+      <button id="pl-play" disabled>Replay</button>
+      <input type="range" id="pl-seek" min="0" max="1000" value="0" disabled aria-label="Replay position">
+      <select id="pl-speed" aria-label="Replay speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+      <label><input type="checkbox" id="pl-ghost"> as delivered</label>
+      <label><input type="checkbox" id="pl-com"> centre of mass</label>
+    </div>
+    <p class="caption" id="scale" hidden>The red cylinder is a 330 ml can, 12.2 cm tall, for scale. Drag to orbit, scroll to zoom. Each action replays what Genesis simulated.</p>
     <p class="desc" id="desc"></p>
     <div class="actions" id="actions"></div>
     <div class="result" id="result" hidden><p id="summary"></p><img id="chart" alt="What the last action measured"></div>
@@ -112,6 +144,7 @@ textarea { font: inherit; width: 100%; min-height: 64px; resize: vertical; borde
 </main>
 <div class="empty" id="empty">Waiting for the workbench to load an object…</div>
 <script>
+window.wb3d = new Promise((r) => (window.__wb3dReady = r));
 const base = location.pathname.replace(/\/+$/, "");
 const $ = id => document.getElementById(id);
 let shownRev = -1, shownChat = 0, shownWorking = false, shownLast = 0, open = true, acting = false;
@@ -165,7 +198,15 @@ function render(s) {
   }
   for (const b of $("actions").children) b.disabled = !open || acting;
   for (const id of ["send", "approve", "reject", "text", "note"]) $(id).disabled = !open;
-  if (s.edits !== shownRev) { shownRev = s.edits; $("view").src = `${base}/view.png?rev=${s.edits}&t=${Date.now()}`; }
+  if (s.edits !== shownRev) {
+    shownRev = s.edits; $("view").src = `${base}/view.png?rev=${s.edits}&t=${Date.now()}`;
+    if (s.kind !== "primitive") window.wb3d.then((v) => v.reload(s.edits));
+  }
+  if (s.photos && !$("pphoto").childElementCount) {
+    $("tab-photo").hidden = false;
+    for (let n = 0; n < s.photos; n++) { const im = el("img"); im.src = `${base}/photo/${n}`; im.alt = "A photo of the real object the CAD was built from"; $("pphoto").append(im); }
+  }
+  if (s.kind === "primitive") { $("p3d").hidden = true; $("prender").hidden = false; $("tabs").hidden = true; $("player").hidden = true; }
   const working = s.agent_state === "working";
   if (s.chat.length !== shownChat || working !== shownWorking) {
     const box = $("chat"); box.textContent = "";
@@ -185,7 +226,8 @@ function render(s) {
     ? "Approved. The session has ended, and the workbench saves this object as a new version of its sim asset."
     : "Rejected. The session has ended; nothing is saved.";
   if (s.last && s.last.i !== shownLast) {
-    shownLast = s.last.i; $("result").hidden = false; $("summary").textContent = s.last.summary;
+    shownLast = s.last.i;
+    if (s.kind !== "primitive") window.wb3d.then((v) => v.action(s.last, s.traced.includes(s.last.i))); $("result").hidden = false; $("summary").textContent = s.last.summary;
     // Look and Lift show the object as the main view does; only probes have a chart of their own.
     if (s.last.image_png_b64 && !["look", "lift"].includes(s.last.action)) { $("chart").hidden = false; $("chart").src = "data:image/png;base64," + s.last.image_png_b64; } else $("chart").hidden = true;
   }
@@ -223,6 +265,50 @@ for (const decision of ["approve", "reject"]) {
   };
 }
 poll();
+</script>
+<script type="module">
+const base = location.pathname.replace(/\/+$/, "");
+const { SimViewer } = await import(`${base}/viewer.js`);
+const $ = (id) => document.getElementById(id);
+const v = new SimViewer($("p3d"), { onFrame: (st) => {
+  if (!st) return;
+  $("pl-seek").value = st.duration ? Math.round((st.t / st.duration) * 1000) : 0;
+  $("pl-play").textContent = st.playing ? "Pause" : "Replay";
+  $("ov-label").hidden = !st.label; $("ov-label").textContent = st.label || "";
+} });
+let loaded = -1, ghostMeta = null, loading = Promise.resolve();
+function reload(rev) { return (loading = loading.then(() => load(rev))); }
+async function load(rev) {
+  if (rev === loaded) return;
+  const meta = await (await fetch(`${base}/scene.json?which=current&rev=${rev}`)).json();
+  if (meta.error) return;
+  if (!ghostMeta) ghostMeta = await (await fetch(`${base}/scene.json?which=original`)).json();
+  await v.load(`${base}/scene.glb?which=current&rev=${rev}`, meta, { url: `${base}/scene.glb?which=original`, meta: ghostMeta });
+  $("ov-grid").textContent = v.gridLabel;
+  loaded = rev;
+}
+async function action(last, traced) {
+  await loading;
+  if (last.action === "lift") return v.play({ kind: "lift" }), enable(true);
+  if (!traced) return v.reset(), enable(false);
+  const tr = await (await fetch(`${base}/trace/${last.i}`)).json();
+  if (!tr.error) { v.play(tr); enable(!!(tr.frames && tr.frames.length)); }
+}
+function enable(on) { $("pl-play").disabled = $("pl-seek").disabled = !on; }
+$("pl-play").onclick = () => {
+  if (!v.trace) return;
+  if (v.playing) v.playing = false; else { if (v.t >= v.duration()) v.seek(0); v.playing = true; }
+  v.onFrame(v.status());
+};
+$("pl-seek").oninput = (e) => { v.playing = false; v.seek((e.target.value / 1000) * v.duration()); };
+$("pl-speed").onchange = (e) => (v.speed = +e.target.value);
+$("pl-ghost").onchange = (e) => v.setGhost(e.target.checked);
+$("pl-com").onchange = (e) => v.setCom(e.target.checked);
+for (const b of document.querySelectorAll("#tabs button")) b.onclick = () => {
+  for (const o of document.querySelectorAll("#tabs button")) { o.setAttribute("aria-selected", o === b); $(o.dataset.pane).hidden = o !== b; }
+  $("player").style.visibility = b.dataset.pane === "p3d" ? "visible" : "hidden";
+};
+window.__wb3dReady({ reload, action, viewer: v });
 </script>
 </body>
 </html>

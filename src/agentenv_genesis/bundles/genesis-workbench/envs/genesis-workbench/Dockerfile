@@ -14,5 +14,5 @@ COPY assets ./assets
 RUN useradd --create-home --uid 10001 appuser
 USER appuser
 RUN python warmup.py
-COPY session.py server.py workbench.html ./
+COPY session.py server.py workbench.html viewer.js ./
 CMD ["python", "server.py"]

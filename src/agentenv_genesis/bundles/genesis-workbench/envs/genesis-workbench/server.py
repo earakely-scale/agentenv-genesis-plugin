@@ -48,6 +48,7 @@ class Frame(BaseModel):
 chart = S.chart
 EDITS = {"set_inertial", "set_material", "set_shell", "set_scale", "remove_part", "set_self_collision", "set_joint"}
 PAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "workbench.html")
+VIEWER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "viewer.js")
 
 
 @environment_card(name="genesis-workbench")
@@ -134,7 +135,7 @@ class GenesisWorkbench(AgentEnvEnvironment):
                 "calls": self.calls, "duration_s": round(time.time() - self.t0, 1)}
         s = self.session
         if s.connected:
-            data["session"] = {"status": s.status, "chat": s.chat, "interactions": s.actions,
+            data["session"] = {"status": s.status, "chat": s.chat, "interactions": s.actions, "traces": s.traces,
                                "decision": s.decision and {k: v for k, v in s.decision.items() if k != "model"}}
         return [DataPart(data=json.loads(json.dumps(data, default=float)))]
 
@@ -350,7 +351,7 @@ class GenesisWorkbench(AgentEnvEnvironment):
         s, o = self.session, self.obj
         if o is None:
             return {"status": "no object"}
-        out = {"status": s.status, "object": o.name, "kind": o.kind, "label": S.label(o), "decision": None,
+        out = {"status": s.status, "object": o.name, "kind": o.kind, "label": S.label(o), "decision": None, "traces": s.traces,
                "chat": s.chat, "interactions": [{k: v for k, v in a.items() if k != "image_png_b64"} for a in s.actions],
                "agent_calls": [{k: v for k, v in c.items() if k != "image_png_b64"} for c in self.calls]}
         if s.decision is None:
@@ -362,6 +363,10 @@ class GenesisWorkbench(AgentEnvEnvironment):
             report = await self._final
             spec = {**o.spec, "edits": o.model} if o.kind == "urdf" else o.model
             text = o.mjcf(absolute=False) if o.kind == "mesh" else o.text()
+            for which in ("current", "original"):
+                if o.kind != "primitive":
+                    glb, meta = await self._web_scene(which)
+                    out[f"scene_{which}"] = {"glb_b64": base64.b64encode(glb).decode(), "meta": meta}
             out.update({"asset": spec, "model_text": text, "diff": self._diff(),
                         "model_filename": f"{o.name}.{'edits.json' if o.kind == 'urdf' else 'xml'}", **report})
         return json.loads(json.dumps(out, default=float))
@@ -369,15 +374,21 @@ class GenesisWorkbench(AgentEnvEnvironment):
     # The contributor's page
     def create_app(self):
         app = super().create_app()
-        for path, verb, handler in (("/workbench", "GET", self._page), ("/workbench/state", "GET", self._state),
+        for path, verb, handler in (("/workbench", "GET", self._page), ("/workbench/viewer.js", "GET", self._viewer),
+                                    ("/workbench/state", "GET", self._state),
                                     ("/workbench/view.png", "GET", self._view), ("/workbench/act", "POST", self._act),
                                     ("/workbench/say", "POST", self._say), ("/workbench/decide", "POST", self._decide),
-                                    ("/workbench/peer/a2a", "POST", self._peer)):
+                                    ("/workbench/peer/a2a", "POST", self._peer),
+                                    ("/workbench/scene.glb", "GET", self._scene_glb), ("/workbench/scene.json", "GET", self._scene_json),
+                                    ("/workbench/trace/{i}", "GET", self._trace), ("/workbench/photo/{n}", "GET", self._photo)):
             app.custom_route(path, methods=[verb])(handler)
         return app
 
     async def _page(self, request: Request) -> Response:
         return HTMLResponse(open(PAGE).read(), headers={"Cache-Control": "no-cache"})
+
+    async def _viewer(self, request: Request) -> Response:
+        return Response(open(VIEWER).read(), media_type="text/javascript", headers={"Cache-Control": "no-cache"})
 
     async def _state(self, request: Request) -> Response:
         o, s = self.obj, self.session
@@ -389,6 +400,7 @@ class GenesisWorkbench(AgentEnvEnvironment):
             "chat": s.chat, "interactions": [{k: v for k, v in a.items() if k not in ("image_png_b64", "result")} for a in s.actions],
             "last": s.actions[-1] if s.actions else None,
             "agent": [{"i": c["i"], "t": c["t"], "tool": c["tool"], "args": c["args"]} for c in self.calls],
+            "photos": len(o.model.get("photos") or []) if o.kind == "mesh" else 0, "traced": sorted(s.traces),
             "decision": s.decision and {k: v for k, v in s.decision.items() if k != "model"}}, default=float)))
 
     async def _view(self, request: Request) -> Response:
@@ -429,6 +441,39 @@ class GenesisWorkbench(AgentEnvEnvironment):
         if status == "approved":
             self._final = asyncio.ensure_future(self._run(S.final_report, self.obj))
         return JSONResponse({"status": status})
+
+    async def _web_scene(self, which: str) -> tuple[bytes, dict]:
+        """The browser's 3D scene of the object now ("current") or as delivered ("original"), built once per edit."""
+        o, s = self._need(), self.session
+        key = ("original", 0) if which == "original" else ("current", self.rev)
+        if key not in s.scenes:
+            s.scenes[key] = await self._run(A.web_scene, o, which == "original")
+        return s.scenes[key]
+
+    async def _scene_glb(self, request: Request) -> Response:
+        if self.obj is None or self.obj.kind == "primitive":
+            return JSONResponse({"error": "no 3D scene for this object"}, status_code=404)
+        glb, _ = await self._web_scene(request.query_params.get("which", "current"))
+        return Response(glb, media_type="model/gltf-binary", headers={"Cache-Control": "no-store"})
+
+    async def _scene_json(self, request: Request) -> Response:
+        if self.obj is None or self.obj.kind == "primitive":
+            return JSONResponse({"error": "no 3D scene for this object"}, status_code=404)
+        which = request.query_params.get("which", "current")
+        _, meta = await self._web_scene(which)
+        return JSONResponse({**meta, "which": which, "edits": self.rev if which == "current" else 0})
+
+    async def _trace(self, request: Request) -> Response:
+        t = self.session.traces.get(int(request.path_params["i"]))
+        return JSONResponse(t) if t else JSONResponse({"error": "no trace for that action"}, status_code=404)
+
+    async def _photo(self, request: Request) -> Response:
+        o = self._need()
+        names = (o.model.get("photos") or []) if o.kind == "mesh" else []
+        n = int(request.path_params["n"])
+        if not 0 <= n < len(names):
+            return JSONResponse({"error": "no such photo"}, status_code=404)
+        return Response(open(os.path.join(o.dir, names[n]), "rb").read(), media_type="image/png")
 
     async def _peer(self, request: Request) -> Response:
         return JSONResponse(self.session.rpc(await request.json()))

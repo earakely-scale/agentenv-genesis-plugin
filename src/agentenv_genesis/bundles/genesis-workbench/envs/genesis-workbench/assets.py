@@ -76,6 +76,75 @@ def _tilt(ent):
     return np.degrees(np.arccos(np.clip(1 - 2 * (x * x + y * y), -1, 1)))
 
 
+def _rec(obj, e, k, every, **extra):
+    """Record every visual geom's world pose (and anything in extra) into obj._trace, every `every` steps, for the
+    browser to replay. Batched scenes record every env; finish_trace keeps one."""
+    t = getattr(obj, "_trace", None)
+    if t is None or k % every:
+        return
+    frame = [np.concatenate([v.get_pos().cpu().numpy().reshape(-1, 3), v.get_quat().cpu().numpy().reshape(-1, 4)], 1)
+             for v in e.vgeoms]
+    t["frames"].append(np.stack(frame, 1))
+    t["t"].append(round(len(t["t"]) * every * 0.002, 3))
+    for key, val in extra.items():
+        t.setdefault(key, []).append(val)
+
+
+def finish_trace(t: dict, env: int = 0) -> dict:
+    """A recorded trace as plain lists: per frame, per visual geom, [x, y, z, qw, qx, qy, qz] (Genesis's z-up frame)."""
+    out = {"t": t["t"], "frames": [np.round(f[min(env, len(f) - 1)], 5).tolist() for f in t["frames"]]}
+    for key, val in t.items():
+        if key not in ("t", "frames"):
+            out[key] = val
+    return out
+
+
+def _shrink_textures(tm, size=512):
+    mat = getattr(tm.visual, "material", None)
+    for attr in ("image", "baseColorTexture"):
+        img = getattr(mat, attr, None) if mat is not None else None
+        if img is not None and max(img.size) > size:
+            k = size / max(img.size)
+            setattr(mat, attr, img.resize((max(1, int(img.size[0] * k)), max(1, int(img.size[1] * k)))))
+
+
+def web_scene(obj, original=False) -> tuple[bytes, dict]:
+    """The object as the browser draws it: one GLB with a node per Genesis visual geom (named v0, v1, ..., each in its
+    own frame) and their poses at rest, with what each one is, the bounds and the centre of mass."""
+    g = gs()
+    with _lock:
+        s = _scene()
+        if obj.kind == "urdf":
+            e = s.add_entity(g.morphs.URDF(file=obj.urdf, fixed=True, euler=tuple(obj.spec.get("euler", (0, 0, 0))),
+                                           pos=(0, 0, obj._lift())))
+        else:
+            saved = obj.model
+            obj.model = obj.original if original else obj.model
+            try:
+                e = s.add_entity(g.morphs.MJCF(file=obj._write(free=False), pos=(0, 0, obj._lift())))
+                parts = [p["name"] for p in obj.model["parts"] if not p.get("removed") and p.get("visual")]
+                mass, com, _ = obj.props()
+                b = obj._bounds()
+            finally:
+                obj.model = saved
+        s.build()
+        scene, geoms = trimesh.Scene(), []
+        for i, v in enumerate(e.vgeoms):
+            tm = v.vmesh.trimesh.copy()
+            _shrink_textures(tm)
+            scene.add_geometry(tm, node_name=f"v{i}", geom_name=f"g{i}")
+            pose = np.concatenate([v.get_pos().cpu().numpy().ravel(), v.get_quat().cpu().numpy().ravel()])
+            geoms.append({"i": i, "link": v.link.name, "part": parts[i] if obj.kind == "mesh" and i < len(parts) else None,
+                          "pose": np.round(pose, 5).tolist()})
+        verts = np.concatenate([v.get_vverts().cpu().numpy().reshape(-1, 3) for v in e.vgeoms])
+        meta = {"kind": obj.kind, "geoms": geoms, "bounds": np.round([verts.min(0), verts.max(0)], 4).tolist()}
+        if obj.kind == "mesh":
+            z = obj._lift()
+            meta.update({"com": [round(float(com[0]), 4), round(float(com[1]), 4), round(float(com[2]) + z, 4)],
+                         "mass_kg": round(float(mass), 4), "size_m": [round(float(v), 4) for v in b[1] - b[0]]})
+        return scene.export(file_type="glb"), meta
+
+
 class PrimitiveObject:
     """The original three objects, built from primitives in workbench.py."""
 
@@ -352,8 +421,9 @@ class MeshObject:
         s = _scene()
         e = s.add_entity(g.morphs.MJCF(file=self._write(), pos=(0, 0, self._lift())))
         s.build()
-        for _ in range(600):
+        for k in range(600):
             s.step()
+            _rec(self, e, k, 10)
         v = float(np.abs(e.get_dofs_velocity().cpu().numpy()).max())
         t = float(_tilt(e)[0])
         return {"kind": "rest", "max_speed": round(v, 4), "tilt_deg": round(t, 2), "stable": bool(v < 0.02 and t < 3)}
@@ -367,6 +437,7 @@ class MeshObject:
         settle, pen, ts, zs = None, 0.0, [], []
         for k in range(1200):
             s.step()
+            _rec(self, e, k, 8)
             if k % 25 == 0:
                 z0 = float(e.get_AABB().cpu().numpy().reshape(2, 3)[0][2])
                 pen = max(pen, -z0)
@@ -390,6 +461,7 @@ class MeshObject:
             gv = [[9.81 * math.sin(math.radians(a) * f), 0.0, -9.81 * math.cos(math.radians(a) * f)] for a in leans]
             s.rigid_solver.set_gravity(torch.tensor(gv, dtype=torch.float32))
             s.step()
+            _rec(self, e, k, 10, ramp=round(f, 4))
         tilt = _tilt(e)
         slide = np.linalg.norm((e.get_pos().cpu().numpy().reshape(-1, 3) - p0)[:, :2], axis=1)
         mode = ["topple" if t > 30 else "slide" if d > 0.03 else "holds" for t, d in zip(tilt, slide)]
@@ -404,12 +476,14 @@ class MeshObject:
         top = float(b[1][2] - b[0][2])
         cx, cy = [float(v) for v in (b[0][:2] + b[1][:2]) / 2]
         s = _scene()
-        s.add_entity(g.morphs.MJCF(file=self._write(free=False), pos=(0, 0, self._lift())))
+        e = s.add_entity(g.morphs.MJCF(file=self._write(free=False), pos=(0, 0, self._lift())))
         balls = [s.add_entity(g.morphs.Sphere(radius=0.008, pos=(cx + 0.004 * (i - 2), cy + 0.003 * (i % 2), top + 0.03 + 0.025 * i)),
                               material=g.materials.Rigid(rho=1000)) for i in range(5)]
         s.build()
-        for _ in range(1000):
+        for k in range(1000):
             s.step()
+            if getattr(self, "_trace", None) is not None and k % 10 == 0:
+                _rec(self, e, k, 10, balls=[np.round(x.get_pos().cpu().numpy().ravel(), 4).tolist() for x in balls])
         zs = [float(x.get_pos().cpu().numpy().ravel()[2]) for x in balls]
         inside = sum(1 for z in zs if z < top - 0.006)
         return {"kind": "cavity", "rim_height_cm": round(top * 100, 1), "ball_heights_cm": [round(z * 100, 1) for z in zs],
@@ -604,14 +678,16 @@ class UrdfObject:
                 e.set_dofs_kp(np.array([400.0]), dofs_idx_local=dof)
                 e.set_dofs_kv(np.array([40.0]), dofs_idx_local=dof)
                 e.control_dofs_position(np.array([target * 0.9]), dofs_idx_local=dof)
-                for _ in range(600):
+                for k in range(600):
                     s.step()
+                    _rec(self, e, k, 20, joint=j["name"])
                 got = float(e.get_dofs_position(dof).cpu().numpy().ravel()[0])
                 reach.append({"joint": j["name"], "type": j["type"], "target": round(target * 0.9, 3), "reached": round(got, 3),
                               "fraction": round(got / (target * 0.9), 2) if target else None})
                 e.control_dofs_position(np.zeros(1), dofs_idx_local=dof)
-                for _ in range(300):
+                for k in range(300):
                     s.step()
+                    _rec(self, e, k, 20, joint=j["name"])
         return {"kind": "joints", "reach": reach, "x": [r["joint"] for r in reach], "y": [r["fraction"] for r in reach],
                 "x_label": "joint", "y_label": "fraction of target reached",
                 "note": "Each joint is driven by a PD controller to 90% of its limit for 1.2 s, then returned."}

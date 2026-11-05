@@ -8,6 +8,7 @@ the contributor's first message and opens with it."""
 
 from __future__ import annotations
 
+import base64
 import io
 import json
 import logging
@@ -129,8 +130,14 @@ def _bundle(export: dict) -> bytes:
         z.writestr("checks.json", json.dumps({k: export[k] for k in ("acceptance", "passed", "probes")}, indent=1))
         z.writestr("session.json", json.dumps({k: export[k] for k in ("decision", "diff", "chat", "interactions", "agent_calls")},
                                               indent=1))
+        for which, name in (("current", "scene"), ("original", "as_delivered")):
+            if f"scene_{which}" in export:
+                z.writestr(f"{name}.glb", base64.b64decode(export[f"scene_{which}"]["glb_b64"]))
+                z.writestr(f"{name}.json", json.dumps(export[f"scene_{which}"]["meta"]))
         z.writestr("README.txt", f"{export['label']} {export['object']} as the contributor approved it. Meshes and textures are "
-                                 "the source asset's, unchanged; asset.json holds the edits and model file the result.\n")
+                                 "the source asset's, unchanged; asset.json holds the edits and model file the result. scene.glb is the approved object "
+                                 "as the workbench's 3D view draws it, one node per visual geom posed by scene.json; as_delivered.glb is the same "
+                                 "before the edits.\n")
     return buf.getvalue()
 
 

@@ -12,4 +12,5 @@ for name in ["mug_017", "oven_004", "cabinet_022"] + A.available():
         obj.checks("current")
     if obj.kind != "primitive":
         obj.render()
+        A.web_scene(obj)
     print("warm", name, flush=True)

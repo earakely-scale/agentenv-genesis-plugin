@@ -7,6 +7,7 @@ completes with the contributor's next message, or ends canceled once they approv
 
 from __future__ import annotations
 
+import assets as A
 import base64
 import copy
 import io
@@ -128,14 +129,34 @@ def run_action(obj, action: str, last_probe: dict | None) -> dict:
     """One contributor action on ``obj`` as it is now: what they'd notice, the numbers, and an image."""
     if action not in {a["id"] for a in actions_for(obj)}:
         raise ValueError(f"{action!r} doesn't apply to {obj.name}")
+    if action == "shake" and obj.kind == "mesh":
+        r = obj.probe("parts")
+        return {"summary": summarize("parts", r), "result": r, "png": obj.render(last_probe),
+                "trace": {"kind": "parts", "floating": r["floating"], "gaps_mm": r["gap_to_nearest_part_mm"]}}
     if action == "look":
         return {"summary": f"Looked at the {label(obj)}.", "result": {}, "png": obj.render(last_probe)}
     if action == "lift":
         text, numbers = _lift(obj)
         return {"summary": text, "result": numbers, "png": obj.render(last_probe)}
     kind = "joints" if action == "open" and obj.kind == "urdf" else "hinge" if action == "open" else PROBE[action]
-    r = obj.probe(kind)
-    return {"summary": summarize(kind, r), "result": r, "png": chart(r) or obj.render(r), "probe": r}
+    traced = obj.kind in ("mesh", "urdf")
+    if traced:
+        obj._trace = {"frames": [], "t": []}
+    try:
+        r = obj.probe(kind)
+    finally:
+        raw, obj._trace = getattr(obj, "_trace", None), None
+    trace = None
+    if traced and raw and raw["frames"]:
+        env = 0
+        if kind == "tip":
+            env = next((i for i, m in enumerate(r["modes"]) if m != "holds"), len(r["modes"]) - 1)
+        trace = {"kind": kind, **A.finish_trace(raw, env)}
+        if kind == "tip":
+            trace["lean_deg"] = r["x"][env]
+        if kind == "parts":
+            trace["floating"] = r["floating"]
+    return {"summary": summarize(kind, r), "result": r, "png": chart(r) or obj.render(r), "probe": r, "trace": trace}
 
 
 def final_report(obj) -> dict:
@@ -160,6 +181,8 @@ class Session:
         self.decision: dict | None = None
         self.report = None
         self.view: tuple[int, bytes] | None = None
+        self.traces: dict[int, dict] = {}
+        self.scenes: dict[str, tuple] = {}
 
     def now(self) -> float:
         return round(time.time() - self.t0, 1)
@@ -175,6 +198,8 @@ class Session:
         entry = {"i": len(self.actions) + 1, "t": self.now(), "action": action, "summary": out["summary"],
                  "result": out["result"], "object_edits": rev,
                  "image_png_b64": base64.b64encode(out["png"]).decode() if out.get("png") else None}
+        if out.get("trace"):
+            self.traces[entry["i"]] = out["trace"]
         self.actions.append(entry)
         return entry
 
