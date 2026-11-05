@@ -62,8 +62,10 @@ def convert(d: Path, model: str, contributor: str, video: str | None) -> dict:
         "id": f"{TASKS[ep['object']]}-{d.name}", "task": TASKS[ep["object"]], "object": ep["object"], "model": model,
         "contributor": CONTRIBUTORS[contributor], "video": video, "status": session["status"], "score": ep["score"],
         "passed": ep["passed"], "checks": ep["checks"], "chat": session["chat"],
-        "contributor_actions": [{k: v for k, v in a.items() if k in ("i", "t", "action", "summary", "object_edits")}
+        "contributor_actions": [{**{k: v for k, v in a.items() if k in ("i", "t", "action", "summary", "object_edits")},
+                                 **({"result": a["result"]} if a["action"] == "lift" and "result" in a else {})}
                                 for a in session["interactions"]],
+        "traces": session.get("traces") or {},
         "agent_calls": [{"i": c["i"], "t": c["t"], "tool": c["tool"], "args": c["args"]} for c in ep["calls"]],
         "agent_edits": [{"tool": c["tool"], "args": c["args"]} for c in ep["calls"] if c["tool"] in edits],
         "diff": ep["diff"], "duration_s": ep["duration_s"],

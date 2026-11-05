@@ -56,7 +56,11 @@ class Recorder:
         self.pause(900)
         self.page.click(f'#actions button[data-action="{action}"]')
         self.page.wait_for_function("document.getElementById('busy').style.display !== 'block'", timeout=600_000)
-        self.pause(2200)
+        self.pause(800)
+        # Let the 3D view replay what Genesis simulated before moving on.
+        self.page.wait_for_function("!document.getElementById('pl-play') || document.getElementById('pl-play').textContent !== 'Pause'",
+                                    timeout=60_000)
+        self.pause(1400)
         last = self.state()["last"]
         print(f"  [{action}] {last['summary']}", flush=True)
         return last["result"]
@@ -155,7 +159,9 @@ def main():
     tmp = Path(tempfile.mkdtemp(prefix="wb-rec-"))
     size = {"width": 1360, "height": 860}
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(channel="chrome", headless=True)
+        # Software WebGL, so the page's 3D view renders in headless Chrome without a GPU.
+        browser = pw.chromium.launch(channel="chrome", headless=True,
+                                     args=["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
         ctx = browser.new_context(viewport=size, record_video_dir=str(tmp), record_video_size=size)
         page = ctx.new_page()
         page.goto(a.url)

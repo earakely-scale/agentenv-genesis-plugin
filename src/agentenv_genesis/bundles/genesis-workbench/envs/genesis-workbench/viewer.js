@@ -158,19 +158,40 @@ export class SimViewer {
     this.nodes[0].add(this.com);
   }
 
+  placeCan(bounds) {
+    const cx = bounds[1][0] + 0.04 + CAN.r;
+    if (!this.can) {
+      this.can = new THREE.Mesh(new THREE.CylinderGeometry(CAN.r, CAN.r, CAN.h, 48),
+        new THREE.MeshStandardMaterial({ color: 0xc72a1e, roughness: 0.35, metalness: 0.3 }));
+      this.can.rotation.x = Math.PI / 2;
+      this.can.castShadow = this.can.receiveShadow = true;
+      this.world.add(this.can);
+    }
+    this.can.position.set(cx, 0, CAN.h / 2);
+    return cx;
+  }
+
+  // The object at a point in a session, drawn from the as-delivered meshes: uniformly rescaled (set_scale is relative
+  // to the delivered geometry) and with removed parts hidden.
+  setState({ scale = 1, removed = [] } = {}) {
+    if (!this.meta) return;
+    const k = scale / (this.meta.scale || 1), z0 = this.meta.lift || 0;
+    this.meta.geoms.forEach((g, i) => {
+      this.nodes[i].scale.setScalar(k);
+      this.nodes[i].visible = !(g.part && removed.includes(g.part));
+    });
+    this.rest = this.meta.geoms.map(({ pose: p }) => [p[0] * k, p[1] * k, z0 + (p[2] - z0) * k, p[3], p[4], p[5], p[6]]);
+    const b = this.meta.bounds;
+    this.placeCan([[b[0][0] * k, b[0][1] * k, b[0][2]], [b[1][0] * k, b[1][1] * k, b[1][2] * k]]);
+    if (!this.trace) this.setPose(this.rest);
+  }
+
   frame(bounds) {
     const lo = new THREE.Vector3(...bounds[0]), hi = new THREE.Vector3(...bounds[1]);
     const size = Math.max(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z);
     this.size = size;
     const small = size < 0.6;
-    const cx = hi.x + 0.04 + CAN.r;
-    if (this.can) this.world.remove(this.can);
-    this.can = new THREE.Mesh(new THREE.CylinderGeometry(CAN.r, CAN.r, CAN.h, 48),
-      new THREE.MeshStandardMaterial({ color: 0xc72a1e, roughness: 0.35, metalness: 0.3 }));
-    this.can.rotation.x = Math.PI / 2;
-    this.can.position.set(cx, 0, CAN.h / 2);
-    this.can.castShadow = this.can.receiveShadow = true;
-    this.world.add(this.can);
+    const cx = this.placeCan(bounds);
     // Grid: 1 cm cells with a darker line every 5 cm for small objects; 10 cm and 50 cm for furniture.
     const cell = small ? 0.01 : 0.1, span = small ? 1.0 : 10;
     if (this.ground) this.world.remove(this.ground);
