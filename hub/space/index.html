@@ -347,6 +347,7 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
 .va-asset { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; }
 .va-dot { font-weight: 700; } .va-dot.ok { color: var(--pass, #2f7d32); } .va-dot.warn { color: #b7791f; } .va-dot.bad { color: var(--fail, #bf3b2e); }
 .vr-tbl td.warn { color: #b7791f; font-weight: 600; }
+.jump { font-size: 14px; color: var(--muted); margin: 10px 0 0; } .jump a { color: inherit; }
 </style>
 <script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head>
@@ -354,7 +355,7 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
 <div class="wrap">
 
 <header class="top">
-  <p class="eyebrow">agentenv environment · Genesis 1.4.5 · Apache-2.0</p>
+  <p class="eyebrow">agentenv environment · MuJoCo 3.17 · Genesis 1.4.5 · Apache-2.0</p>
   <h1>GenesisWorkbenchEnv: fix an object’s physics from one complaint</h1>
   <p class="lede">A sim-ready object comes out of a VLM-to-CAD step with a physics bug. A contributor says what feels wrong, and that sentence is the whole task prompt. An LLM agent works out the cause and edits the object through MCP tools while Genesis simulates and renders it. When the agent stops, a probe suite it never sees runs the edited object in Genesis and compares its behaviour with a reference.</p>
   <nav class="links" aria-label="Project links">
@@ -363,6 +364,7 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
     <a href="https://github.com/scaleapi/agentenv-framework" target="_blank" rel="noopener"><span>Runs on</span>agentenv-framework</a>
     <a href="https://github.com/Genesis-Embodied-AI/genesis-world" target="_blank" rel="noopener"><span>Simulator</span>Genesis</a>
   </nav>
+  <p class="jump">On this page: <a href="#contributor">contributor sessions</a> · <a href="#validation">a knife block, validated</a> · <a href="#validator">any MJCF, validated</a> (scanned objects, ReplicaCAD furniture, kitchen scenes)</p>
   <div class="answers">
     <div><b>The agent gets</b><strong>A complaint and an object</strong><p>One MJCF file with one physics bug from the CAD step, and a contributor’s sentence about how it misbehaves. Nothing says which parameter is wrong.</p></div>
     <div><b>It can use</b><strong>Seven MCP tools</strong><p><code>inspect</code>, <code>render</code> (returns PNG frames), <code>set_inertial</code>, <code>set_material</code>, <code>set_joint</code>, <code>run_probe</code> and <code>diff</code>, all backed by a live Genesis scene.</p></div>
