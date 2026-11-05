@@ -64,6 +64,9 @@ export async function mount() {
       `${report.checks.filter((c) => c.level === "fail").length} fail, ${report.checks.filter((c) => c.level === "warn").length} warn, ${report.checks.filter((c) => c.level === "pass").length} pass`;
     $("va-verdict").className = "vr-verdict " + (report.verdict === "fail" ? "bad" : "ok");
     $("va-md").href = `validator/${a.file.replace(/\.json$/, ".md")}`;
+    // a scene with furniture isn't dropped, so it has no drop to replay
+    [...$("va-runs").children].forEach((b) => { b.disabled = !(report.traces && report.traces[b.dataset.k]); });
+    if (!(report.traces && report.traces[run])) run = "settle";
     play();
   }
   await open(Math.max(0, index.findIndex((a) => a.verdict === "fail")));

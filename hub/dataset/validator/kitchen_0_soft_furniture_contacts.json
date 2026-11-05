@@ -1,0 +1,747 @@
+{
+ "name": "kitchen_0_soft_furniture_contacts",
+ "path": "kitchen_0_soft_furniture_contacts",
+ "mjcf": "scene.xml",
+ "mujoco": "3.17.0",
+ "bodies": 23,
+ "geoms": 263,
+ "joints": 19,
+ "timestep": 0.001,
+ "mass_kg": 240.8858,
+ "floor_added": false,
+ "checks": [
+  {
+   "id": "loads",
+   "level": "pass",
+   "message": "loads in MuJoCo 3.17.0: 23 bodies, 263 geoms, 19 joints"
+  },
+  {
+   "id": "mass-source",
+   "level": "pass",
+   "message": "every colliding body has an explicit <inertial>"
+  },
+  {
+   "id": "density",
+   "level": "pass",
+   "message": "mass over the volume MuJoCo collides (convex hulls, so a hollow object reads low): counter/drawer1_top 81 kg/m\u00b3 (5.0 kg), counter/drawer1_bottom 81 kg/m\u00b3 (5.0 kg), counter/drawer3 130 kg/m\u00b3 (4.0 kg), counter/drawer4 141 kg/m\u00b3 (6.0 kg), counter/drawer2_top 159 kg/m\u00b3 (4.0 kg), counter/drawer2_middle 159 kg/m\u00b3 (4.0 kg)",
+   "data": {
+    "bodies": [
+     [
+      "counter/body",
+      204,
+      120.0
+     ],
+     [
+      "counter/drawer1_top",
+      81,
+      5.0
+     ],
+     [
+      "counter/drawer1_bottom",
+      81,
+      5.0
+     ],
+     [
+      "counter/drawer2_top",
+      159,
+      4.0
+     ],
+     [
+      "counter/drawer2_middle",
+      159,
+      4.0
+     ],
+     [
+      "counter/drawer2_bottom",
+      159,
+      4.0
+     ],
+     [
+      "counter/drawer3",
+      130,
+      4.0
+     ],
+     [
+      "counter/drawer4",
+      141,
+      6.0
+     ],
+     [
+      "fridge/body",
+      428,
+      70.0
+     ],
+     [
+      "fridge/top_door",
+      191,
+      8.0
+     ],
+     [
+      "fridge/bottom_door",
+      207,
+      6.0
+     ],
+     [
+      "knife_block_knife_block/knife_block",
+      711,
+      2.5405
+     ],
+     [
+      "knife_block_chef_20cm/chef_20cm",
+      3329,
+      0.276
+     ],
+     [
+      "knife_block_bread_20cm/bread_20cm",
+      2921,
+      0.2026
+     ],
+     [
+      "knife_block_santoku_17cm/santoku_17cm",
+      3190,
+      0.218
+     ],
+     [
+      "knife_block_utility_13cm/utility_13cm",
+      2728,
+      0.0938
+     ],
+     [
+      "knife_block_boning_15cm/boning_15cm",
+      2548,
+      0.1217
+     ],
+     [
+      "knife_block_paring_9cm/paring_9cm",
+      2527,
+      0.0814
+     ],
+     [
+      "cad_mug_cad_mug/cad_mug",
+      900,
+      0.35
+     ],
+     [
+      "scan_mug_scan_mug/scan_mug",
+      1217,
+      0.3382
+     ],
+     [
+      "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+      1967,
+      0.6636
+     ]
+    ]
+   }
+  },
+  {
+   "id": "inertia",
+   "level": "warn",
+   "message": "rotational inertia against a solid of the same mass filling its collision hull (1 = the same): counter/body 0.01\u00d7, fridge/body 0.06\u00d7, counter/drawer2_top 5.83\u00d7, counter/drawer2_middle 5.83\u00d7, counter/drawer2_bottom 5.83\u00d7, counter/drawer3 3.77\u00d7",
+   "data": {
+    "bodies": [
+     [
+      "counter/body",
+      0.01
+     ],
+     [
+      "counter/drawer1_top",
+      2.8
+     ],
+     [
+      "counter/drawer1_bottom",
+      2.8
+     ],
+     [
+      "counter/drawer2_top",
+      5.83
+     ],
+     [
+      "counter/drawer2_middle",
+      5.83
+     ],
+     [
+      "counter/drawer2_bottom",
+      5.83
+     ],
+     [
+      "counter/drawer3",
+      3.77
+     ],
+     [
+      "counter/drawer4",
+      2.4
+     ],
+     [
+      "fridge/body",
+      0.06
+     ],
+     [
+      "fridge/top_door",
+      1.33
+     ],
+     [
+      "fridge/bottom_door",
+      2.82
+     ],
+     [
+      "knife_block_knife_block/knife_block",
+      1.0
+     ],
+     [
+      "knife_block_chef_20cm/chef_20cm",
+      1.14
+     ],
+     [
+      "knife_block_bread_20cm/bread_20cm",
+      1.17
+     ],
+     [
+      "knife_block_santoku_17cm/santoku_17cm",
+      1.14
+     ],
+     [
+      "knife_block_utility_13cm/utility_13cm",
+      1.0
+     ],
+     [
+      "knife_block_boning_15cm/boning_15cm",
+      0.95
+     ],
+     [
+      "knife_block_paring_9cm/paring_9cm",
+      0.91
+     ],
+     [
+      "cad_mug_cad_mug/cad_mug",
+      1.39
+     ],
+     [
+      "scan_mug_scan_mug/scan_mug",
+      1.29
+     ],
+     [
+      "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+      1.07
+     ]
+    ]
+   }
+  },
+  {
+   "id": "centre-of-mass",
+   "level": "warn",
+   "message": "centre of mass outside the body: fridge/top_door at [0.0, 0.0, 0.0], fridge/bottom_door at [0.0, 0.0, 0.0]",
+   "data": {
+    "bodies": [
+     [
+      "fridge/top_door",
+      [
+       0.0,
+       0.0,
+       0.0
+      ]
+     ],
+     [
+      "fridge/bottom_door",
+      [
+       0.0,
+       0.0,
+       0.0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "id": "friction",
+   "level": "pass",
+   "message": "59 of 226 colliding geoms have MuJoCo's default friction (1.0 sliding): the rest are set",
+   "data": {
+    "default": 59,
+    "geoms": 226
+   }
+  },
+  {
+   "id": "contact-softness",
+   "level": "warn",
+   "message": "59 of 226 colliding geoms use MuJoCo's default contact softness (solref 0.02 s), and 54 collision pieces are under 4 mm thick (thinnest 1.5 mm): a soft contact lets a thin part sink further than it is thick on impact, and the piece it sank into can then push it out the far side",
+   "data": {
+    "default": 59,
+    "thin": [
+     [
+      "knife_block_knife_block/knife_block",
+      "geom90",
+      3.0
+     ],
+     [
+      "knife_block_knife_block/knife_block",
+      "geom91",
+      3.0
+     ],
+     [
+      "knife_block_knife_block/knife_block",
+      "geom92",
+      3.0
+     ],
+     [
+      "knife_block_knife_block/knife_block",
+      "geom93",
+      3.0
+     ],
+     [
+      "knife_block_chef_20cm/chef_20cm",
+      "geom95",
+      2.8
+     ],
+     [
+      "knife_block_bread_20cm/bread_20cm",
+      "geom101",
+      2.0
+     ],
+     [
+      "knife_block_santoku_17cm/santoku_17cm",
+      "geom107",
+      2.2
+     ],
+     [
+      "knife_block_utility_13cm/utility_13cm",
+      "geom113",
+      1.6
+     ],
+     [
+      "knife_block_boning_15cm/boning_15cm",
+      "geom119",
+      2.0
+     ],
+     [
+      "knife_block_paring_9cm/paring_9cm",
+      "geom125",
+      1.5
+     ],
+     [
+      "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+      "geom214",
+      3.0
+     ],
+     [
+      "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+      "geom215",
+      2.3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "hull-fill",
+   "level": "pass",
+   "message": "no colliding mesh loses much to its convex hull",
+   "data": {
+    "geoms": []
+   }
+  },
+  {
+   "id": "floating-pieces",
+   "level": "pass",
+   "message": "every body's collision pieces touch each other",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "visual-fit",
+   "level": "warn",
+   "message": "these visual meshes reach beyond their collision geometry: what's drawn there doesn't collide, and what rests on it looks sunk in: counter/body by 361.9 mm, fridge/top_door by 162.3 mm, fridge/body by 61.8 mm, fridge/bottom_door by 52.7 mm, counter/drawer2_top by 46.1 mm, counter/drawer2_middle by 46.1 mm",
+   "data": {
+    "bodies": [
+     [
+      "counter/body",
+      361.9,
+      "above"
+     ],
+     [
+      "counter/drawer1_top",
+      35.1,
+      "below"
+     ],
+     [
+      "counter/drawer1_bottom",
+      35.1,
+      "below"
+     ],
+     [
+      "counter/drawer2_top",
+      46.1,
+      "above"
+     ],
+     [
+      "counter/drawer2_middle",
+      46.1,
+      "above"
+     ],
+     [
+      "counter/drawer2_bottom",
+      46.1,
+      "above"
+     ],
+     [
+      "counter/drawer3",
+      20.1,
+      "below"
+     ],
+     [
+      "counter/drawer4",
+      45.9,
+      "above"
+     ],
+     [
+      "fridge/body",
+      61.8,
+      "above"
+     ],
+     [
+      "fridge/top_door",
+      162.3,
+      "below"
+     ],
+     [
+      "fridge/bottom_door",
+      52.7,
+      "below"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "welded-bodies",
+   "level": "pass",
+   "message": "2 child bodies have no joint and move with their parent: counter/body, fridge/body",
+   "data": {
+    "bodies": [
+     "counter/body",
+     "fridge/body"
+    ]
+   }
+  },
+  {
+   "id": "joints",
+   "level": "pass",
+   "message": "9 hinge or slide joints: counter/left_slide_top (slide, range [0.0, 0.5], damping 0.01), counter/left_slide_bottom (slide, range [0.0, 0.5], damping 0.01), counter/middle_slide_top (slide, range [0.0, 0.5], damping 0.01), counter/middle_slide_middle (slide, range [0.0, 0.5], damping 0.01), counter/middle_slide_bottom (slide, range [0.0, 0.5], damping 0.01), counter/right_slide_top (slide, range [0.0, 0.5], damping 0.01), counter/right_slide_bottom (slide, range [0.0, 0.5], damping 0.01), fridge/top_door_hinge (hinge, range [0.0, 2.3], damping 0.01)"
+  },
+  {
+   "id": "fixed-to-world",
+   "level": "pass",
+   "message": "its root is fixed to the world, as furniture is (kept with --keep-fixed)"
+  },
+  {
+   "id": "starts-apart",
+   "level": "pass",
+   "message": "no body starts inside another",
+   "data": {
+    "pairs": []
+   }
+  },
+  {
+   "id": "settles",
+   "level": "pass",
+   "message": "after 2 s on the floor nothing moves more than 0.0 mm or 0.0\u00b0 in 0.2 s",
+   "data": {
+    "drift_mm": 0.01,
+    "turn_deg": 0.01,
+    "max_speed": 0.0007
+   }
+  },
+  {
+   "id": "no-overlap",
+   "level": "fail",
+   "message": "settling: deepest at any moment cad_milk_frother_cad_milk_frother/cad_milk_frother 6.22 mm into counter/body at 0.16 s; once settled, between bodies knife_block_knife_block/knife_block 0.05 mm into counter/body at 2.0 s, into the floor none (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "data": {
+    "overlap": {
+     "max_mm": 6.22,
+     "pairs": [
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      },
+      {
+       "body": "cad_mug_cad_mug/cad_mug",
+       "into": "counter/body",
+       "mm": 5.63,
+       "t": 0.16
+      },
+      {
+       "body": "scan_mug_scan_mug/scan_mug",
+       "into": "counter/body",
+       "mm": 5.57,
+       "t": 0.16
+      },
+      {
+       "body": "knife_block_knife_block/knife_block",
+       "into": "counter/body",
+       "mm": 5.24,
+       "t": 0.16
+      }
+     ],
+     "bodies": {
+      "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+      "into": "counter/body",
+      "mm": 6.22,
+      "t": 0.16
+     },
+     "floor": null,
+     "end": {
+      "max_mm": 0.05,
+      "pairs": [
+       {
+        "body": "knife_block_knife_block/knife_block",
+        "into": "counter/body",
+        "mm": 0.05,
+        "t": 2.0
+       },
+       {
+        "body": "scan_mug_scan_mug/scan_mug",
+        "into": "counter/body",
+        "mm": 0.05,
+        "t": 2.0
+       }
+      ],
+      "bodies": {
+       "body": "knife_block_knife_block/knife_block",
+       "into": "counter/body",
+       "mm": 0.05,
+       "t": 2.0
+      },
+      "floor": null
+     }
+    }
+   }
+  },
+  {
+   "id": "timestep",
+   "level": "pass",
+   "message": "settled at 1 ms and at 0.5 ms steps, knife_block_utility_13cm/utility_13cm ends 0.5 mm and 2.7\u00b0 apart",
+   "data": {
+    "body": "knife_block_utility_13cm/utility_13cm",
+    "mm": 0.5,
+    "deg": 2.65
+   }
+  },
+  {
+   "id": "joints-hold",
+   "level": "pass",
+   "message": "left alone for 2 s, none of the 9 joints moves more than 5\u00b0 or 5 mm",
+   "data": {
+    "joints": []
+   }
+  },
+  {
+   "id": "joints-reach",
+   "level": "pass",
+   "message": "each of the 9 limited joints reaches both ends of its range when driven",
+   "data": {
+    "reach": [
+     [
+      "counter/left_slide_top",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/left_slide_top",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/left_slide_bottom",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/left_slide_bottom",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/middle_slide_top",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/middle_slide_top",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/middle_slide_middle",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/middle_slide_middle",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/middle_slide_bottom",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/middle_slide_bottom",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/right_slide_top",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/right_slide_top",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/right_slide_bottom",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "counter/right_slide_bottom",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "fridge/top_door_hinge",
+      "upper",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "fridge/top_door_hinge",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "fridge/bottom_door_hinge",
+      "upper",
+      0.92,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ],
+     [
+      "fridge/bottom_door_hinge",
+      "lower",
+      1.0,
+      {
+       "body": "cad_milk_frother_cad_milk_frother/cad_milk_frother",
+       "into": "counter/body",
+       "mm": 6.22,
+       "t": 0.16
+      }
+     ]
+    ]
+   }
+  }
+ ],
+ "verdict": "fail"
+}

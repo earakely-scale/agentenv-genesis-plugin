@@ -150,6 +150,13 @@ MuJoCo, one as its OBJ alone, and four workbench exports. Every scanned object f
 
 Every export passes. The Space replays each one's settle and drop in 3D.
 
+The same validator checks ReplicaCAD's articulated furniture, converted from URDF to MJCF by `scripts/convert_urdf.py`,
+and kitchen scenes built from it by `scripts/compose_kitchen.py`: the counter and fridge fixed in place, the approved
+objects set out on the counter top, one layout per seed. In a scene it asks whether everything comes to rest, whether
+anything goes into anything else, and whether every drawer and door opens all the way with the objects in place.
+ReplicaCAD's URDFs give every link a unit inertia, put door centres of mass at their hinges, mix Y-up and Z-up frames
+(with a 1.565 rad root rotation where π/2 was meant), and draw the counter top about 5 mm above its collision box.
+
 ## With a contributor in the loop
 
 The scale tasks fail because the real size isn't in the asset. The `contributor-*` tasks put a contributor in the loop.

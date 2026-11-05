@@ -1,0 +1,371 @@
+{
+ "name": "chestOfDrawers_01",
+ "path": "chestOfDrawers_01.xml",
+ "mjcf": "chestOfDrawers_01.xml",
+ "mujoco": "3.17.0",
+ "bodies": 8,
+ "geoms": 55,
+ "joints": 6,
+ "timestep": 0.002,
+ "mass_kg": 118.0,
+ "floor_added": true,
+ "checks": [
+  {
+   "id": "loads",
+   "level": "pass",
+   "message": "loads in MuJoCo 3.17.0: 8 bodies, 55 geoms, 6 joints"
+  },
+  {
+   "id": "mass-source",
+   "level": "pass",
+   "message": "every colliding body has an explicit <inertial>"
+  },
+  {
+   "id": "density",
+   "level": "pass",
+   "message": "mass over the volume MuJoCo collides (convex hulls, so a hollow object reads low): drawer_botL 53 kg/m\u00b3 (8.0 kg), drawer_botR 53 kg/m\u00b3 (8.0 kg), drawer_midL 57 kg/m\u00b3 (8.0 kg), drawer_midR 57 kg/m\u00b3 (8.0 kg), body 70 kg/m\u00b3 (70.0 kg), drawer_topL 133 kg/m\u00b3 (8.0 kg)",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      70,
+      70.0
+     ],
+     [
+      "drawer_topL",
+      133,
+      8.0
+     ],
+     [
+      "drawer_topR",
+      133,
+      8.0
+     ],
+     [
+      "drawer_midL",
+      57,
+      8.0
+     ],
+     [
+      "drawer_midR",
+      57,
+      8.0
+     ],
+     [
+      "drawer_botL",
+      53,
+      8.0
+     ],
+     [
+      "drawer_botR",
+      53,
+      8.0
+     ]
+    ]
+   }
+  },
+  {
+   "id": "inertia",
+   "level": "warn",
+   "message": "rotational inertia against a solid of the same mass filling its collision hull (1 = the same): body 0.02\u00d7, drawer_topL 1.43\u00d7, drawer_topR 1.43\u00d7, drawer_botL 0.8\u00d7, drawer_botR 0.8\u00d7, drawer_midL 0.91\u00d7",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      0.02
+     ],
+     [
+      "drawer_topL",
+      1.43
+     ],
+     [
+      "drawer_topR",
+      1.43
+     ],
+     [
+      "drawer_midL",
+      0.91
+     ],
+     [
+      "drawer_midR",
+      0.91
+     ],
+     [
+      "drawer_botL",
+      0.8
+     ],
+     [
+      "drawer_botR",
+      0.8
+     ]
+    ]
+   }
+  },
+  {
+   "id": "centre-of-mass",
+   "level": "warn",
+   "message": "centre of mass outside the body: drawer_topL at [0.0, -0.1, 0.0], drawer_topR at [0.0, -0.1, 0.0], drawer_midL at [0.0, -0.1, 0.0], drawer_midR at [0.0, -0.1, 0.0]",
+   "data": {
+    "bodies": [
+     [
+      "drawer_topL",
+      [
+       0.0,
+       -0.1,
+       0.0
+      ]
+     ],
+     [
+      "drawer_topR",
+      [
+       0.0,
+       -0.1,
+       0.0
+      ]
+     ],
+     [
+      "drawer_midL",
+      [
+       0.0,
+       -0.1,
+       0.0
+      ]
+     ],
+     [
+      "drawer_midR",
+      [
+       0.0,
+       -0.1,
+       0.0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "id": "friction",
+   "level": "warn",
+   "message": "47 of 47 colliding geoms have MuJoCo's default friction (1.0 sliding): none is set from a material",
+   "data": {
+    "default": 47,
+    "geoms": 47
+   }
+  },
+  {
+   "id": "contact-softness",
+   "level": "pass",
+   "message": "47 of 47 colliding geoms use MuJoCo's default contact softness (solref 0.02 s)",
+   "data": {
+    "default": 47,
+    "thin": []
+   }
+  },
+  {
+   "id": "hull-fill",
+   "level": "pass",
+   "message": "no colliding mesh loses much to its convex hull",
+   "data": {
+    "geoms": []
+   }
+  },
+  {
+   "id": "floating-pieces",
+   "level": "pass",
+   "message": "every body's collision pieces touch each other",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "visual-fit",
+   "level": "warn",
+   "message": "these visual meshes reach beyond their collision geometry: what's drawn there doesn't collide, and what rests on it looks sunk in: body by 595.9 mm, drawer_midL by 38.0 mm, drawer_midR by 38.0 mm, drawer_topL by 36.5 mm, drawer_topR by 36.5 mm, drawer_botL by 33.3 mm",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      595.9,
+      "below"
+     ],
+     [
+      "drawer_topL",
+      36.5,
+      "below"
+     ],
+     [
+      "drawer_topR",
+      36.5,
+      "below"
+     ],
+     [
+      "drawer_midL",
+      38.0,
+      "above"
+     ],
+     [
+      "drawer_midR",
+      38.0,
+      "above"
+     ],
+     [
+      "drawer_botL",
+      33.3,
+      "below"
+     ],
+     [
+      "drawer_botR",
+      33.3,
+      "below"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "welded-bodies",
+   "level": "pass",
+   "message": "1 child bodies have no joint and move with their parent: body",
+   "data": {
+    "bodies": [
+     "body"
+    ]
+   }
+  },
+  {
+   "id": "joints",
+   "level": "pass",
+   "message": "6 hinge or slide joints: drawer_topL (slide, range [0.0, 0.5], damping 0.01), drawer_topR (slide, range [0.0, 0.5], damping 0.01), drawer_midL (slide, range [0.0, 0.5], damping 0.01), drawer_midR (slide, range [0.0, 0.5], damping 0.01), drawer_botL (slide, range [0.0, 0.5], damping 0.01), drawer_botR (slide, range [0.0, 0.5], damping 0.01)"
+  },
+  {
+   "id": "fixed-to-world",
+   "level": "pass",
+   "message": "its root is fixed to the world, as furniture is (kept with --keep-fixed)"
+  },
+  {
+   "id": "starts-apart",
+   "level": "pass",
+   "message": "no body starts inside another",
+   "data": {
+    "pairs": []
+   }
+  },
+  {
+   "id": "settles",
+   "level": "pass",
+   "message": "after 2 s on the floor nothing moves more than 0.0 mm or 0.0\u00b0 in 0.2 s",
+   "data": {
+    "drift_mm": 0.0,
+    "turn_deg": 0.0,
+    "max_speed": 0.0
+   }
+  },
+  {
+   "id": "no-overlap",
+   "level": "pass",
+   "message": "settling: deepest at any moment none; once settled, between bodies none, into the floor none (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "data": {
+    "overlap": {
+     "max_mm": 0.0,
+     "pairs": [],
+     "bodies": null,
+     "floor": null,
+     "end": {
+      "max_mm": 0.0,
+      "pairs": [],
+      "bodies": null,
+      "floor": null
+     }
+    }
+   }
+  },
+  {
+   "id": "joints-hold",
+   "level": "pass",
+   "message": "left alone for 2 s, none of the 6 joints moves more than 5\u00b0 or 5 mm",
+   "data": {
+    "joints": []
+   }
+  },
+  {
+   "id": "joints-reach",
+   "level": "pass",
+   "message": "each of the 6 limited joints reaches both ends of its range when driven",
+   "data": {
+    "reach": [
+     [
+      "drawer_topL",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "drawer_topL",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "drawer_topR",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "drawer_topR",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "drawer_midL",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "drawer_midL",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "drawer_midR",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "drawer_midR",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "drawer_botL",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "drawer_botL",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "drawer_botR",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "drawer_botR",
+      "lower",
+      1.0,
+      null
+     ]
+    ]
+   }
+  }
+ ],
+ "verdict": "warn"
+}

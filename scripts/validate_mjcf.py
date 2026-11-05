@@ -47,7 +47,8 @@ def find_mjcf(path: Path, tmp: Path) -> tuple[Path, str]:
             z.extractall(tmp)
         path = tmp
     if path.is_dir():
-        xmls = sorted(path.rglob("scene.xml")) or sorted(path.rglob("*.xml"))
+        depth = lambda q: (len(q.relative_to(path).parts), str(q))  # noqa: E731  the shallowest: a scene's objects have their own
+        xmls = sorted(path.rglob("scene.xml"), key=depth) or sorted(path.rglob("*.xml"), key=depth)
         if not xmls:
             raise ValueError(f"no MJCF in {path}")
         return xmls[0], path.name if path != tmp else xmls[0].parent.name
@@ -313,11 +314,40 @@ def static(xml: Path, m, spec, added) -> list[dict]:
     row(rows, "floating-pieces", "warn" if float_rows else "pass",
         ("collision pieces more than 2 mm from the rest of their body: " + ", ".join(f"{b}: {k} pieces, {s:.0%} of its volume" for b, k, s in float_rows))
         if float_rows else "every body's collision pieces touch each other", bodies=float_rows)
+    # does what you see match what collides? A visual that sticks out of its collision geometry looks sunk into
+    # whatever rests on it; collision that sticks out of the visual is an invisible wall
+    fit = []
+    rng = np.random.default_rng(1)
+    for b in bodies:
+        vis = [g for g in range(m.ngeom) if m.geom_bodyid[g] == b and not colliding(m, g) and m.geom_type[g] == mujoco.mjtGeom.mjGEOM_MESH]
+        col = [g for g in range(m.ngeom) if m.geom_bodyid[g] == b and colliding(m, g)]
+        if not vis or not col:
+            continue
+        hulls = []
+        for g in col:
+            pts = geom_points(m, g)
+            if len(pts) >= 4:
+                try:
+                    hulls.append(ConvexHull(pts).equations)
+                except Exception:
+                    pass
+        if not hulls:
+            continue
+        P = np.concatenate([mj._to_body(m, g, mj._surface(*mj._mesh(m, g), 0.01, rng)) for g in vis])
+        out = np.min(np.stack([(P @ e[:, :3].T + e[:, 3]).max(1) for e in hulls]), 0)  # how far outside the nearest hull
+        k = int(out.argmax())
+        if out[k] > 0.005:
+            up = P[k][2] - P[:, 2].mean()
+            fit.append((names[b], round(float(out[k]) * 1000, 1), "above" if up > 0 else "below"))
+    row(rows, "visual-fit", "warn" if fit else "pass",
+        ("these visual meshes reach beyond their collision geometry: what's drawn there doesn't collide, and what rests on it looks sunk in: "
+         + ", ".join(f"{n} by {mm} mm" for n, mm, _ in sorted(fit, key=lambda r: -r[1])[:6])) if fit
+        else "every visual mesh lies within 5 mm of its body's collision geometry", bodies=fit)
     welded = [names[b] for b in range(1, m.nbody) if m.body_parentid[b] != 0 and m.body_jntnum[b] == 0]
     if welded:
         row(rows, "welded-bodies", "pass", f"{len(welded)} child bodies have no joint and move with their parent: {', '.join(welded[:8])}"
             + (" …" if len(welded) > 8 else ""), bodies=welded)
-    joints = [m.joint(j) for j in range(m.njnt) if m.jnt_type[j] in (mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_SLIDE)]
+    joints = [m.joint(j) for j in range(m.njnt) if int(m.jnt_type[j]) in (int(mujoco.mjtJoint.mjJNT_HINGE), int(mujoco.mjtJoint.mjJNT_SLIDE))]
     if joints:
         row(rows, "joints", "pass", f"{len(joints)} hinge or slide joints: " + ", ".join(
             f"{j.name or j.id} ({'hinge' if m.jnt_type[j.id] == mujoco.mjtJoint.mjJNT_HINGE else 'slide'}"
@@ -331,12 +361,15 @@ def static(xml: Path, m, spec, added) -> list[dict]:
 def run(m, seconds, ov=True, rec_every=0, **where):
     d = mujoco.MjData(m)
     mujoco.mj_forward(m, d)
-    o = mj.Overlap(m) if ov else None
+    o = mj.Overlap(m, surface="collision") if ov else None
     o and o(d, t=0.0, **where)
     rec = mj.Recorder(m, rec_every) if rec_every else None
     n = int(round(seconds / m.opt.timestep))
     every = max(1, int(round(0.02 / m.opt.timestep)))
+    late = n - int(round(0.2 / m.opt.timestep))
     for k in range(n):
+        if k == late:
+            run.before = (d.xpos.copy(), d.xquat.copy())
         mujoco.mj_step(m, d)
         if rec and k % every == 0:
             rec.frames.append(np.round(np.concatenate([d.xpos[rec.ids], d.xquat[rec.ids]], 1), 5).tolist())
@@ -353,7 +386,7 @@ def dynamic(xml: Path, free: bool) -> tuple[list[dict], dict]:
     roots = free_roots(m)
     d0 = mujoco.MjData(m)
     mujoco.mj_forward(m, d0)
-    o0 = mj.Overlap(m)
+    o0 = mj.Overlap(m, surface="collision")
     o0(d0, t=0.0)
     s0 = o0.summary()
     bodies0 = [r for r in s0["pairs"] if r["into"] != "floor"]
@@ -363,10 +396,22 @@ def dynamic(xml: Path, free: bool) -> tuple[list[dict], dict]:
     # settle
     d, ov, rec = run(m, 2.0, rec_every=1)
     traces["settle"] = rec.trace(kind="rest")
+    # at rest means nothing moves over the last 0.2 s; a part that shakes in place is told apart
+    p0, q0 = run.before
+    moving = [b for b in range(1, m.nbody) if m.body_weldid[b] != 0]
+    drift = max((float(np.linalg.norm(d.xpos[b] - p0[b])) * 1000 for b in moving), default=0.0)
+    turn = max((mj.rotation_deg(d.xquat[b], q0[b]) for b in moving), default=0.0)
+    who = max(moving, key=lambda b: float(np.linalg.norm(d.xpos[b] - p0[b])) * 1000 + mj.rotation_deg(d.xquat[b], q0[b]), default=None)
     speed = float(np.abs(d.qvel).max()) if m.nv else 0.0
+    shaker = m.body(m.jnt_bodyid[m.dof_jntid[int(np.abs(d.qvel).argmax())]]).name if m.nv else ""
     bad = mj.unstable(d)
-    row(rows, "settles", "fail" if bad or speed > 0.05 else "pass",
-        "MuJoCo went unstable and reset the state" if bad else f"after 2 s on the floor the fastest part moves at {speed:.3f} m/s", max_speed=round(speed, 4))
+    rest = drift < 1.0 and turn < 1.0
+    row(rows, "settles", "fail" if bad or not rest else "warn" if speed > 0.05 else "pass",
+        "MuJoCo went unstable and reset the state" if bad else
+        (f"after 2 s on the floor nothing moves more than {drift:.1f} mm or {turn:.1f}° in 0.2 s" if rest else
+         f"after 2 s {m.body(who).name} is still moving: {drift:.1f} mm and {turn:.1f}° in the last 0.2 s")
+        + (f"; {shaker} shakes in place at {speed:.2f} (m/s or rad/s) without going anywhere" if rest and speed > 0.05 else ""),
+        drift_mm=round(drift, 2), turn_deg=round(turn, 2), max_speed=round(speed, 4))
     end_b, end_f, peak = ov["end"]["bodies"], ov["end"]["floor"], ov["pairs"][:1]
     say = lambda r: f"{r['body']} {r['mm']} mm into {r['into']} at {r['t']} s"  # noqa: E731
     ok = (end_b is None or end_b["mm"] <= 0.5) and (end_f is None or end_f["mm"] <= 1.0) and all(r["mm"] <= 3.0 for r in peak)
@@ -378,10 +423,13 @@ def dynamic(xml: Path, free: bool) -> tuple[list[dict], dict]:
     if roots:
         _, m2, _, _ = build(xml, free, timestep=m.opt.timestep / 2)
         d2, _, _ = run(m2, 2.0, ov=False)
-        dp = max(float(np.linalg.norm(d.xpos[b] - d2.xpos[b])) for b in roots) * 1000
-        dq = max(mj.rotation_deg(d.xquat[b], d2.xquat[b]) for b in roots)
+        far = max(roots, key=lambda b: float(np.linalg.norm(d.xpos[b] - d2.xpos[b])) * 1000 + mj.rotation_deg(d.xquat[b], d2.xquat[b]))
+        dp = float(np.linalg.norm(d.xpos[far] - d2.xpos[far])) * 1000
+        dq = mj.rotation_deg(d.xquat[far], d2.xquat[far])
         row(rows, "timestep", "warn" if dp > 3 or dq > 3 else "pass",
-            f"settled at {m.opt.timestep * 1000:g} ms and at {m.opt.timestep * 500:g} ms steps, it ends {dp:.1f} mm and {dq:.1f}° apart", mm=round(dp, 2), deg=round(dq, 2))
+            f"settled at {m.opt.timestep * 1000:g} ms and at {m.opt.timestep * 500:g} ms steps, "
+            + (f"{m.body(far).name} ends {dp:.1f} mm and {dq:.1f}° apart" if len(roots) > 1 else f"it ends {dp:.1f} mm and {dq:.1f}° apart"),
+            body=m.body(far).name, mm=round(dp, 2), deg=round(dq, 2))
         # tipping margin from where it stands
         floor = [g for g in range(m.ngeom) if m.geom_type[g] == mujoco.mjtGeom.mjGEOM_PLANE]
         on_floor = {}
@@ -415,12 +463,14 @@ def dynamic(xml: Path, free: bool) -> tuple[list[dict], dict]:
             row(rows, "tip-margin", "fail" if ang < 0 else "warn" if ang < 8 else "pass",
                 f"{who} can tilt {ang:.1f}° toward its least stable side before its centre of mass passes the edge of its footprint",
                 body=m.body(b).name, deg=round(ang, 1))
-        # drop from 10 cm
+        # drop from 10 cm: an object on its own, not a scene with furniture in it
+        fixed_parts = any(colliding(m, g) and m.geom_bodyid[g] > 0 and m.body_rootid[m.geom_bodyid[g]] not in roots for g in range(m.ngeom))
+    if roots and not fixed_parts:
         _, md, _, _ = build(xml, free, drop=0.10)
         dd = mujoco.MjData(md)
         mujoco.mj_forward(md, dd)
         rest_z = {b: float(d.subtree_com[b][2]) for b in roots}
-        od = mj.Overlap(md)
+        od = mj.Overlap(md, surface="collision")
         hit, bounce = {b: False for b in roots}, {b: 0.0 for b in roots}
         n = int(round(1.5 / md.opt.timestep))
         every = max(1, int(round(0.01 / md.opt.timestep)))
@@ -455,7 +505,7 @@ def dynamic(xml: Path, free: bool) -> tuple[list[dict], dict]:
 
 def joints(xml, free, m, d_settled) -> list[dict]:
     rows = []
-    js = [j for j in range(m.njnt) if m.jnt_type[j] in (mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_SLIDE)]
+    js = [j for j in range(m.njnt) if int(m.jnt_type[j]) in (int(mujoco.mjtJoint.mjJNT_HINGE), int(mujoco.mjtJoint.mjJNT_SLIDE))]
     if not js:
         return rows
     d = mujoco.MjData(m)
@@ -488,7 +538,7 @@ def joints(xml, free, m, d_settled) -> list[dict]:
             dd = mujoco.MjData(m)
             dd.qpos[:] = q0
             mujoco.mj_forward(m, dd)
-            ov = mj.Overlap(m)
+            ov = mj.Overlap(m, surface="collision")
             n = int(round(1.5 / m.opt.timestep))
             for k in range(n):
                 s = min(1.0, k / (0.8 * n))
@@ -511,13 +561,13 @@ def joints(xml, free, m, d_settled) -> list[dict]:
     return rows
 
 
-def validate(path: Path) -> dict:
+def validate(path: Path, keep_fixed: bool = False) -> dict:
     tmp = Path(tempfile.mkdtemp(prefix="validate-"))
     try:
         xml, name = find_mjcf(path, tmp)
         out = {"name": name, "path": path.name, "mjcf": xml.name, "mujoco": mujoco.__version__}
         try:
-            spec, m, added, floor_added = build(xml, True)
+            spec, m, added, floor_added = build(xml, not keep_fixed)
         except Exception as e:
             out.update(checks=[{"id": "loads", "level": "fail", "message": f"MuJoCo can't load it: {str(e)[:300]}"}], verdict="fail")
             return out
@@ -526,7 +576,9 @@ def validate(path: Path) -> dict:
         checks = [{"id": "loads", "level": "pass", "message": f"loads in MuJoCo {mujoco.__version__}: {n_(m.nbody - 1, 'body')}, {n_(m.ngeom, 'geom')}, "
                                                               f"{n_(m.njnt, 'joint')}" + (" (with the free joints added here)" if added else "")}]
         checks += static(xml, m, spec, added)
-        dyn, traces = dynamic(xml, True)
+        if keep_fixed and any(m.body_parentid[b] == 0 and m.body_jntnum[b] == 0 for b in range(1, m.nbody)):
+            checks.append({"id": "fixed-to-world", "level": "pass", "message": "its root is fixed to the world, as furniture is (kept with --keep-fixed)"})
+        dyn, traces = dynamic(xml, not keep_fixed)
         checks += dyn
         out["checks"] = checks
         out["traces"] = traces
@@ -567,6 +619,8 @@ def geom_mesh(m, spec, root: Path, g) -> trimesh.Trimesh | None:
         try:
             sm = spec.mesh(m.mesh(k).name)
             f = root / (spec.meshdir or "") / sm.file
+            if f.with_suffix(".glb").exists():  # a converted mesh keeps its textured original beside it
+                f = f.with_suffix(".glb")
             if f.suffix.lower() in (".obj", ".stl", ".ply", ".glb") and f.exists():
                 tm = trimesh.load(f, force="mesh", process=False)
                 tm.vertices = (np.asarray(tm.vertices) * np.asarray(sm.scale) - m.mesh_pos[k]) @ _mat(m.mesh_quat[k])
@@ -646,18 +700,19 @@ def main():
     ap.add_argument("--out", default="validation")
     ap.add_argument("--traces", action="store_true", help="keep the settle and drop traces in the JSON")
     ap.add_argument("--web", action="store_true", help="write each asset's GLB and its replays, mapped to the GLB's nodes, for the Space")
+    ap.add_argument("--keep-fixed", action="store_true", help="leave a root body with no joint welded to the world (furniture)")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     index = []
     for p in a.paths:
-        r = validate(Path(p))
+        r = validate(Path(p), a.keep_fixed)
         slug = re.sub(r"\W+", "_", r["name"]).strip("_")
         if a.web and r.get("traces"):
             tmp = Path(tempfile.mkdtemp(prefix="validate-web-"))
             try:
                 xml, _ = find_mjcf(Path(p), tmp)
-                _, m, _, _ = build(xml, True)
+                _, m, _, _ = build(xml, not a.keep_fixed)
                 glb, meta = web_scene(xml, m)
                 (out / f"{slug}.glb").write_bytes(glb)
                 (out / f"{slug}.scene.json").write_text(json.dumps(meta))

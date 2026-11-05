@@ -49,6 +49,7 @@
   "warns": [
    "fixed-to-world",
    "friction",
+   "visual-fit",
    "drop"
   ]
  },
@@ -96,8 +97,7 @@
   "file": "Chefmate_8_Frypan.json",
   "verdict": "fail",
   "fails": [
-   "mass-source",
-   "no-overlap"
+   "mass-source"
   ],
   "warns": [
    "fixed-to-world",
@@ -199,5 +199,119 @@
   "verdict": "pass",
   "fails": [],
   "warns": []
+ },
+ {
+  "name": "kitchen_counter",
+  "file": "kitchen_counter.json",
+  "verdict": "warn",
+  "fails": [],
+  "warns": [
+   "inertia",
+   "friction",
+   "visual-fit"
+  ]
+ },
+ {
+  "name": "cabinet",
+  "file": "cabinet.json",
+  "verdict": "fail",
+  "fails": [
+   "joints-reach"
+  ],
+  "warns": [
+   "inertia",
+   "centre-of-mass",
+   "friction",
+   "visual-fit"
+  ]
+ },
+ {
+  "name": "fridge",
+  "file": "fridge.json",
+  "verdict": "warn",
+  "fails": [],
+  "warns": [
+   "inertia",
+   "centre-of-mass",
+   "friction",
+   "visual-fit"
+  ]
+ },
+ {
+  "name": "chestOfDrawers_01",
+  "file": "chestOfDrawers_01.json",
+  "verdict": "warn",
+  "fails": [],
+  "warns": [
+   "inertia",
+   "centre-of-mass",
+   "friction",
+   "visual-fit"
+  ]
+ },
+ {
+  "name": "kitchenCupboard_01",
+  "file": "kitchenCupboard_01.json",
+  "verdict": "fail",
+  "fails": [
+   "joints-reach"
+  ],
+  "warns": [
+   "density",
+   "inertia",
+   "centre-of-mass",
+   "friction",
+   "visual-fit"
+  ]
+ },
+ {
+  "name": "kitchen_0_soft_furniture_contacts",
+  "file": "kitchen_0_soft_furniture_contacts.json",
+  "verdict": "fail",
+  "fails": [
+   "no-overlap"
+  ],
+  "warns": [
+   "inertia",
+   "centre-of-mass",
+   "contact-softness",
+   "visual-fit"
+  ]
+ },
+ {
+  "name": "kitchen_0_fridge_right",
+  "file": "kitchen_0_fridge_right.json",
+  "verdict": "warn",
+  "fails": [],
+  "warns": [
+   "inertia",
+   "centre-of-mass",
+   "visual-fit",
+   "settles"
+  ]
+ },
+ {
+  "name": "kitchen_1_fridge_left",
+  "file": "kitchen_1_fridge_left.json",
+  "verdict": "warn",
+  "fails": [],
+  "warns": [
+   "inertia",
+   "centre-of-mass",
+   "visual-fit",
+   "settles",
+   "timestep"
+  ]
+ },
+ {
+  "name": "kitchen_2_fridge_right",
+  "file": "kitchen_2_fridge_right.json",
+  "verdict": "warn",
+  "fails": [],
+  "warns": [
+   "inertia",
+   "centre-of-mass",
+   "visual-fit"
+  ]
  }
 ]

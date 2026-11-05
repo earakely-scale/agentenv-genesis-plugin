@@ -1,0 +1,253 @@
+{
+ "name": "cabinet",
+ "path": "cabinet.xml",
+ "mjcf": "cabinet.xml",
+ "mujoco": "3.17.0",
+ "bodies": 4,
+ "geoms": 11,
+ "joints": 2,
+ "timestep": 0.002,
+ "mass_kg": 29.0,
+ "floor_added": true,
+ "checks": [
+  {
+   "id": "loads",
+   "level": "pass",
+   "message": "loads in MuJoCo 3.17.0: 4 bodies, 11 geoms, 2 joints"
+  },
+  {
+   "id": "mass-source",
+   "level": "pass",
+   "message": "every colliding body has an explicit <inertial>"
+  },
+  {
+   "id": "density",
+   "level": "pass",
+   "message": "mass over the volume MuJoCo collides (convex hulls, so a hollow object reads low): left_door 208 kg/m\u00b3 (2.0 kg), right_door 208 kg/m\u00b3 (2.0 kg), body 286 kg/m\u00b3 (25.0 kg)",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      286,
+      25.0
+     ],
+     [
+      "left_door",
+      208,
+      2.0
+     ],
+     [
+      "right_door",
+      208,
+      2.0
+     ]
+    ]
+   }
+  },
+  {
+   "id": "inertia",
+   "level": "warn",
+   "message": "rotational inertia against a solid of the same mass filling its collision hull (1 = the same): left_door 11.27\u00d7, right_door 11.27\u00d7, body 0.23\u00d7",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      0.23
+     ],
+     [
+      "left_door",
+      11.27
+     ],
+     [
+      "right_door",
+      11.27
+     ]
+    ]
+   }
+  },
+  {
+   "id": "centre-of-mass",
+   "level": "warn",
+   "message": "centre of mass outside the body: body at [0.0, 0.0, 0.0]",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      [
+       0.0,
+       0.0,
+       0.0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "id": "friction",
+   "level": "warn",
+   "message": "7 of 7 colliding geoms have MuJoCo's default friction (1.0 sliding): none is set from a material",
+   "data": {
+    "default": 7,
+    "geoms": 7
+   }
+  },
+  {
+   "id": "contact-softness",
+   "level": "pass",
+   "message": "7 of 7 colliding geoms use MuJoCo's default contact softness (solref 0.02 s)",
+   "data": {
+    "default": 7,
+    "thin": []
+   }
+  },
+  {
+   "id": "hull-fill",
+   "level": "pass",
+   "message": "no colliding mesh loses much to its convex hull",
+   "data": {
+    "geoms": []
+   }
+  },
+  {
+   "id": "floating-pieces",
+   "level": "pass",
+   "message": "every body's collision pieces touch each other",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "visual-fit",
+   "level": "warn",
+   "message": "these visual meshes reach beyond their collision geometry: what's drawn there doesn't collide, and what rests on it looks sunk in: body by 267.6 mm, left_door by 29.6 mm, right_door by 29.6 mm",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      267.6,
+      "above"
+     ],
+     [
+      "left_door",
+      29.6,
+      "below"
+     ],
+     [
+      "right_door",
+      29.6,
+      "below"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "welded-bodies",
+   "level": "pass",
+   "message": "1 child bodies have no joint and move with their parent: body",
+   "data": {
+    "bodies": [
+     "body"
+    ]
+   }
+  },
+  {
+   "id": "joints",
+   "level": "pass",
+   "message": "2 hinge or slide joints: left_slide (slide, range [0.0, 0.8], damping 0.01), right_slide (slide, range [-0.76, 0.0], damping 0.01)"
+  },
+  {
+   "id": "fixed-to-world",
+   "level": "pass",
+   "message": "its root is fixed to the world, as furniture is (kept with --keep-fixed)"
+  },
+  {
+   "id": "starts-apart",
+   "level": "pass",
+   "message": "no body starts inside another",
+   "data": {
+    "pairs": []
+   }
+  },
+  {
+   "id": "settles",
+   "level": "pass",
+   "message": "after 2 s on the floor nothing moves more than 0.0 mm or 0.0\u00b0 in 0.2 s",
+   "data": {
+    "drift_mm": 0.0,
+    "turn_deg": 0.0,
+    "max_speed": 0.0
+   }
+  },
+  {
+   "id": "no-overlap",
+   "level": "pass",
+   "message": "settling: deepest at any moment none; once settled, between bodies none, into the floor none (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "data": {
+    "overlap": {
+     "max_mm": 0.0,
+     "pairs": [],
+     "bodies": null,
+     "floor": null,
+     "end": {
+      "max_mm": 0.0,
+      "pairs": [],
+      "bodies": null,
+      "floor": null
+     }
+    }
+   }
+  },
+  {
+   "id": "joints-hold",
+   "level": "pass",
+   "message": "left alone for 2 s, none of the 2 joints moves more than 5\u00b0 or 5 mm",
+   "data": {
+    "joints": []
+   }
+  },
+  {
+   "id": "joints-reach",
+   "level": "fail",
+   "message": "driven to the ends of their range, these stop short: left_slide upper end 5% (left_door 3.53 mm into right_door), right_slide lower end 5% (left_door 3.41 mm into right_door)",
+   "data": {
+    "reach": [
+     [
+      "left_slide",
+      "upper",
+      0.05,
+      {
+       "body": "left_door",
+       "into": "right_door",
+       "mm": 3.53,
+       "t": 0.16
+      }
+     ],
+     [
+      "left_slide",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "right_slide",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "right_slide",
+      "lower",
+      0.05,
+      {
+       "body": "left_door",
+       "into": "right_door",
+       "mm": 3.41,
+       "t": 0.16
+      }
+     ]
+    ]
+   }
+  }
+ ],
+ "verdict": "fail"
+}

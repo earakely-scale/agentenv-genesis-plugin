@@ -90,6 +90,14 @@
    }
   },
   {
+   "id": "visual-fit",
+   "level": "pass",
+   "message": "every visual mesh lies within 5 mm of its body's collision geometry",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
    "id": "starts-apart",
    "level": "pass",
    "message": "no body starts inside another",
@@ -100,50 +108,28 @@
   {
    "id": "settles",
    "level": "pass",
-   "message": "after 2 s on the floor the fastest part moves at 0.000 m/s",
+   "message": "after 2 s on the floor nothing moves more than 0.0 mm or 0.0\u00b0 in 0.2 s",
    "data": {
+    "drift_mm": 0.0,
+    "turn_deg": 0.0,
     "max_speed": 0.0
    }
   },
   {
    "id": "no-overlap",
    "level": "pass",
-   "message": "settling: deepest at any moment scan_mug/scan_mug 0.42 mm into floor at 0.02 s; once settled, between bodies none, into the floor scan_mug/scan_mug 0.34 mm into floor at 2.0 s (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "message": "settling: deepest at any moment none; once settled, between bodies none, into the floor none (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
    "data": {
     "overlap": {
-     "max_mm": 0.42,
-     "pairs": [
-      {
-       "body": "scan_mug/scan_mug",
-       "into": "floor",
-       "mm": 0.42,
-       "t": 0.02
-      }
-     ],
+     "max_mm": 0.0,
+     "pairs": [],
      "bodies": null,
-     "floor": {
-      "body": "scan_mug/scan_mug",
-      "into": "floor",
-      "mm": 0.42,
-      "t": 0.02
-     },
+     "floor": null,
      "end": {
-      "max_mm": 0.34,
-      "pairs": [
-       {
-        "body": "scan_mug/scan_mug",
-        "into": "floor",
-        "mm": 0.34,
-        "t": 2.0
-       }
-      ],
+      "max_mm": 0.0,
+      "pairs": [],
       "bodies": null,
-      "floor": {
-       "body": "scan_mug/scan_mug",
-       "into": "floor",
-       "mm": 0.34,
-       "t": 2.0
-      }
+      "floor": null
      }
     }
    }
@@ -153,6 +139,7 @@
    "level": "pass",
    "message": "settled at 1 ms and at 0.5 ms steps, it ends 0.0 mm and 0.0\u00b0 apart",
    "data": {
+    "body": "scan_mug/scan_mug",
     "mm": 0.03,
     "deg": 0.05
    }
@@ -169,10 +156,10 @@
   {
    "id": "drop",
    "level": "pass",
-   "message": "dropped from 10 cm it bounces back 1% of the way and sinks 0.6 mm into the floor on impact",
+   "message": "dropped from 10 cm it bounces back 1% of the way and sinks 0.3 mm into the floor on impact",
    "data": {
     "bounce": 0.007,
-    "floor_mm": 0.55
+    "floor_mm": 0.3
    }
   }
  ],

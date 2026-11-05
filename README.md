@@ -146,6 +146,18 @@ exports, each with its settle and drop replayed in 3D. Every scanned object fail
 - no `<inertial>`, so its mass comes from water's density, with the visual mesh counted as well (48–91% of the mass);
 - default friction and contact softness, so it sinks about 10 mm into the floor when dropped.
 
+`scripts/convert_urdf.py` turns a URDF into MJCF: GLB meshes to OBJ (the GLBs kept beside them for their textures),
+visual geoms kept, `--y-up` for a URDF authored for a Y-up world, `--solref` to write stiff contacts on every
+colliding geom. `scripts/compose_kitchen.py` builds kitchen scenes from ReplicaCAD's counter and fridge and the
+workbench's approved objects, one layout per seed. The validator then checks each scene: everything comes to rest,
+nothing goes into anything else, and every drawer and door opens all the way with the objects in place.
+
+```bash
+python scripts/convert_urdf.py kitchen_counter.urdf out/kitchen_counter --y-up --solref "0.003 1"
+python scripts/compose_kitchen.py --counter out/kitchen_counter --fridge out/fridge --objects EXPORT... --out kitchens --seeds 0 1 2
+python scripts/validate_mjcf.py kitchens/* --keep-fixed --out validation
+```
+
 ## The contributor workbench
 
 ![A recorded contributor session on the mug: lift, complain, answer the agent, check the fix, approve](docs/workbench-session.gif)
@@ -252,7 +264,7 @@ and after, and the probe curves. `scripts/publish_hub.py` turns those into the d
 ## Limitations
 
 This is a prototype. The probe tolerances and material bands are example values, and the three original objects are built
-from primitives. MuJoCo grades the mesh objects and sets; the articulated ReplicaCAD furniture still grades in Genesis.
+from primitives. MuJoCo grades the mesh objects and sets; the articulated ReplicaCAD furniture still grades in Genesis, though `scripts/convert_urdf.py` brings it to MuJoCo, where the validator checks it.
 Where the two engines disagree (tipping against sliding near the friction limit, say; see `docs/parity.md`), the
 episode says so, and MuJoCo's result counts.
 

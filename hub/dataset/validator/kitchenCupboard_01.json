@@ -1,0 +1,433 @@
+{
+ "name": "kitchenCupboard_01",
+ "path": "kitchenCupboard_01.xml",
+ "mjcf": "kitchenCupboard_01.xml",
+ "mujoco": "3.17.0",
+ "bodies": 10,
+ "geoms": 36,
+ "joints": 8,
+ "timestep": 0.002,
+ "mass_kg": 134.0,
+ "floor_added": true,
+ "checks": [
+  {
+   "id": "loads",
+   "level": "pass",
+   "message": "loads in MuJoCo 3.17.0: 10 bodies, 36 geoms, 8 joints"
+  },
+  {
+   "id": "mass-source",
+   "level": "pass",
+   "message": "every colliding body has an explicit <inertial>"
+  },
+  {
+   "id": "density",
+   "level": "warn",
+   "message": "mass over the volume MuJoCo collides (convex hulls, so a hollow object reads low): body 15 kg/m\u00b3 (70.0 kg), kitchencupboard_doorWhole_1L 82 kg/m\u00b3 (8.0 kg), kitchencupboard_doorWhole_2L 82 kg/m\u00b3 (8.0 kg), kitchencupboard_doorWindow_1L 82 kg/m\u00b3 (8.0 kg), kitchencupboard_doorWindow_1R 82 kg/m\u00b3 (8.0 kg), kitchencupboard_doorWindow_2R 82 kg/m\u00b3 (8.0 kg); implausible: body",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      15,
+      70.0
+     ],
+     [
+      "kitchencupboard_doorWhole_1L",
+      82,
+      8.0
+     ],
+     [
+      "kitchencupboard_doorWhole_1R",
+      83,
+      8.0
+     ],
+     [
+      "kitchencupboard_doorWhole_2L",
+      82,
+      8.0
+     ],
+     [
+      "kitchencupboard_doorWhole_2R",
+      83,
+      8.0
+     ],
+     [
+      "kitchencupboard_doorWindow_1L",
+      82,
+      8.0
+     ],
+     [
+      "kitchencupboard_doorWindow_1R",
+      82,
+      8.0
+     ],
+     [
+      "kitchencupboard_doorWindow_2L",
+      83,
+      8.0
+     ],
+     [
+      "kitchencupboard_doorWindow_2R",
+      82,
+      8.0
+     ]
+    ]
+   }
+  },
+  {
+   "id": "inertia",
+   "level": "warn",
+   "message": "rotational inertia against a solid of the same mass filling its collision hull (1 = the same): body 0.0\u00d7, kitchencupboard_doorWhole_1L 0.45\u00d7, kitchencupboard_doorWhole_1R 0.45\u00d7, kitchencupboard_doorWhole_2L 0.45\u00d7, kitchencupboard_doorWhole_2R 0.45\u00d7, kitchencupboard_doorWindow_1L 0.45\u00d7",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      0.0
+     ],
+     [
+      "kitchencupboard_doorWhole_1L",
+      0.45
+     ],
+     [
+      "kitchencupboard_doorWhole_1R",
+      0.45
+     ],
+     [
+      "kitchencupboard_doorWhole_2L",
+      0.45
+     ],
+     [
+      "kitchencupboard_doorWhole_2R",
+      0.45
+     ],
+     [
+      "kitchencupboard_doorWindow_1L",
+      0.45
+     ],
+     [
+      "kitchencupboard_doorWindow_1R",
+      0.45
+     ],
+     [
+      "kitchencupboard_doorWindow_2L",
+      0.45
+     ],
+     [
+      "kitchencupboard_doorWindow_2R",
+      0.45
+     ]
+    ]
+   }
+  },
+  {
+   "id": "centre-of-mass",
+   "level": "warn",
+   "message": "centre of mass outside the body: kitchencupboard_doorWindow_1L at [0.0, 0.0, 0.0], kitchencupboard_doorWindow_1R at [0.0, 0.0, 0.0], kitchencupboard_doorWindow_2L at [0.0, 0.0, 0.0], kitchencupboard_doorWindow_2R at [0.0, 0.0, 0.0]",
+   "data": {
+    "bodies": [
+     [
+      "kitchencupboard_doorWindow_1L",
+      [
+       0.0,
+       0.0,
+       0.0
+      ]
+     ],
+     [
+      "kitchencupboard_doorWindow_1R",
+      [
+       0.0,
+       0.0,
+       0.0
+      ]
+     ],
+     [
+      "kitchencupboard_doorWindow_2L",
+      [
+       0.0,
+       0.0,
+       0.0
+      ]
+     ],
+     [
+      "kitchencupboard_doorWindow_2R",
+      [
+       0.0,
+       0.0,
+       0.0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "id": "friction",
+   "level": "warn",
+   "message": "26 of 26 colliding geoms have MuJoCo's default friction (1.0 sliding): none is set from a material",
+   "data": {
+    "default": 26,
+    "geoms": 26
+   }
+  },
+  {
+   "id": "contact-softness",
+   "level": "pass",
+   "message": "26 of 26 colliding geoms use MuJoCo's default contact softness (solref 0.02 s)",
+   "data": {
+    "default": 26,
+    "thin": []
+   }
+  },
+  {
+   "id": "hull-fill",
+   "level": "pass",
+   "message": "no colliding mesh loses much to its convex hull",
+   "data": {
+    "geoms": []
+   }
+  },
+  {
+   "id": "floating-pieces",
+   "level": "pass",
+   "message": "every body's collision pieces touch each other",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "visual-fit",
+   "level": "warn",
+   "message": "these visual meshes reach beyond their collision geometry: what's drawn there doesn't collide, and what rests on it looks sunk in: kitchencupboard_doorWindow_1L by 182.9 mm, kitchencupboard_doorWindow_2L by 161.1 mm, kitchencupboard_doorWindow_1R by 149.5 mm, kitchencupboard_doorWindow_2R by 149.5 mm, kitchencupboard_doorWhole_1L by 116.2 mm, kitchencupboard_doorWhole_1R by 116.2 mm",
+   "data": {
+    "bodies": [
+     [
+      "body",
+      64.3,
+      "above"
+     ],
+     [
+      "kitchencupboard_doorWhole_1L",
+      116.2,
+      "above"
+     ],
+     [
+      "kitchencupboard_doorWhole_1R",
+      116.2,
+      "below"
+     ],
+     [
+      "kitchencupboard_doorWhole_2L",
+      116.2,
+      "above"
+     ],
+     [
+      "kitchencupboard_doorWhole_2R",
+      116.2,
+      "below"
+     ],
+     [
+      "kitchencupboard_doorWindow_1L",
+      182.9,
+      "above"
+     ],
+     [
+      "kitchencupboard_doorWindow_1R",
+      149.5,
+      "above"
+     ],
+     [
+      "kitchencupboard_doorWindow_2L",
+      161.1,
+      "below"
+     ],
+     [
+      "kitchencupboard_doorWindow_2R",
+      149.5,
+      "above"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "welded-bodies",
+   "level": "pass",
+   "message": "1 child bodies have no joint and move with their parent: body",
+   "data": {
+    "bodies": [
+     "body"
+    ]
+   }
+  },
+  {
+   "id": "joints",
+   "level": "pass",
+   "message": "8 hinge or slide joints: doorWhole_1L_hinge (hinge, range [-2.3, 0.0], damping 0.01), doorWhole_1R_hinge (hinge, range [0.0, 2.3], damping 0.01), doorWhole_2L_hinge (hinge, range [-2.3, 0.0], damping 0.01), doorWhole_2R_hinge (hinge, range [0.0, 2.3], damping 0.01), doorWindow_1L_hinge (hinge, range [-2.3, 0.0], damping 0.01), doorWindow_1R_hinge (hinge, range [0.0, 2.3], damping 0.01), doorWindow_2L_hinge (hinge, range [-2.3, 0.0], damping 0.01), doorWindow_2R_hinge (hinge, range [0.0, 2.3], damping 0.01)"
+  },
+  {
+   "id": "fixed-to-world",
+   "level": "pass",
+   "message": "its root is fixed to the world, as furniture is (kept with --keep-fixed)"
+  },
+  {
+   "id": "starts-apart",
+   "level": "pass",
+   "message": "no body starts inside another",
+   "data": {
+    "pairs": []
+   }
+  },
+  {
+   "id": "settles",
+   "level": "pass",
+   "message": "after 2 s on the floor nothing moves more than 0.0 mm or 0.0\u00b0 in 0.2 s",
+   "data": {
+    "drift_mm": 0.0,
+    "turn_deg": 0.0,
+    "max_speed": 0.0
+   }
+  },
+  {
+   "id": "no-overlap",
+   "level": "pass",
+   "message": "settling: deepest at any moment none; once settled, between bodies none, into the floor none (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "data": {
+    "overlap": {
+     "max_mm": 0.0,
+     "pairs": [],
+     "bodies": null,
+     "floor": null,
+     "end": {
+      "max_mm": 0.0,
+      "pairs": [],
+      "bodies": null,
+      "floor": null
+     }
+    }
+   }
+  },
+  {
+   "id": "joints-hold",
+   "level": "pass",
+   "message": "left alone for 2 s, none of the 8 joints moves more than 5\u00b0 or 5 mm",
+   "data": {
+    "joints": []
+   }
+  },
+  {
+   "id": "joints-reach",
+   "level": "fail",
+   "message": "driven to the ends of their range, these stop short: doorWhole_1R_hinge upper end 68% (kitchencupboard_doorWhole_1R 0.16 mm into kitchencupboard_doorWhole_2L), doorWhole_2L_hinge lower end 68% (kitchencupboard_doorWhole_2L 0.17 mm into kitchencupboard_doorWhole_1R)",
+   "data": {
+    "reach": [
+     [
+      "doorWhole_1L_hinge",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "doorWhole_1L_hinge",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "doorWhole_1R_hinge",
+      "upper",
+      0.68,
+      {
+       "body": "kitchencupboard_doorWhole_1R",
+       "into": "kitchencupboard_doorWhole_2L",
+       "mm": 0.16,
+       "t": 1.44
+      }
+     ],
+     [
+      "doorWhole_1R_hinge",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "doorWhole_2L_hinge",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "doorWhole_2L_hinge",
+      "lower",
+      0.68,
+      {
+       "body": "kitchencupboard_doorWhole_2L",
+       "into": "kitchencupboard_doorWhole_1R",
+       "mm": 0.17,
+       "t": 1.44
+      }
+     ],
+     [
+      "doorWhole_2R_hinge",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "doorWhole_2R_hinge",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_1L_hinge",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_1L_hinge",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_1R_hinge",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_1R_hinge",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_2L_hinge",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_2L_hinge",
+      "lower",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_2R_hinge",
+      "upper",
+      1.0,
+      null
+     ],
+     [
+      "doorWindow_2R_hinge",
+      "lower",
+      1.0,
+      null
+     ]
+    ]
+   }
+  }
+ ],
+ "verdict": "fail"
+}

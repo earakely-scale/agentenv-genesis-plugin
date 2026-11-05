@@ -195,6 +195,14 @@
    }
   },
   {
+   "id": "visual-fit",
+   "level": "pass",
+   "message": "every visual mesh lies within 5 mm of its body's collision geometry",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
    "id": "starts-apart",
    "level": "pass",
    "message": "no body starts inside another",
@@ -205,8 +213,10 @@
   {
    "id": "settles",
    "level": "pass",
-   "message": "after 2 s on the floor the fastest part moves at 0.003 m/s",
+   "message": "after 2 s on the floor nothing moves more than 0.0 mm or 0.0\u00b0 in 0.2 s",
    "data": {
+    "drift_mm": 0.04,
+    "turn_deg": 0.01,
     "max_speed": 0.0031
    }
   },
@@ -232,8 +242,9 @@
   {
    "id": "timestep",
    "level": "pass",
-   "message": "settled at 1 ms and at 0.5 ms steps, it ends 0.0 mm and 0.0\u00b0 apart",
+   "message": "settled at 1 ms and at 0.5 ms steps, paring_9cm/paring_9cm ends 0.0 mm and 0.0\u00b0 apart",
    "data": {
+    "body": "paring_9cm/paring_9cm",
     "mm": 0.01,
     "deg": 0.01
    }

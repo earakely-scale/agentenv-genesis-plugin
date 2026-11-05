@@ -94,7 +94,33 @@ class Recorder:
         return {"engine": "mujoco", "bodies": self.names, "t": self.t, "frames": self.frames, **self.extra, **more}
 
 
+def _primitive(m, g):
+    """A box, sphere, cylinder, capsule or ellipsoid geom as vertices and faces in its own frame; None for the rest."""
+    t, s = m.geom_type[g], m.geom_size[g]
+    if t == mujoco.mjtGeom.mjGEOM_BOX:
+        v = np.array([[x, y, z] for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)], float) * s[:3]
+        return v, ConvexHull(v).simplices
+    if t in (mujoco.mjtGeom.mjGEOM_SPHERE, mujoco.mjtGeom.mjGEOM_ELLIPSOID, mujoco.mjtGeom.mjGEOM_CYLINDER, mujoco.mjtGeom.mjGEOM_CAPSULE):
+        a = np.linspace(0, 2 * math.pi, 16, endpoint=False)
+        if t == mujoco.mjtGeom.mjGEOM_CYLINDER:
+            ring = np.stack([np.cos(a), np.sin(a)], 1) * s[0]
+            v = np.concatenate([np.c_[ring, np.full(16, -s[1])], np.c_[ring, np.full(16, s[1])]])
+        else:
+            u = np.linspace(-1, 1, 9)
+            v = np.array([[math.sqrt(max(0.0, 1 - z * z)) * math.cos(t_), math.sqrt(max(0.0, 1 - z * z)) * math.sin(t_), z] for z in u for t_ in a])
+            if t == mujoco.mjtGeom.mjGEOM_ELLIPSOID:
+                v = v * s[:3]
+            else:
+                v = v * s[0]
+                if t == mujoco.mjtGeom.mjGEOM_CAPSULE:
+                    v[:, 2] += np.sign(v[:, 2]) * s[1]
+        return v, ConvexHull(v).simplices
+    return None
+
+
 def _mesh(m, g):
+    if m.geom_type[g] != mujoco.mjtGeom.mjGEOM_MESH:
+        return _primitive(m, g)
     k = m.geom_dataid[g]
     v = m.mesh_vert[m.mesh_vertadr[k]:m.mesh_vertadr[k] + m.mesh_vertnum[k]].astype(float)
     return v, m.mesh_face[m.mesh_faceadr[k]:m.mesh_faceadr[k] + m.mesh_facenum[k]]
@@ -124,18 +150,23 @@ class Overlap:
     inside the hull that holds it deepest. A soft contact lets bodies sink in a little; a thin part that sinks further
     than it is thick can be pushed out the far side of a wall, which contact depths alone don't show."""
 
-    def __init__(self, m, spacing=0.004, seed=0):
+    def __init__(self, m, spacing=0.004, seed=0, surface="visual"):
         rng = np.random.default_rng(seed)
         self.max, self.last, vis, col = {}, {}, {}, {}
         for g in range(m.ngeom):
             b = int(m.geom_bodyid[g])
-            if b == 0 or m.geom_type[g] != mujoco.mjtGeom.mjGEOM_MESH:
+            if b == 0 or m.geom_type[g] == mujoco.mjtGeom.mjGEOM_PLANE:
                 continue
-            v, f = _mesh(m, g)
+            got = _mesh(m, g)
+            if got is None:
+                continue
+            v, f = got
             (col if m.geom_contype[g] or m.geom_conaffinity[g] else vis).setdefault(b, []).append((g, v, f))
         self.points, self.hulls = {}, {}
         for b in set(vis) | set(col):
-            self.points[b] = np.concatenate([_to_body(m, g, _surface(v, f, spacing, rng)) for g, v, f in vis.get(b) or col[b]])
+            own = (col.get(b) or vis[b]) if surface == "collision" else (vis.get(b) or col[b])
+            P = np.concatenate([_to_body(m, g, _surface(v, f, spacing, rng)) for g, v, f in own])
+            self.points[b] = P[rng.choice(len(P), 20000, replace=False)] if len(P) > 20000 else P
         for b, geoms in col.items():
             hulls = []
             for g, v, _ in geoms:
@@ -146,12 +177,16 @@ class Overlap:
             corners = np.array([[x, y, z] for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
             self.hulls[b] = (hulls, lo, hi, corners)
         self.names = {b: m.body(b).name for b in self.points}
+        # a body welded to the world doesn't move: what goes into it shows from the moving body's side
+        self.static = {b for b in self.points if m.body_weldid[b] == 0}
+        planes = [g for g in range(m.ngeom) if m.geom_type[g] == mujoco.mjtGeom.mjGEOM_PLANE and m.geom_bodyid[g] == 0]
+        self.floor_z = max((float(m.geom_pos[g][2]) for g in planes), default=0.0)
 
     def __call__(self, d, **where):
-        world = {b: P @ d.xmat[b].reshape(3, 3).T + d.xpos[b] for b, P in self.points.items()}
+        world = {b: P @ d.xmat[b].reshape(3, 3).T + d.xpos[b] for b, P in self.points.items() if b not in self.static}
         self.last = {}
         for a, P in world.items():
-            self._keep((a, 0), float(-P[:, 2].min()), where)
+            self._keep((a, 0), float(self.floor_z - P[:, 2].min()), where)
             for b, (hulls, lo, hi, corners) in self.hulls.items():
                 if b == a:
                     continue

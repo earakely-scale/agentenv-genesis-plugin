@@ -108,6 +108,14 @@
    }
   },
   {
+   "id": "visual-fit",
+   "level": "pass",
+   "message": "every visual mesh lies within 5 mm of its body's collision geometry",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
    "id": "starts-apart",
    "level": "pass",
    "message": "no body starts inside another",
@@ -118,40 +126,42 @@
   {
    "id": "settles",
    "level": "pass",
-   "message": "after 2 s on the floor the fastest part moves at 0.000 m/s",
+   "message": "after 2 s on the floor nothing moves more than 0.0 mm or 0.0\u00b0 in 0.2 s",
    "data": {
+    "drift_mm": 0.0,
+    "turn_deg": 0.0,
     "max_speed": 0.0
    }
   },
   {
    "id": "no-overlap",
    "level": "pass",
-   "message": "settling: deepest at any moment model 1.1 mm into floor at 0.02 s; once settled, between bodies none, into the floor model 0.37 mm into floor at 2.0 s (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "message": "settling: deepest at any moment model 0.61 mm into floor at 0.04 s; once settled, between bodies none, into the floor model 0.18 mm into floor at 2.0 s (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
    "data": {
     "overlap": {
-     "max_mm": 1.1,
+     "max_mm": 0.61,
      "pairs": [
       {
        "body": "model",
        "into": "floor",
-       "mm": 1.1,
-       "t": 0.02
+       "mm": 0.61,
+       "t": 0.04
       }
      ],
      "bodies": null,
      "floor": {
       "body": "model",
       "into": "floor",
-      "mm": 1.1,
-      "t": 0.02
+      "mm": 0.61,
+      "t": 0.04
      },
      "end": {
-      "max_mm": 0.37,
+      "max_mm": 0.18,
       "pairs": [
        {
         "body": "model",
         "into": "floor",
-        "mm": 0.37,
+        "mm": 0.18,
         "t": 2.0
        }
       ],
@@ -159,7 +169,7 @@
       "floor": {
        "body": "model",
        "into": "floor",
-       "mm": 0.37,
+       "mm": 0.18,
        "t": 2.0
       }
      }
@@ -171,6 +181,7 @@
    "level": "pass",
    "message": "settled at 2 ms and at 1 ms steps, it ends 0.0 mm and 0.0\u00b0 apart",
    "data": {
+    "body": "model",
     "mm": 0.0,
     "deg": 0.0
    }
@@ -187,10 +198,10 @@
   {
    "id": "drop",
    "level": "warn",
-   "message": "dropped from 10 cm it bounces back 0% of the way and sinks 10.6 mm into the floor on impact (its geoms keep MuJoCo's soft default contacts; solref around 0.003 with a 1 ms step keeps it under 2 mm)",
+   "message": "dropped from 10 cm it bounces back 0% of the way and sinks 10.2 mm into the floor on impact (its geoms keep MuJoCo's soft default contacts; solref around 0.003 with a 1 ms step keeps it under 2 mm)",
    "data": {
     "bounce": 0.0,
-    "floor_mm": 10.58
+    "floor_mm": 10.17
    }
   }
  ],
