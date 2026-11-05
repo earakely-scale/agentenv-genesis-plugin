@@ -86,15 +86,27 @@ environment with only `mujoco` installed.
 ![The knife block in the Space's validation report: knives dropped into their slots, the checks in MuJoCo and Genesis, the tipping margin](docs/knife-block-report.png)
 
 A set is a group of free bodies that fit together: a slanted beech block on rubber feet, and six knives that sit in its
-slots (`scripts/build_knife_block.py`). The block's collision is 29 convex pieces that leave the slots open, and each
-knife collides as a convex hull per part (blade, bolster, handle). Its probes ask what a robot would:
+slots (`scripts/build_knife_block.py`). The block collides as 18 overlapping convex pieces that leave the slots open,
+each a whole wall or slab as large as the slots allow, and each knife collides as a convex hull per part (blade,
+bolster, handle). Its probes ask what a robot would:
 
 - `rest`: does each knife stay seated?
 - `seat`: dropped in from 2 cm above, does each knife go all the way into its slot?
 - `extract`: pulled out along its slot, when does each knife come free, and does the block lift?
 - `tip`: on a table tilted toward the block's back, where it leans, at what angle does it go?
 
-Alongside these, `stability` reports its static tipping margin in each direction.
+Alongside these, `stability` reports its static tipping margin in each direction, and every probe reports how far any
+body went into another or into the floor (`mj.Overlap`): the `no-overlap` check fails a set where something rests more
+than 0.5 mm inside anything after a probe, or ever goes more than 3 mm in.
+
+![The end of the lean replay: before, the chef's blade shows through the block's front wall; after, it doesn't](docs/wall-collision.png)
+
+A reviewer found the case that check catches in the lean replay (left). MuJoCo's default contacts are soft, so when the
+set fell over a 2 mm blade sank further into the front wall than it is thick. The wall was split into strips only as wide
+as each slot, and MuJoCo pushes a body out of a convex piece the shortest way, so it pushed the blade out of the strip's
+side, through the wall. Now the block collides as whole walls, so a blade that sinks in is pushed back into its slot, and
+contacts are stiffer (solref 3 ms with a 1 ms step, on every geom the workbench writes, so exports carry it). The same
+session recorded again (right) leaves nothing inside anything.
 
 The `knife-block-hull` and `contributor-knife-block` tasks seed a defect common in generated assets. The chef's and
 bread knives were each given to MuJoCo as one collision mesh, so they collide as one convex hull as wide as their

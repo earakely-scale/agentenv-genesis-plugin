@@ -121,10 +121,21 @@ were graded in Genesis.
 probes ask what a robot would: do the knives stay seated, drop in, and pull free without lifting the block, and how far
 can the table tilt? As delivered in `knife-block-hull` and `contributor-knife-block`, the chef's and bread knives were each
 given to MuJoCo as one collision mesh. MuJoCo collides a mesh as its convex hull, so those knives are 21 mm wide and
-can't enter their 4.5 mm slots, and the set fails four of five checks. With a convex hull per part (`set_collision`) it
-passes all five, and Genesis agrees on every check it runs. Its static tipping margin is 13.4° to the back, where the
+can't enter their 4.5 mm slots, and the set fails five of six checks. With a convex hull per part (`set_collision`) it
+passes all six, and Genesis agrees on every check it runs. Its static tipping margin is 13.4° to the back, where the
 block and handles lean, and 22–37° in other directions. The [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
 replays every probe in 3D. Claude Code on `claude-sonnet-5-5` fixed it alone in 37 s, because `inspect` shows each knife's collision thickness beside its slot's width. [`exports/knife_block.zip`](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/exports/knife_block.zip) is the fixed set as MJCF and OBJ.
+
+![The end of the lean replay: before, the chef's blade shows through the block's front wall; after, it doesn't](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/wall-collision.png)
+
+**Nothing goes into anything else.** A reviewer saw a chef's knife blade through the block's front wall at the end of the
+lean replay (left). MuJoCo's default contacts are soft, so when the set fell over the 2 mm blade sank further into the wall
+than it is thick. The wall was split into strips as wide as each slot, and MuJoCo pushed the blade out of the strip's side,
+through the wall. Every probe now measures how far each body's surface goes into another body's collision hulls or into the
+floor, and the `no-overlap` check fails a set where anything rests more than 0.5 mm inside anything after a probe, or ever
+goes more than 3 mm in. The block collides as whole walls, so a blade that sinks in is pushed back into its slot, and
+contacts are stiffer (solref 3 ms with a 1 ms step, written on every collision geom, so the export carries it). Recorded
+again, the same session leaves nothing inside anything (right). The session it replaced was recorded before the change.
 
 ## With a contributor in the loop
 
@@ -165,7 +176,7 @@ geom's pose per frame. The agent is Claude Code with `claude-sonnet-5-5`.
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.005)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v5 |
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | browser, recorded | `set_scale(factor=1.38)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v3 |
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | browser, recorded | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.004)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v4 |
-| `contributor-knife-block` | 1.00 / not run | 1.00, approved | browser, recorded | `set_collision(body=chef_20cm, mode=parts)`; `set_collision(body=bread_20cm, mode=parts)` | `knife_block` v1 |
+| `contributor-knife-block` | 1.00 / not run | 1.00, approved | browser, recorded | `set_collision(body=chef_20cm, mode=parts)`; `set_collision(body=bread_20cm, mode=parts)` | `knife_block` v3 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | scripted | `set_self_collision(enabled=False)` | `rcad_cupboard` v1 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `set_self_collision(enabled=False)` | `rcad_cupboard` v2 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `set_self_collision(enabled=False)` | `rcad_cupboard` v3 |

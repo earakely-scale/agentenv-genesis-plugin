@@ -1,6 +1,6 @@
 [
  {
-  "id": "contributor-knife-block-k4",
+  "id": "contributor-knife-block-k6",
   "task": "contributor-knife-block",
   "object": "knife_block",
   "title": "Knife block: two knives won't go in",
@@ -11,7 +11,7 @@
   "engine": "mujoco",
   "edits": 2,
   "replies": 1,
-  "asset": "v1"
+  "asset": "v3"
  },
  {
   "id": "contributor-cad-mug-k3",
