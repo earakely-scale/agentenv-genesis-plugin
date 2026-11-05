@@ -142,7 +142,8 @@ export LITELLM_BASE_URL=<gateway URL> LITELLM_API_KEY=<key>
 agent-env run genesis-workbench --task contributor-cad-mug --model anthropic/claude-sonnet-5-5
 ```
 
-Open the `…/workbench` address the run prints and play the contributor, or leave out `--task` to run every task.
+Open the `…/workbench` address the run prints and play the contributor. Tasks without `contributor-` in their name
+need no one on the page, for example `--task scan-mug-heavy`.
 
 The env image installs `genesis-world==1.4.5` with CPU PyTorch and runs Genesis on its CPU backend, so any Docker
 host works. The first probe in a container compiles Genesis kernels (about 25 s); later probes build in well under a
