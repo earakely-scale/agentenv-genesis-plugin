@@ -396,13 +396,13 @@ def set_extract(doc, block: str, seats: dict, axis, trace=False, ratio_max=3.0):
              "unstable": unstable(d)}, rec and rec.trace(kind="extract"))
 
 
-def set_tip(doc, block: str, seats: dict, trace=False):
+def set_tip(doc, block: str, seats: dict, trace=False, leans=LEANS):
     """The set on a tilting table: the first angle where the block tips or slides, or a knife slides 10 mm out of its slot."""
     m = compile(doc)
     d = mujoco.MjData(m)
     b = m.body(block).id
     rows, recs = [], []
-    for a in LEANS:
+    for a in leans:
         mujoco.mj_resetData(m, d)
         mujoco.mj_forward(m, d)
         p0 = d.xpos[b][:2].copy()
@@ -424,8 +424,8 @@ def set_tip(doc, block: str, seats: dict, trace=False):
         recs.append(rec)
     i = next((k for k, r in enumerate(rows) if r["mode"] != "holds"), len(rows) - 1)
     first = rows[i]["deg"] if rows[i]["mode"] != "holds" else None
-    out = {"kind": "tip", "engine": "mujoco", "x": LEANS, "y": [r["block_tilt_deg"] for r in rows], "x_label": "tilt-table angle (deg)",
+    out = {"kind": "tip", "engine": "mujoco", "x": list(leans), "y": [r["block_tilt_deg"] for r in rows], "x_label": "tilt-table angle (deg)",
            "y_label": "block tilt (deg)", "rows": rows, "first_failure_deg": first, "mode": rows[i]["mode"],
-           "overlap": deepest(r["overlap"] for r in rows), "unstable": any(r["unstable"] for r in rows),
+           "overlap": deepest(r["overlap"] for r in rows[:i + 1]), "unstable": any(r["unstable"] for r in rows),
            "note": "The table tilts so the set is pushed toward its back, the way the block and the handles lean: its least stable direction."}
-    return out, recs[i] and recs[i].trace(kind="tip", lean_deg=LEANS[i], tilt_axis="x")
+    return out, recs[i] and recs[i].trace(kind="tip", lean_deg=leans[i], tilt_axis="x")

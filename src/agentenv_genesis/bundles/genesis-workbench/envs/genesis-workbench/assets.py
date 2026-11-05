@@ -661,6 +661,7 @@ class SetObject:
         self.block = spec["bodies"][0]["name"]
         self.axis = spec["slots"][next(iter(spec["slots"]))]["axis_out"]
         self.seats = {b["name"]: b["pose"] for b in spec["bodies"][1:]}
+        self._checked = {}  # (which, engine, model) -> what checks() returned; a set's checks take a while
 
     def body(self, name):
         for b in self.spec["bodies"]:
@@ -794,6 +795,12 @@ class SetObject:
             return {"kind": "rest", "engine": "genesis", "knives": knives, "block_tilt_deg": round(float(_tilt(blk)[0]), 2)}
 
     def checks(self, which="current", engine=ENGINE):
+        key = (which, engine, json.dumps(self.original if which == "original" else self.model, sort_keys=True))
+        if key not in self._checked:
+            self._checked[key] = self._checks(which, engine)
+        return copy.deepcopy(self._checked[key])
+
+    def _checks(self, which, engine):
         saved = self.model
         if which == "original":
             self.model = self.original
@@ -820,9 +827,11 @@ class SetObject:
                                                 f"{c['max_block_lift_mm']:g} mm; not: {bad or 'none'}"})
                 elif t == "set_tilt_min_deg" and engine == "mujoco":
                     probes["tip"] = r = self.probe("tip", engine)
-                    ok = r["first_failure_deg"] is None or r["first_failure_deg"] >= c["value"]
+                    at, _ = mj.set_tip(self.mjcf(), self.block, self.seats, leans=[c["value"]])
+                    ok = at["first_failure_deg"] is None
                     rows.append({"id": "set-stable", "result": bool(ok),
-                                 "description": f"the set stays put on a tilt table to {c['value']} deg; first: {r['mode']} at {r['first_failure_deg']}"})
+                                 "description": f"the set stays put on a table tilted {c['value']} deg: {at['mode']}; in 5 deg steps it first gives at "
+                                                f"{r['first_failure_deg']} ({r['mode']}); the static margin to the back is {self.stability()['tip_angle_deg']['back']} deg"})
                 elif t == "set_no_overlap" and engine == "mujoco":
                     for k in ("rest", "seat", "extract", "tip"):
                         if k not in probes:
@@ -834,7 +843,7 @@ class SetObject:
                     end, peak = ov["end"]["pairs"][:1], ov["pairs"][:1]
                     ok = all(r["mm"] <= c["end_mm"] for r in end) and all(r["mm"] <= c["peak_mm"] for r in peak)
                     rows.append({"id": "no-overlap", "result": bool(ok),
-                                 "description": f"after every probe, nothing rests more than {c['end_mm']:g} mm inside another body or the floor, "
+                                 "description": f"after every probe (the lean up to where it first gives), nothing rests more than {c['end_mm']:g} mm inside another body or the floor, "
                                                 f"and nothing ever goes more than {c['peak_mm']:g} mm in; at rest: {_overlap_text(end[0] if end else None)}; "
                                                 f"at any moment: {_overlap_text(peak[0] if peak else None)}"})
                 elif t == "set_mass_band":

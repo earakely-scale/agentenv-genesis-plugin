@@ -9,7 +9,8 @@ from agentenv_protocol import client
 
 
 async def verify(mcp_url: str) -> list[dict]:
-    episode = (await client.get_data(mcp_url.removesuffix("/mcp"))).parts[0].data
+    # the env runs every hidden check on the edited object before it answers, which takes a set a minute or more
+    episode = (await client.get_data(mcp_url.removesuffix("/mcp"), timeout=600)).parts[0].data
     out = os.environ.get("GENESIS_EPISODES_DIR")
     if out and episode.get("object"):
         os.makedirs(out, exist_ok=True)
