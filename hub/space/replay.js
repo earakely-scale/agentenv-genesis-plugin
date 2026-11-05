@@ -28,7 +28,8 @@ function markdown(text) {
 }
 const fmt = (a) => Object.entries(a).map(([k, v]) => `${k}=${typeof v === "number" ? +v.toFixed(4) : v}`).join(", ");
 const VERB = { look: "looks at it", lift: "lifts it", lean: "leans it on a tilting table", drop: "drops it", fill: "drops marbles in",
-  shake: "shakes it", open: "opens every door", pull: "pulls the drawer" };
+  shake: "shakes it", open: "opens every door", pull: "pulls the drawer", insert: "drops every knife into its slot",
+  extract: "pulls each knife out" };
 const KIND = { action: "contributor action", say: "contributor", agent: "agent", edit: "agent edit", tool: "agent probe", decision: "decision" };
 
 export async function mount(root) {
@@ -39,7 +40,7 @@ export async function mount(root) {
   for (const s of index) {
     const b = el("button", "rp-tab");
     b.setAttribute("role", "tab");
-    b.append(el("b", "", s.title), el("span", "", `${s.contributor.startsWith("a person") ? "person" : s.contributor.includes("Chrome") ? "browser" : "scripted"} · ${s.status} · ${s.score.toFixed(2)}`));
+    b.append(el("b", "", s.title), el("span", "", `${s.contributor.startsWith("a person") ? "person" : s.contributor.includes("Chrome") ? "browser" : "scripted"} · ${s.status} · ${s.score.toFixed(2)} · ${s.engine === "mujoco" ? "MuJoCo" : "Genesis"}`));
     b.onclick = () => select(s.id);
     b.dataset.id = s.id;
     $("rp-tabs").append(b);
@@ -63,6 +64,8 @@ export async function mount(root) {
     const bits = [];
     if (s.scale !== 1) bits.push(`scale ×${(+s.scale).toFixed(3)}`);
     if (s.removed.length) bits.push(`removed: ${s.removed.join(", ")}`);
+    const per = Object.entries(s.collision || {}).filter(([, m]) => m === "parts").map(([b]) => b.split("_")[0]);
+    if (per.length) bits.push(`collision per part: ${per.join(", ")}`);
     return bits.join(" · ") || "as delivered";
   }
 

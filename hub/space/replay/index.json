@@ -1,5 +1,33 @@
 [
  {
+  "id": "contributor-knife-block-k4",
+  "task": "contributor-knife-block",
+  "object": "knife_block",
+  "title": "Knife block: two knives won't go in",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/record_session.py, through the page in Chrome (recorded)",
+  "video": "videos/knife_block.mp4",
+  "engine": "mujoco",
+  "edits": 2,
+  "replies": 1,
+  "asset": "v1"
+ },
+ {
+  "id": "contributor-cad-mug-k3",
+  "task": "contributor-cad-mug",
+  "object": "cad_mug",
+  "title": "Mug, rebuilt at 0.7\u00d7 scale",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/contributor.py, over the page's HTTP API",
+  "video": null,
+  "engine": "mujoco",
+  "edits": 6,
+  "replies": 3,
+  "asset": "v5"
+ },
+ {
   "id": "contributor-cad-mug-v1",
   "task": "contributor-cad-mug",
   "object": "cad_mug",
@@ -8,6 +36,7 @@
   "score": 1.0,
   "contributor": "scripts/record_session.py, through the page in Chrome (recorded)",
   "video": "videos/cad_mug.mp4",
+  "engine": "genesis",
   "edits": 6,
   "replies": 3,
   "asset": "v4"
@@ -21,6 +50,7 @@
   "score": 1.0,
   "contributor": "scripts/contributor.py, over the page's HTTP API",
   "video": null,
+  "engine": "genesis",
   "edits": 3,
   "replies": 2,
   "asset": "v2"
@@ -34,6 +64,7 @@
   "score": 1.0,
   "contributor": "scripts/record_session.py, through the page in Chrome (recorded)",
   "video": "videos/cad_milk_frother.mp4",
+  "engine": "genesis",
   "edits": 1,
   "replies": 1,
   "asset": "v2"
@@ -47,6 +78,7 @@
   "score": 1.0,
   "contributor": "scripts/contributor.py, over the page's HTTP API",
   "video": null,
+  "engine": "genesis",
   "edits": 6,
   "replies": 1,
   "asset": "v2"
@@ -60,6 +92,7 @@
   "score": 1.0,
   "contributor": "scripts/contributor.py, over the page's HTTP API",
   "video": null,
+  "engine": "genesis",
   "edits": 3,
   "replies": 1,
   "asset": "v2"
@@ -73,6 +106,7 @@
   "score": 1.0,
   "contributor": "scripts/record_session.py, through the page in Chrome (recorded)",
   "video": "videos/rcad_cupboard.mp4",
+  "engine": "genesis",
   "edits": 1,
   "replies": 1,
   "asset": "v3"

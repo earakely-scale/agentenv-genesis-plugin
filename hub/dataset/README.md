@@ -124,7 +124,7 @@ given to MuJoCo as one collision mesh. MuJoCo collides a mesh as its convex hull
 can't enter their 4.5 mm slots, and the set fails four of five checks. With a convex hull per part (`set_collision`) it
 passes all five, and Genesis agrees on every check it runs. Its static tipping margin is 13.4° to the back, where the
 block and handles lean, and 22–37° in other directions. The [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
-replays every probe in 3D. [`exports/knife_block.zip`](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/exports/knife_block.zip) is the fixed set as MJCF and OBJ.
+replays every probe in 3D. Claude Code on `claude-sonnet-5-5` fixed it alone in 37 s, because `inspect` shows each knife's collision thickness beside its slot's width. [`exports/knife_block.zip`](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/exports/knife_block.zip) is the fixed set as MJCF and OBJ.
 
 ## With a contributor in the loop
 
@@ -144,10 +144,10 @@ agent's edits, and shows the object as it was at each moment.
 
 *`contributor-cad-mug`, recorded in Chrome: the contributor lifts the mug (the red cylinder is a 330 ml can, for scale),
 says it's tiny, gives its real size when the agent asks, checks the fix on the tilting table, and approves it. Stretches where the agent is
-working play at 8× speed. The other recordings: [the milk frother's loose ring](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/cad_milk_frother.mp4)
-and [the cupboard's jammed doors](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/rcad_cupboard.mp4).*
+working play at 8× speed. The other recordings: [the knife block's two knives that won't go in](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/knife_block.mp4),
+[the milk frother's loose ring](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/cad_milk_frother.mp4) and [the cupboard's jammed doors](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/rcad_cupboard.mp4).*
 
-A script plays the contributor in these 14 sessions, not a person. It knows each object's real size and weight from the
+A script plays the contributor in these 16 sessions, not a person. It knows each object's real size and weight from the
 Google scan the CAD was built from, judges each fix only from what the page shows it, and never sees the hidden checks.
 Some sessions went through the page in Chrome with `scripts/record_session.py`, and the rest through the page's HTTP
 API with `scripts/contributor.py`. The six newest sessions also carry each action's Genesis trace (`traces`): every visual
@@ -162,8 +162,10 @@ geom's pose per frame. The agent is Claude Code with `claude-sonnet-5-5`.
 | `contributor-cad-frother` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `remove_part(part=cord, restore=False)` | `cad_milk_frother` v1 |
 | `contributor-cad-frother` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `remove_part(part=cord, restore=False)` | `cad_milk_frother` v2 |
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.004)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v2 |
+| `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.005)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v5 |
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | browser, recorded | `set_scale(factor=1.38)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v3 |
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | browser, recorded | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.004)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v4 |
+| `contributor-knife-block` | 1.00 / not run | 1.00, approved | browser, recorded | `set_collision(body=chef_20cm, mode=parts)`; `set_collision(body=bread_20cm, mode=parts)` | `knife_block` v1 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | scripted | `set_self_collision(enabled=False)` | `rcad_cupboard` v1 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `set_self_collision(enabled=False)` | `rcad_cupboard` v2 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `set_self_collision(enabled=False)` | `rcad_cupboard` v3 |

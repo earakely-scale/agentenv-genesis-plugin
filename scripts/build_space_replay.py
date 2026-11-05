@@ -26,7 +26,7 @@ def main():
         r = json.load(open(f))
         if not r.get("traces"):
             continue
-        events, scale, removed = [], 1.0, []
+        events, scale, removed, collision = [], 1.0, [], {}
         for a in r["contributor_actions"]:
             events.append({"t": a["t"], "type": "action", "action": a["action"], "text": a["summary"], "i": a["i"],
                            "traced": str(a["i"]) in r["traces"], "result": a.get("result")})
@@ -35,26 +35,32 @@ def main():
         for c in r["agent_calls"]:
             if c["tool"] == "set_scale":
                 scale = c["args"]["factor"]
+            if c["tool"] == "set_collision":
+                collision = {**collision, c["args"]["body"]: c["args"]["mode"]}
             if c["tool"] == "remove_part":
                 part = c["args"]["part"]
                 removed = [p for p in removed if p != part] if c["args"].get("restore") else removed + [part]
             events.append({"t": c["t"], "type": "edit" if c["tool"] in EDITS else "tool", "tool": c["tool"], "args": c["args"],
-                           "state": {"scale": scale, "removed": list(removed)}})
+                           "state": {"scale": scale, "removed": list(removed), "collision": dict(collision)}})
         events.sort(key=lambda e: (e["t"], {"action": 0, "say": 1, "tool": 2, "edit": 3, "agent": 4, "decision": 5}[e["type"]]))
-        state, t0 = {"scale": 1.0, "removed": []}, events[0]["t"]
+        state, t0 = {"scale": 1.0, "removed": [], "collision": {}}, events[0]["t"]
         for e in events:
             state = e.get("state", state)
             e["state"] = state
             e["t"] = round(e["t"] - t0, 1)  # the session's clock starts at the contributor's first action, not at deploy
         row = {k: r[k] for k in ("id", "task", "object", "model", "contributor", "status", "score", "checks", "sim_asset", "video")}
-        row.update({"title": TITLES.get(r["task"], r["task"]), "scene": f"scenes/{r['object']}", "events": events, "traces": r["traces"],
+        # Sessions graded in MuJoCo draw from the asset's own meshes in its bodies' frames (scenes/mj/); earlier ones from
+        # Genesis's visual geoms (scenes/).
+        mujoco = any(t.get("engine") == "mujoco" for t in r["traces"].values())
+        scene = f"scenes/mj/{r['object']}" if mujoco else f"scenes/{r['object']}"
+        row.update({"title": TITLES.get(r["task"], r["task"]), "scene": scene, "events": events, "traces": r["traces"], "engine": "mujoco" if mujoco else "genesis",
                     "duration_s": max(e["t"] for e in events) + 2})
         (OUT / f"{r['id']}.json").write_text(json.dumps(row, separators=(",", ":")))
-        index.append({k: row[k] for k in ("id", "task", "object", "title", "status", "score", "contributor", "video")} |
+        index.append({k: row[k] for k in ("id", "task", "object", "title", "status", "score", "contributor", "video", "engine")} |
                      {"edits": sum(e["type"] == "edit" for e in events), "replies": sum(e["type"] == "agent" for e in events),
                       "asset": r["sim_asset"] and f"v{r['sim_asset']['version']}"})
         print(r["id"], len(events), "events", len(r["traces"]), "traces", (OUT / f"{r['id']}.json").stat().st_size // 1024, "KB")
-    order = list(TITLES)
+    order = ["contributor-knife-block"] + [t for t in TITLES if t != "contributor-knife-block"]
     index.sort(key=lambda x: (order.index(x["task"]) if x["task"] in order else 99, x["contributor"]))
     (OUT / "index.json").write_text(json.dumps(index, indent=1))
 
