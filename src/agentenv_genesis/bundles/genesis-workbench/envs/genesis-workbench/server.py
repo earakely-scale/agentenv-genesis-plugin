@@ -48,7 +48,7 @@ class Frame(BaseModel):
 
 
 chart = S.chart
-EDITS = {"set_inertial", "set_material", "set_shell", "set_scale", "remove_part", "set_self_collision", "set_joint"}
+EDITS = {"set_inertial", "set_material", "set_shell", "set_scale", "remove_part", "set_self_collision", "set_joint", "set_collision"}
 PAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "workbench.html")
 VIEWER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "viewer.js")
 
