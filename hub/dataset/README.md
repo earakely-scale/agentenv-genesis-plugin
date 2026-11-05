@@ -109,28 +109,41 @@ action runs Genesis. They chat with the agent there, and approve or reject the o
 with `last_interaction`. An approval saves the object as a new version of a sim-asset artifact, with its checks and
 probe results attached, and the same hidden checks grade the run.
 
+The page draws the object in 3D (three.js), from the same meshes Genesis simulates, on a real-scale grid beside the can.
+Each action replays the motion Genesis recorded for it: the table tilting under the lean test, the drop, marbles
+falling in, loose parts lit, doors swinging. The [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
+replays every session interactively. The 3D view follows one timeline of the contributor's actions, the chat and the
+agent's edits, and shows the object as it was at each moment.
+
 <video src="https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/cad_mug.mp4" controls muted playsinline width="100%"></video>
 
 *`contributor-cad-mug`, recorded in Chrome: the contributor lifts the mug (the red cylinder is a 330 ml can, for scale),
-says it's tiny, gives its real size when the agent asks, checks the fix, and approves it. Stretches where the agent is
+says it's tiny, gives its real size when the agent asks, checks the fix on the tilting table, and approves it. Stretches where the agent is
 working play at 8× speed. The other recordings: [the milk frother's loose ring](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/cad_milk_frother.mp4)
 and [the cupboard's jammed doors](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/resolve/main/videos/rcad_cupboard.mp4).*
 
-A script plays the contributor in these 8 sessions, not a person. It knows each object's real size and weight from the
+A script plays the contributor in these 14 sessions, not a person. It knows each object's real size and weight from the
 Google scan the CAD was built from, judges each fix only from what the page shows it, and never sees the hidden checks.
-Three sessions went through the page in Chrome with `scripts/record_session.py`, and the rest through the page's HTTP
-API with `scripts/contributor.py`. The agent is Claude Code with `claude-sonnet-5-5`.
+Some sessions went through the page in Chrome with `scripts/record_session.py`, and the rest through the page's HTTP
+API with `scripts/contributor.py`. The six newest sessions also carry each action's Genesis trace (`traces`): every visual
+geom's pose per frame. The agent is Claude Code with `claude-sonnet-5-5`.
 
 | Task | Agent alone (Sonnet / Opus) | With a contributor | Contributor | The agent's edits | Saved as |
 |---|---|---|---|---|---|
 | `contributor-cad-bowl` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.99)`; `set_shell(part=body, thickness=0.006)`; `set_shell(part=body)`; `set_material(part=body, material=ceramic)`; `set_inertial(link=body, mass=2)` | `cad_serving_bowl` v1 |
+| `contributor-cad-bowl` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.99)`; `set_shell(part=body, thickness=0.008)`; `set_shell(part=body, thickness=0.0029)` | `cad_serving_bowl` v2 |
 | `contributor-cad-coffeemaker` | 1.00 / 1.00 | 1.00, approved | scripted | `set_shell(part=housing, thickness=0.003)`; `set_shell(part=steel, thickness=0.001)`; `set_shell(part=steel_2, thickness=0.001)`; `set_shell(part=housing, thickness=0.002)`; `set_shell(part=steel, thickness=0.0009)`; `set_shell(part=steel_2, thickness=0.0009)` | `cad_coffee_maker` v1 |
+| `contributor-cad-coffeemaker` | 1.00 / 1.00 | 1.00, approved | scripted | `set_shell(part=housing, thickness=0.003)`; `set_shell(part=steel, thickness=0.0015)`; `set_shell(part=steel_2, thickness=0.0015)`; `set_shell(part=steel, thickness=0.001)`; `set_shell(part=steel_2, thickness=0.001)`; `set_shell(part=housing, thickness=0.0025)` | `cad_coffee_maker` v2 |
 | `contributor-cad-frother` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `remove_part(part=cord, restore=False)` | `cad_milk_frother` v1 |
+| `contributor-cad-frother` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `remove_part(part=cord, restore=False)` | `cad_milk_frother` v2 |
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | scripted | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.004)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v2 |
 | `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | browser, recorded | `set_scale(factor=1.38)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v3 |
+| `contributor-cad-mug` | 0.50 / 0.75 | 1.00, approved | browser, recorded | `set_scale(factor=1.4)`; `set_shell(part=body, thickness=0.004)`; `set_shell(part=body)`; `set_inertial(link=body, mass=0.3)`; `set_scale(factor=1.516)`; `set_inertial(link=body, mass=0.3)` | `cad_mug` v4 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | scripted | `set_self_collision(enabled=False)` | `rcad_cupboard` v1 |
 | `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `set_self_collision(enabled=False)` | `rcad_cupboard` v2 |
+| `contributor-rcad-cupboard` | 1.00 / 1.00 | 1.00, approved | browser, recorded | `set_self_collision(enabled=False)` | `rcad_cupboard` v3 |
 | `contributor-scan-mug` | 1.00 / 1.00 | 1.00, approved | scripted | `set_material(part=body, material=ceramic)`; `set_shell(part=body, thickness=0.004)` | `scan_mug` v1 |
+| `contributor-scan-mug` | 1.00 / 1.00 | 1.00, approved | scripted | `set_material(part=body, material=ceramic)`; `set_shell(part=body, thickness=0.004)`; `set_shell(part=body, thickness=0.005)` | `scan_mug` v2 |
 
 `sessions.jsonl` (config `contributor_sessions`) has one row per session: the chat, the contributor's actions and what
 each showed them, the agent's calls and edits, the checks, and the saved sim asset's id, version and metadata. Each

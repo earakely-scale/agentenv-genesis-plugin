@@ -74,6 +74,10 @@ in for one) is in the loop:
 1. The env serves a page at `/workbench`. The contributor can **look** at the object, **lift** it (its weight in
    everyday terms, and its size), **lean** it on a tilting table, **drop** it, **fill** it with marbles, **shake** it
    to find loose parts, or **open** and **pull** doors and drawers. Each action runs Genesis on the object as it is now.
+   The page draws the object in 3D (three.js) from the meshes Genesis simulates: one GLB node per Genesis visual geom,
+   on a real-scale grid beside the can, with orbit and zoom, a ghost of the object as delivered, and the centre of mass.
+   Each action replays the poses Genesis recorded for every geom: the table tilting under the lean test, the drop,
+   marbles falling in, loose parts lit, doors swinging. A **Real object** tab shows the photos the CAD was built from.
 2. Each action is logged. The agent reads the log with `last_interaction`, and every message relayed to it lists what
    the contributor tried since its last reply.
 3. The contributor chats with the agent on the same page. The `workbench_session` step is `prompt_agent` with the
@@ -81,8 +85,9 @@ in for one) is in the loop:
    reply with the contributor's next message. The page also lists the agent's edits and probes as they happen.
 4. **Approve** locks the object and ends the conversation. `save_sim_asset` saves the approved object as a new version
    of a file artifact (`@local/genesis-workbench/sim-assets/<object>`): a zip of the edited `asset.json`, its MJCF, the
-   acceptance checks and probe results run at approval, and the session (chat, actions, the agent's calls). The
-   artifact's metadata carries the checks' outcome. The hidden checks then grade the run as in the other tasks.
+   acceptance checks and probe results run at approval, the session (chat, actions, the agent's calls), and the 3D
+   scene of the object approved and as delivered (`scene.glb`, `as_delivered.glb`). The artifact's metadata carries
+   the checks' outcome. The hidden checks then grade the run as in the other tasks.
 
 | Task | Object | Why a contributor helps |
 |---|---|---|
@@ -102,6 +107,12 @@ or rejects. To be the contributor yourself, start the run, open the address from
 agent-env run genesis-workbench --task contributor-cad-mug   # logs: WORKBENCH contributor page for …: http://localhost:<port>/workbench
 python scripts/contributor.py --persona cad_mug --log run.log # or let the script play the contributor
 ```
+
+The Space replays each session interactively. The 3D view follows one timeline of the contributor's actions, the chat and
+the agent's edits, showing the object as it was at each moment and playing back each action's Genesis trace
+(`scripts/build_space_replay.py` builds it from the sessions):
+
+![The Space's session replay: the mug at the agent's 1.516× scale tipping on the tilting table, with the timeline and the transcript](docs/space-replay.png)
 
 The env uses the `server` env provider (`env.toml`), with no gateway in front, so the page is at the env's own
 address. The page has no authentication; on a remote host, reach it through an SSH tunnel.

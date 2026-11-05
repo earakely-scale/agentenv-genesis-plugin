@@ -307,6 +307,7 @@ export class SimViewer {
     for (const b of this.balls) this.world.remove(b);
     this.balls = [];
     if (this.meta) { this.highlight(null); this.setPose(this.rest); }
+    if (this.onFrame) this.onFrame(null);
   }
 
   snapshot() { return this.renderer.domElement.toDataURL("image/png"); }

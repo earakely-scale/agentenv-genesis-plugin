@@ -40,10 +40,11 @@ def main():
             events.append({"t": c["t"], "type": "edit" if c["tool"] in EDITS else "tool", "tool": c["tool"], "args": c["args"],
                            "state": {"scale": scale, "removed": list(removed)}})
         events.sort(key=lambda e: (e["t"], {"action": 0, "say": 1, "tool": 2, "edit": 3, "agent": 4, "decision": 5}[e["type"]]))
-        state = {"scale": 1.0, "removed": []}
+        state, t0 = {"scale": 1.0, "removed": []}, events[0]["t"]
         for e in events:
             state = e.get("state", state)
             e["state"] = state
+            e["t"] = round(e["t"] - t0, 1)  # the session's clock starts at the contributor's first action, not at deploy
         row = {k: r[k] for k in ("id", "task", "object", "model", "contributor", "status", "score", "checks", "sim_asset", "video")}
         row.update({"title": TITLES.get(r["task"], r["task"]), "scene": f"scenes/{r['object']}", "events": events, "traces": r["traces"],
                     "duration_s": max(e["t"] for e in events) + 2})

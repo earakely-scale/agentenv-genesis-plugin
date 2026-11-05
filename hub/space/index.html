@@ -281,7 +281,48 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
 .ct-tbl tr:last-child td { border-bottom: 0; }
 .ct-tbl code { font-size: 12px; }
 .ct-note { font-size: 13.5px; color: var(--muted); margin-top: 10px; }
+
+.rp-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.rp-tab { display: grid; gap: 2px; text-align: left; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; }
+.rp-tab span { color: var(--muted); font-size: 12px; }
+.rp-tab[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.rp-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 900px) { .rp-grid { grid-template-columns: 1fr; } }
+.rp-view { position: relative; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #dfe4e1; }
+.rp-view canvas { display: block; touch-action: none; }
+.rp-view .ov { position: absolute; font-size: 12px; color: #fff; background: rgba(15, 20, 22, .58); padding: 3px 9px; border-radius: 6px; pointer-events: none; }
+.rp-view .ov.tl { left: 10px; top: 10px; font-weight: 600; } .rp-view .ov.tr { right: 10px; top: 10px; } .rp-view .ov.br { right: 10px; bottom: 10px; }
+.rp-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.rp-bar .grow { flex: 1; }
+.rp-bar select { font: inherit; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+.rp-time { font-variant-numeric: tabular-nums; }
+.rp-track { position: relative; height: 34px; margin-top: 10px; cursor: pointer; }
+.rp-axis { position: absolute; left: 0; right: 0; top: 16px; height: 2px; background: var(--line); border-radius: 2px; }
+.rp-mark { position: absolute; top: 9px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; border: 2px solid var(--panel); padding: 0; cursor: pointer; }
+.rp-mark.on { transform: scale(1.45); box-shadow: 0 0 0 2px var(--ink); z-index: 2; }
+.rp-needle { position: absolute; top: 2px; bottom: 2px; width: 2px; background: var(--ink); margin-left: -1px; transition: left .25s; }
+.rp-mark.action, .rp-legend .action::before { background: #0B7A72; }
+.rp-mark.say, .rp-legend .say::before { background: #14191B; }
+.rp-mark.agent, .rp-legend .agent::before { background: #7FB7AE; }
+.rp-mark.edit, .rp-legend .edit::before { background: #D9822B; border-radius: 3px; }
+.rp-mark.tool, .rp-legend .tool::before { background: #B9C2BE; width: 10px; height: 10px; top: 11px; margin-left: -5px; }
+.rp-mark.decision, .rp-legend .decision::before { background: #2F7D32; }
+.rp-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.rp-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.rp-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 18px; margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); font-size: 13px; }
+.rp-facts span { display: block; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; }
+.rp-log { list-style: none; margin: 0; padding: 0; max-height: 640px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.rp-ev { display: grid; grid-template-columns: 38px 1fr; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 13.5px; }
+.rp-ev:hover { background: var(--sub); } .rp-ev.on { background: var(--accent-soft); }
+.rp-ev .rp-t { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; padding-top: 1px; }
+.rp-ev .rp-body > b { display: block; font-size: 12.5px; margin-bottom: 2px; }
+.rp-ev.action b { color: #0B7A72; } .rp-ev.edit code, .rp-ev.tool code { font-size: 12px; color: var(--ink2, var(--ink)); word-break: break-word; }
+.rp-ev.edit code { color: #B5651D; } .rp-ev.decision b { color: #2F7D32; }
+.rp-ev .md p { margin: 0 0 5px; } .rp-ev .md ul, .rp-ev .md ol { margin: 2px 0 5px; padding-left: 18px; } .rp-ev .md table { border-collapse: collapse; font-size: 12px; }
+.rp-ev .md td { border: 1px solid var(--line); padding: 2px 6px; }
+.ct-more { margin-top: 18px; } .ct-more summary { cursor: pointer; font-weight: 600; margin-bottom: 12px; }
 </style>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head>
 <body>
 <div class="wrap">
@@ -308,18 +349,44 @@ footer li { break-inside: avoid; margin-bottom: 4px; overflow-wrap: anywhere; }
   <figcaption style="font-size:13.5px;color:var(--muted);max-width:80ch">Each object as delivered (red) beside the agent's fix (teal), simulated and rendered by Genesis from the MJCF recorded in the episodes: the mug on a tilt table, the oven door unlatched at 5°, the drawer pulled with 10 N.</figcaption>
 </figure>
 
+
 <section id="contributor" aria-labelledby="ct-h">
   <div class="sec-head">
     <h2 id="ct-h"><span class="frame-mark" aria-hidden="true"></span>With a contributor in the loop</h2>
-    <p>In the <code>contributor-*</code> tasks the complaint comes from a contributor on a page the env serves. They look at, lift, lean, drop, fill or shake the object, or open its doors, and each action runs Genesis. They chat with the agent, which reads what they did with <code>last_interaction</code>, and they approve or reject the object. An approval saves it as a new version of a sim-asset artifact, with its checks and probe results, and the hidden checks grade the run. The red cylinder in the renders is a 330 ml can, for scale. In these videos a script plays the contributor through the page in Chrome; it knows each object's real size and weight from the scan the CAD was built from. Stretches where the agent is working play at 8× speed.</p>
+    <p>In the <code>contributor-*</code> tasks a contributor plays with the object on a page the env serves. They lift, lean, drop, fill or shake it, or open its doors, and Genesis simulates each action. They chat with the agent, which reads what they did with <code>last_interaction</code>, and they approve or reject the object. Below, each session is replayed on one clock. The 3D view shows the object as it was at the selected moment, and it plays back the motion Genesis recorded for each action, from the same meshes Genesis simulated. The red cylinder is a 330 ml can, for scale. Drag to orbit, and pick any event in the timeline or the transcript.</p>
   </div>
-  <div class="ct-vids"><figure class="ct-fig"><video src="videos/cad_mug.mp4" controls muted playsinline preload="metadata" poster="videos/cad_mug.jpg"></video><figcaption><b>contributor-cad-mug</b> A VLM-to-CAD mug built at 0.7× scale. The agent asks for the real size, scales it, and keeps the mass right.</figcaption></figure><figure class="ct-fig"><video src="videos/cad_milk_frother.mp4" controls muted playsinline preload="metadata" poster="videos/cad_milk_frother.jpg"></video><figcaption><b>contributor-cad-frother</b> A loose power-cord ring the CAD left floating 25 mm from the frother. Shake finds it; the agent removes it.</figcaption></figure><figure class="ct-fig"><video src="videos/rcad_cupboard.mp4" controls muted playsinline preload="metadata" poster="videos/rcad_cupboard.jpg"></video><figcaption><b>contributor-rcad-cupboard</b> ReplicaCAD doors that jam on each other. Open shows which; the agent turns off self-collision and says what that costs.</figcaption></figure></div>
-  <div class="ct-tbl"><table>
+  <div class="rp">
+    <div class="rp-tabs" role="tablist" id="rp-tabs" aria-label="Sessions"></div>
+    <div class="rp-grid">
+      <div class="rp-stage">
+        <div class="rp-view" id="rp-view"><span class="ov tl" id="rp-label" hidden></span><span class="ov tr" id="rp-state"></span><span class="ov br" id="rp-grid"></span></div>
+        <div class="rp-bar">
+          <button type="button" class="btn pri" id="rp-play">Play session</button>
+          <button type="button" class="btn" id="rp-prev" aria-label="Previous event">‹</button>
+          <button type="button" class="btn" id="rp-next" aria-label="Next event">›</button>
+          <span class="rp-time" id="rp-time"></span>
+          <span class="grow"></span>
+          <label>speed <select id="rp-speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+          <label><input type="checkbox" id="rp-ghost"> as delivered</label>
+        </div>
+        <div class="rp-track" id="rp-track" aria-label="Session timeline"><div class="rp-axis"></div><div id="rp-marks"></div><div class="rp-needle" id="rp-needle"></div></div>
+        <div class="rp-legend"><span class="action">contributor action</span><span class="say">contributor message</span><span class="agent">agent reply</span><span class="edit">agent edit</span><span class="tool">agent probe</span><span class="decision">decision</span></div>
+        <div class="rp-facts" id="rp-facts"></div>
+      </div>
+      <ol class="rp-log" id="rp-log" aria-label="Transcript"></ol>
+    </div>
+  </div>
+  <details class="ct-more"><summary>Screen recordings of the contributor page, and every session</summary>
+    <div class="ct-vids"><figure class="ct-fig"><video src="videos/cad_mug.mp4" controls muted playsinline preload="metadata" poster="videos/cad_mug.jpg"></video><figcaption><b>contributor-cad-mug</b> A VLM-to-CAD mug built at 0.7× scale. The agent asks for the real size, scales it, and keeps the mass right.</figcaption></figure><figure class="ct-fig"><video src="videos/cad_milk_frother.mp4" controls muted playsinline preload="metadata" poster="videos/cad_milk_frother.jpg"></video><figcaption><b>contributor-cad-frother</b> A loose power-cord ring the CAD left floating 25 mm from the frother. Shake finds it; the agent removes it.</figcaption></figure><figure class="ct-fig"><video src="videos/rcad_cupboard.mp4" controls muted playsinline preload="metadata" poster="videos/rcad_cupboard.jpg"></video><figcaption><b>contributor-rcad-cupboard</b> ReplicaCAD doors that jam on each other. Open shows which; the agent turns off self-collision and says what that costs.</figcaption></figure></div>
+  
+    <div class="ct-tbl"><table>
     <thead><tr><th>Task</th><th>Contributor</th><th>Outcome</th><th>Grade</th><th>Agent replies</th><th>The agent's edits</th><th>Sim asset</th></tr></thead>
-    <tbody><tr><td><code>contributor-cad-bowl</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>2</td><td><code>set_scale(factor=1.99)</code>; <code>set_shell(part=body, thickness=0.006)</code>; <code>set_shell(part=body)</code>; <code>set_material(part=body, material=ceramic)</code>; <code>set_inertial(link=body, mass=2)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-coffeemaker</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>2</td><td><code>set_shell(part=housing, thickness=0.003)</code>; <code>set_shell(part=steel, thickness=0.001)</code>; <code>set_shell(part=steel_2, thickness=0.001)</code>; <code>set_shell(part=housing, thickness=0.002)</code>; <code>set_shell(part=steel, thickness=0.0009)</code>; <code>set_shell(part=steel_2, thickness=0.0009)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-frother</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>remove_part(part=cord, restore=False)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-mug</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>3</td><td><code>set_scale(factor=1.4)</code>; <code>set_shell(part=body, thickness=0.004)</code>; <code>set_shell(part=body)</code>; <code>set_inertial(link=body, mass=0.3)</code>; <code>set_scale(factor=1.516)</code>; <code>set_inertial(link=body, mass=0.3)</code></td><td>v2</td></tr><tr><td><code>contributor-cad-mug</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>3</td><td><code>set_scale(factor=1.38)</code>; <code>set_inertial(link=body, mass=0.3)</code>; <code>set_scale(factor=1.516)</code>; <code>set_inertial(link=body, mass=0.3)</code></td><td>v3</td></tr><tr><td><code>contributor-rcad-cupboard</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_self_collision(enabled=False)</code></td><td>v1</td></tr><tr><td><code>contributor-rcad-cupboard</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_self_collision(enabled=False)</code></td><td>v2</td></tr><tr><td><code>contributor-scan-mug</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_material(part=body, material=ceramic)</code>; <code>set_shell(part=body, thickness=0.004)</code></td><td>v1</td></tr></tbody>
+    <tbody><tr><td><code>contributor-cad-bowl</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>2</td><td><code>set_scale(factor=1.99)</code>; <code>set_shell(part=body, thickness=0.006)</code>; <code>set_shell(part=body)</code>; <code>set_material(part=body, material=ceramic)</code>; <code>set_inertial(link=body, mass=2)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-bowl</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>2</td><td><code>set_scale(factor=1.99)</code>; <code>set_shell(part=body, thickness=0.008)</code>; <code>set_shell(part=body, thickness=0.0029)</code></td><td>v2</td></tr><tr><td><code>contributor-cad-coffeemaker</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>2</td><td><code>set_shell(part=housing, thickness=0.003)</code>; <code>set_shell(part=steel, thickness=0.001)</code>; <code>set_shell(part=steel_2, thickness=0.001)</code>; <code>set_shell(part=housing, thickness=0.002)</code>; <code>set_shell(part=steel, thickness=0.0009)</code>; <code>set_shell(part=steel_2, thickness=0.0009)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-coffeemaker</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_shell(part=housing, thickness=0.003)</code>; <code>set_shell(part=steel, thickness=0.0015)</code>; <code>set_shell(part=steel_2, thickness=0.0015)</code>; <code>set_shell(part=steel, thickness=0.001)</code>; <code>set_shell(part=steel_2, thickness=0.001)</code>; <code>set_shell(part=housing, thickness=0.0025)</code></td><td>v2</td></tr><tr><td><code>contributor-cad-frother</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>remove_part(part=cord, restore=False)</code></td><td>v1</td></tr><tr><td><code>contributor-cad-frother</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>remove_part(part=cord, restore=False)</code></td><td>v2</td></tr><tr><td><code>contributor-cad-mug</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>3</td><td><code>set_scale(factor=1.4)</code>; <code>set_shell(part=body, thickness=0.004)</code>; <code>set_shell(part=body)</code>; <code>set_inertial(link=body, mass=0.3)</code>; <code>set_scale(factor=1.516)</code>; <code>set_inertial(link=body, mass=0.3)</code></td><td>v2</td></tr><tr><td><code>contributor-cad-mug</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>3</td><td><code>set_scale(factor=1.38)</code>; <code>set_inertial(link=body, mass=0.3)</code>; <code>set_scale(factor=1.516)</code>; <code>set_inertial(link=body, mass=0.3)</code></td><td>v3</td></tr><tr><td><code>contributor-cad-mug</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>3</td><td><code>set_scale(factor=1.4)</code>; <code>set_shell(part=body, thickness=0.004)</code>; <code>set_shell(part=body)</code>; <code>set_inertial(link=body, mass=0.3)</code>; <code>set_scale(factor=1.516)</code>; <code>set_inertial(link=body, mass=0.3)</code></td><td>v4</td></tr><tr><td><code>contributor-rcad-cupboard</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_self_collision(enabled=False)</code></td><td>v1</td></tr><tr><td><code>contributor-rcad-cupboard</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_self_collision(enabled=False)</code></td><td>v2</td></tr><tr><td><code>contributor-rcad-cupboard</code></td><td>browser (recorded)</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_self_collision(enabled=False)</code></td><td>v3</td></tr><tr><td><code>contributor-scan-mug</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_material(part=body, material=ceramic)</code>; <code>set_shell(part=body, thickness=0.004)</code></td><td>v1</td></tr><tr><td><code>contributor-scan-mug</code></td><td>scripted</td><td>approved</td><td>1.00</td><td>1</td><td><code>set_material(part=body, material=ceramic)</code>; <code>set_shell(part=body, thickness=0.004)</code>; <code>set_shell(part=body, thickness=0.005)</code></td><td>v2</td></tr></tbody>
   </table></div>
-  <p class="ct-note">Agent: Claude Code with <code>claude-sonnet-5-5</code>. Without a contributor, the mug and bowl scale tasks had scored 0.50 (Sonnet) and 0.75 (Opus): the real size isn't in the asset. Each row is in the dataset's <code>sessions.jsonl</code>.</p>
+  </details>
+  <p class="ct-note">Agent: Claude Code with <code>claude-sonnet-5-5</code>. A script plays the contributor, through the page in Chrome or over its API. It knows each object's real size and weight from the scan the CAD was built from, and it never sees the hidden checks. Without a contributor, the mug and bowl scale tasks had scored 0.50 (Sonnet) and 0.75 (Opus), because the real size isn't in the asset. Every session is in the dataset's <code>sessions.jsonl</code>.</p>
 </section>
+<script type="module">import { mount } from "./replay.js"; mount(document.getElementById("contributor")).catch((e) => { document.getElementById("rp-tabs").textContent = "The replay needs WebGL and JavaScript: " + e.message; });</script>
 
 <section id="loop" aria-labelledby="loop-h">
   <div class="sec-head">

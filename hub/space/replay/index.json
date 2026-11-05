@@ -1,0 +1,80 @@
+[
+ {
+  "id": "contributor-cad-mug-v1",
+  "task": "contributor-cad-mug",
+  "object": "cad_mug",
+  "title": "Mug, rebuilt at 0.7\u00d7 scale",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/record_session.py, through the page in Chrome (recorded)",
+  "video": "videos/cad_mug.mp4",
+  "edits": 6,
+  "replies": 3,
+  "asset": "v4"
+ },
+ {
+  "id": "contributor-cad-bowl-d1",
+  "task": "contributor-cad-bowl",
+  "object": "cad_serving_bowl",
+  "title": "Serving bowl, rebuilt at 0.5\u00d7 scale",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/contributor.py, over the page's HTTP API",
+  "video": null,
+  "edits": 3,
+  "replies": 2,
+  "asset": "v2"
+ },
+ {
+  "id": "contributor-cad-frother-v2",
+  "task": "contributor-cad-frother",
+  "object": "cad_milk_frother",
+  "title": "Milk frother with a loose cord ring",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/record_session.py, through the page in Chrome (recorded)",
+  "video": "videos/cad_milk_frother.mp4",
+  "edits": 1,
+  "replies": 1,
+  "asset": "v2"
+ },
+ {
+  "id": "contributor-cad-coffeemaker-d3",
+  "task": "contributor-cad-coffeemaker",
+  "object": "cad_coffee_maker",
+  "title": "Coffee maker, solid plastic",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/contributor.py, over the page's HTTP API",
+  "video": null,
+  "edits": 6,
+  "replies": 1,
+  "asset": "v2"
+ },
+ {
+  "id": "contributor-scan-mug-d2",
+  "task": "contributor-scan-mug",
+  "object": "scan_mug",
+  "title": "Scanned mug, loaded at water density",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/contributor.py, over the page's HTTP API",
+  "video": null,
+  "edits": 3,
+  "replies": 1,
+  "asset": "v2"
+ },
+ {
+  "id": "contributor-rcad-cupboard-v3",
+  "task": "contributor-rcad-cupboard",
+  "object": "rcad_cupboard",
+  "title": "Cupboard doors that jam",
+  "status": "approved",
+  "score": 1.0,
+  "contributor": "scripts/record_session.py, through the page in Chrome (recorded)",
+  "video": "videos/rcad_cupboard.mp4",
+  "edits": 1,
+  "replies": 1,
+  "asset": "v3"
+ }
+]
