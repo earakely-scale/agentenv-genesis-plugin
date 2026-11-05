@@ -113,6 +113,39 @@ bread knives were each given to MuJoCo as one collision mesh, so they collide as
 handles (21 mm), and they can't enter a 4.5 mm slot. The [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv)
 replays every probe in 3D, as delivered and fixed, and has the exported MJCF and OBJ to download.
 
+### Validate any MJCF
+
+`scripts/validate_mjcf.py` checks a MuJoCo asset from anywhere the way the workbench checks its own: an MJCF file, a
+folder with a `scene.xml`, an export zip, or a bare OBJ (given to MuJoCo as one free mesh).
+
+```bash
+python scripts/validate_mjcf.py path/to/model.xml path/to/export.zip --out validation   # a .json and .md report each
+```
+
+It reads the model:
+
+- where mass and inertia come from, including visual geoms MuJoCo counts in a body's mass;
+- density over the volume MuJoCo collides, inertia against a solid of the same hull, and the centre of mass;
+- default friction and contact softness;
+- how much a mesh's convex hull fills in;
+- thin and floating collision pieces, welded bodies, and joints.
+
+Then it simulates the asset on a floor at its own timestep:
+
+- does it settle;
+- does anything start inside, or go into, anything else;
+- does it end the same at half the step;
+- its tipping margin from its footprint, and a drop from 10 cm;
+- whether each joint holds under gravity and reaches both ends of its range when driven.
+
+The [Space](https://huggingface.co/spaces/earakely-scale/GenesisWorkbenchEnv-AgentEnv) shows a batch: twelve scanned
+kitchen objects from Google Scanned Objects as converted for MuJoCo, one as its OBJ alone, and four of the workbench's
+exports, each with its settle and drop replayed in 3D. Every scanned object fails the same way, and every export passes:
+
+- no joint, so MuJoCo welds it to the world;
+- no `<inertial>`, so its mass comes from water's density, with the visual mesh counted as well (48–91% of the mass);
+- default friction and contact softness, so it sinks about 10 mm into the floor when dropped.
+
 ## The contributor workbench
 
 ![A recorded contributor session on the mug: lift, complain, answer the agent, check the fix, approve](docs/workbench-session.gif)

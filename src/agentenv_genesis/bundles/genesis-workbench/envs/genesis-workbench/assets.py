@@ -28,6 +28,10 @@ ENGINE = "mujoco"  # the engine that grades; Genesis gives the second opinion
 DENSITY = {"ceramic": 2300.0, "porcelain": 2400.0, "glass": 2500.0, "stainless_steel": 7900.0, "cast_iron": 7200.0,
            "aluminum": 2700.0, "plastic_pp": 905.0, "plastic_abs": 1050.0, "oak": 750.0, "wood": 700.0, "silicone": 1100.0,
            "sheet_steel": 7850.0, "abs_plastic": 1050.0}
+# sliding friction against a dry surface; MuJoCo takes the larger of two geoms' values, so on the workbench's 1.0 floor
+# these matter between objects, and once exported, on whatever they're set on
+FRICTION = {"ceramic": 0.8, "porcelain": 0.8, "glass": 0.5, "stainless_steel": 0.35, "cast_iron": 0.5, "aluminum": 0.45,
+            "plastic_pp": 0.4, "plastic_abs": 0.45, "oak": 0.5, "wood": 0.5, "silicone": 0.9, "sheet_steel": 0.4, "abs_plastic": 0.45}
 CAN = (0.033, 0.122)  # a 330 ml soda can, radius and height in m: the size reference in renders
 COLORS = {"ceramic": (0.93, 0.92, 0.88), "porcelain": (0.95, 0.95, 0.95), "stainless_steel": (0.72, 0.74, 0.76),
           "plastic_abs": (0.15, 0.15, 0.16), "plastic_pp": (0.85, 0.35, 0.25), "silicone": (0.25, 0.55, 0.85)}
@@ -296,7 +300,8 @@ class MeshObject:
             for f in p["collision"]:
                 mid = re.sub(r"\W", "_", f)
                 assets.append(f'<mesh name="{mid}" file="{os.path.join(root, f)}" scale="{s:g} {s:g} {s:g}"/>')
-                geoms.append(f'<geom type="mesh" mesh="{mid}" solref="{mj.SOLREF}" group="3" rgba="1 1 1 0"/>')
+                fr = FRICTION.get(p["material"], 0.5)
+                geoms.append(f'<geom type="mesh" mesh="{mid}" friction="{fr:g} 0.005 0.0001" solref="{mj.SOLREF}" group="3" rgba="1 1 1 0"/>')
             if p.get("visual"):
                 vid = "vis_" + re.sub(r"\W", "_", p["name"])
                 assets.append(f'<mesh name="{vid}" file="{os.path.join(root, p["visual"])}" scale="{s:g} {s:g} {s:g}"/>')

@@ -1,0 +1,1 @@
+{"kind": "set", "engine": "mujoco", "geoms": [{"i": 0, "link": "cad_mug/cad_mug", "part": "cad_mug/cad_mug.25", "pose": [0.0, 0.0, 0.0005, 1.0, 0.0, 0.0, 0.0]}], "lift": 0.0, "scale": 1.0, "mass_kg": 0.35, "bounds": [[-0.0652, -0.0652, 0.0005], [0.1032, 0.0652, 0.0904]], "size_m": [0.1684, 0.1305, 0.0899]}

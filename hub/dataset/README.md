@@ -137,6 +137,19 @@ goes more than 3 mm in. The block collides as whole walls, so a blade that sinks
 contacts are stiffer (solref 3 ms with a 1 ms step, written on every collision geom, so the export carries it). Recorded
 again, the same session leaves nothing inside anything (right). The session it replaced was recorded before the change.
 
+**Any MJCF, validated.** `scripts/validate_mjcf.py` runs the same kind of checks on a MuJoCo asset from anywhere: an
+MJCF file, a folder, an export zip or a bare OBJ. It reads the model (mass source, density, inertia, centre of mass,
+friction, contact softness, hull fill, thin and floating pieces, joints) and simulates it on a floor (settle, overlap,
+timestep, tipping margin, drop, joints holding and reaching their range). [`validator/`](https://huggingface.co/datasets/earakely-scale/GenesisWorkbenchEnv-AgentEnv/tree/main/validator)
+has its reports, as JSON and Markdown, on twelve scanned kitchen objects from Google Scanned Objects as converted for
+MuJoCo, one as its OBJ alone, and four workbench exports. Every scanned object fails:
+
+- no joint, so MuJoCo welds it to the world;
+- no `<inertial>`, so its mass comes from water's density, with its visual mesh counted (48–91% of the mass);
+- default friction and contact softness, so it sinks about 10 mm into the floor when dropped from 10 cm.
+
+Every export passes. The Space replays each one's settle and drop in 3D.
+
 ## With a contributor in the loop
 
 The scale tasks fail because the real size isn't in the asset. The `contributor-*` tasks put a contributor in the loop.
