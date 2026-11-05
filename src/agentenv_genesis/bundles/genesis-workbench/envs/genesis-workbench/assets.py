@@ -140,7 +140,8 @@ def web_scene(obj, original=False) -> tuple[bytes, dict]:
         meta = {"kind": obj.kind, "geoms": geoms, "bounds": np.round([verts.min(0), verts.max(0)], 4).tolist()}
         if obj.kind == "mesh":
             z = obj._lift()
-            meta.update({"com": [round(float(com[0]), 4), round(float(com[1]), 4), round(float(com[2]) + z, 4)],
+            meta.update({"lift": round(float(z), 5), "scale": (obj.original if original else obj.model)["scale"],
+                         "com": [round(float(com[0]), 4), round(float(com[1]), 4), round(float(com[2]) + z, 4)],
                          "mass_kg": round(float(mass), 4), "size_m": [round(float(v), 4) for v in b[1] - b[0]]})
         return scene.export(file_type="glb"), meta
 
