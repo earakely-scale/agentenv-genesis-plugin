@@ -1,0 +1,217 @@
+{
+ "name": "cad_milk_frother",
+ "path": "cad_milk_frother",
+ "mjcf": "scene.xml",
+ "mujoco": "3.17.0",
+ "bodies": 1,
+ "geoms": 75,
+ "joints": 1,
+ "timestep": 0.001,
+ "mass_kg": 0.6636,
+ "floor_added": false,
+ "checks": [
+  {
+   "id": "loads",
+   "level": "pass",
+   "message": "loads in MuJoCo 3.17.0: 1 body, 75 geoms, 1 joint"
+  },
+  {
+   "id": "mass-source",
+   "level": "pass",
+   "message": "every colliding body has an explicit <inertial>"
+  },
+  {
+   "id": "density",
+   "level": "pass",
+   "message": "mass over the volume MuJoCo collides (convex hulls, so a hollow object reads low): cad_milk_frother/cad_milk_frother 1967 kg/m\u00b3 (0.6636 kg)",
+   "data": {
+    "bodies": [
+     [
+      "cad_milk_frother/cad_milk_frother",
+      1967,
+      0.6636
+     ]
+    ]
+   }
+  },
+  {
+   "id": "inertia",
+   "level": "pass",
+   "message": "rotational inertia against a solid of the same mass filling its collision hull (1 = the same): cad_milk_frother/cad_milk_frother 1.07\u00d7",
+   "data": {
+    "bodies": [
+     [
+      "cad_milk_frother/cad_milk_frother",
+      1.07
+     ]
+    ]
+   }
+  },
+  {
+   "id": "centre-of-mass",
+   "level": "pass",
+   "message": "every body's centre of mass is within its collision geometry's bounds",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "friction",
+   "level": "pass",
+   "message": "0 of 71 colliding geoms have MuJoCo's default friction (1.0 sliding): the rest are set",
+   "data": {
+    "default": 0,
+    "geoms": 71
+   }
+  },
+  {
+   "id": "contact-softness",
+   "level": "pass",
+   "message": "0 of 71 colliding geoms use MuJoCo's default contact softness (solref 0.02 s)",
+   "data": {
+    "default": 0,
+    "thin": [
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom26",
+      3.0
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom27",
+      2.3
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom28",
+      2.6
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom29",
+      2.7
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom30",
+      2.5
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom31",
+      2.5
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom32",
+      2.5
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom33",
+      2.5
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom34",
+      2.7
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom35",
+      2.7
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom36",
+      2.2
+     ],
+     [
+      "cad_milk_frother/cad_milk_frother",
+      "geom37",
+      2.3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "hull-fill",
+   "level": "pass",
+   "message": "no colliding mesh loses much to its convex hull",
+   "data": {
+    "geoms": []
+   }
+  },
+  {
+   "id": "floating-pieces",
+   "level": "pass",
+   "message": "every body's collision pieces touch each other",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "starts-apart",
+   "level": "pass",
+   "message": "no body starts inside another",
+   "data": {
+    "pairs": []
+   }
+  },
+  {
+   "id": "settles",
+   "level": "pass",
+   "message": "after 2 s on the floor the fastest part moves at 0.004 m/s",
+   "data": {
+    "max_speed": 0.004
+   }
+  },
+  {
+   "id": "no-overlap",
+   "level": "pass",
+   "message": "settling: deepest at any moment none; once settled, between bodies none, into the floor none (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "data": {
+    "overlap": {
+     "max_mm": 0.0,
+     "pairs": [],
+     "bodies": null,
+     "floor": null,
+     "end": {
+      "max_mm": 0.0,
+      "pairs": [],
+      "bodies": null,
+      "floor": null
+     }
+    }
+   }
+  },
+  {
+   "id": "timestep",
+   "level": "pass",
+   "message": "settled at 1 ms and at 0.5 ms steps, it ends 0.0 mm and 0.0\u00b0 apart",
+   "data": {
+    "mm": 0.02,
+    "deg": 0.01
+   }
+  },
+  {
+   "id": "tip-margin",
+   "level": "pass",
+   "message": "cad_milk_frother/cad_milk_frother can tilt 36.7\u00b0 toward its least stable side before its centre of mass passes the edge of its footprint",
+   "data": {
+    "body": "cad_milk_frother/cad_milk_frother",
+    "deg": 36.7
+   }
+  },
+  {
+   "id": "drop",
+   "level": "pass",
+   "message": "dropped from 10 cm it bounces back 0% of the way and sinks 0.0 mm into the floor on impact",
+   "data": {
+    "bounce": 0.003,
+    "floor_mm": 0.0
+   }
+  }
+ ],
+ "verdict": "pass"
+}

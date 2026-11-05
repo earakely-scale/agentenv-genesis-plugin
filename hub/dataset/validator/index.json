@@ -1,0 +1,203 @@
+[
+ {
+  "name": "ACE_Coffee_Mug_Kristen_16_oz_cup",
+  "file": "ACE_Coffee_Mug_Kristen_16_oz_cup.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "Aroma_Stainless_Steel_Milk_Frother_2_Cup",
+  "file": "Aroma_Stainless_Steel_Milk_Frother_2_Cup.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "BIA_Porcelain_Ramekin_With_Glazed_Rim_35_45_oz_cup",
+  "file": "BIA_Porcelain_Ramekin_With_Glazed_Rim_35_45_oz_cup.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "contact-softness",
+   "drop"
+  ]
+ },
+ {
+  "name": "Black_Decker_CM2035B_12Cup_Thermal_Coffeemaker",
+  "file": "Black_Decker_CM2035B_12Cup_Thermal_Coffeemaker.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+  "file": "Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "Calphalon_Kitchen_Essentials_12_Cast_Iron_Fry_Pan_Black",
+  "file": "Calphalon_Kitchen_Essentials_12_Cast_Iron_Fry_Pan_Black.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "Chef_Style_Round_Cake_Pan_9_inch_pan",
+  "file": "Chef_Style_Round_Cake_Pan_9_inch_pan.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "Chefmate_8_Frypan",
+  "file": "Chefmate_8_Frypan.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source",
+   "no-overlap"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "contact-softness",
+   "drop"
+  ]
+ },
+ {
+  "name": "Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+  "file": "Cole_Hardware_Deep_Bowl_Good_Earth_1075.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "Cole_Hardware_Mug_Classic_Blue",
+  "file": "Cole_Hardware_Mug_Classic_Blue.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "drop"
+  ]
+ },
+ {
+  "name": "Ecoforms_Plate_S20Avocado",
+  "file": "Ecoforms_Plate_S20Avocado.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "contact-softness",
+   "drop"
+  ]
+ },
+ {
+  "name": "Footed_Bowl_Sand",
+  "file": "Footed_Bowl_Sand.json",
+  "verdict": "fail",
+  "fails": [
+   "mass-source"
+  ],
+  "warns": [
+   "fixed-to-world",
+   "friction",
+   "contact-softness",
+   "drop"
+  ]
+ },
+ {
+  "name": "Cole_Hardware_Mug_Classic_Blue (OBJ alone)",
+  "file": "Cole_Hardware_Mug_Classic_Blue_OBJ_alone.json",
+  "verdict": "warn",
+  "fails": [],
+  "warns": [
+   "mass-source",
+   "friction",
+   "hull-fill",
+   "drop"
+  ]
+ },
+ {
+  "name": "knife_block",
+  "file": "knife_block.json",
+  "verdict": "pass",
+  "fails": [],
+  "warns": []
+ },
+ {
+  "name": "scan_mug",
+  "file": "scan_mug.json",
+  "verdict": "pass",
+  "fails": [],
+  "warns": []
+ },
+ {
+  "name": "cad_mug",
+  "file": "cad_mug.json",
+  "verdict": "pass",
+  "fails": [],
+  "warns": []
+ },
+ {
+  "name": "cad_milk_frother",
+  "file": "cad_milk_frother.json",
+  "verdict": "pass",
+  "fails": [],
+  "warns": []
+ }
+]

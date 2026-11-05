@@ -1,0 +1,261 @@
+{
+ "name": "knife_block",
+ "path": "knife_block.zip",
+ "mjcf": "scene.xml",
+ "mujoco": "3.17.0",
+ "bodies": 7,
+ "geoms": 61,
+ "joints": 7,
+ "timestep": 0.001,
+ "mass_kg": 3.534,
+ "floor_added": false,
+ "checks": [
+  {
+   "id": "loads",
+   "level": "pass",
+   "message": "loads in MuJoCo 3.17.0: 7 bodies, 61 geoms, 7 joints"
+  },
+  {
+   "id": "mass-source",
+   "level": "pass",
+   "message": "every colliding body has an explicit <inertial>"
+  },
+  {
+   "id": "density",
+   "level": "pass",
+   "message": "mass over the volume MuJoCo collides (convex hulls, so a hollow object reads low): knife_block/knife_block 711 kg/m\u00b3 (2.5405 kg), paring_9cm/paring_9cm 2527 kg/m\u00b3 (0.0814 kg), boning_15cm/boning_15cm 2548 kg/m\u00b3 (0.1217 kg), utility_13cm/utility_13cm 2728 kg/m\u00b3 (0.0938 kg), bread_20cm/bread_20cm 2921 kg/m\u00b3 (0.2026 kg), santoku_17cm/santoku_17cm 3190 kg/m\u00b3 (0.218 kg)",
+   "data": {
+    "bodies": [
+     [
+      "knife_block/knife_block",
+      711,
+      2.5405
+     ],
+     [
+      "chef_20cm/chef_20cm",
+      3329,
+      0.276
+     ],
+     [
+      "bread_20cm/bread_20cm",
+      2921,
+      0.2026
+     ],
+     [
+      "santoku_17cm/santoku_17cm",
+      3190,
+      0.218
+     ],
+     [
+      "utility_13cm/utility_13cm",
+      2728,
+      0.0938
+     ],
+     [
+      "boning_15cm/boning_15cm",
+      2548,
+      0.1217
+     ],
+     [
+      "paring_9cm/paring_9cm",
+      2527,
+      0.0814
+     ]
+    ]
+   }
+  },
+  {
+   "id": "inertia",
+   "level": "pass",
+   "message": "rotational inertia against a solid of the same mass filling its collision hull (1 = the same): bread_20cm/bread_20cm 1.17\u00d7, chef_20cm/chef_20cm 1.14\u00d7, santoku_17cm/santoku_17cm 1.14\u00d7, paring_9cm/paring_9cm 0.91\u00d7, boning_15cm/boning_15cm 0.95\u00d7, knife_block/knife_block 1.0\u00d7",
+   "data": {
+    "bodies": [
+     [
+      "knife_block/knife_block",
+      1.0
+     ],
+     [
+      "chef_20cm/chef_20cm",
+      1.14
+     ],
+     [
+      "bread_20cm/bread_20cm",
+      1.17
+     ],
+     [
+      "santoku_17cm/santoku_17cm",
+      1.14
+     ],
+     [
+      "utility_13cm/utility_13cm",
+      1.0
+     ],
+     [
+      "boning_15cm/boning_15cm",
+      0.95
+     ],
+     [
+      "paring_9cm/paring_9cm",
+      0.91
+     ]
+    ]
+   }
+  },
+  {
+   "id": "centre-of-mass",
+   "level": "pass",
+   "message": "every body's centre of mass is within its collision geometry's bounds",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "friction",
+   "level": "pass",
+   "message": "0 of 40 colliding geoms have MuJoCo's default friction (1.0 sliding): the rest are set",
+   "data": {
+    "default": 0,
+    "geoms": 40
+   }
+  },
+  {
+   "id": "contact-softness",
+   "level": "pass",
+   "message": "0 of 40 colliding geoms use MuJoCo's default contact softness (solref 0.02 s)",
+   "data": {
+    "default": 0,
+    "thin": [
+     [
+      "knife_block/knife_block",
+      "geom20",
+      3.0
+     ],
+     [
+      "knife_block/knife_block",
+      "geom21",
+      3.0
+     ],
+     [
+      "knife_block/knife_block",
+      "geom22",
+      3.0
+     ],
+     [
+      "knife_block/knife_block",
+      "geom23",
+      3.0
+     ],
+     [
+      "chef_20cm/chef_20cm",
+      "geom25",
+      2.8
+     ],
+     [
+      "bread_20cm/bread_20cm",
+      "geom31",
+      2.0
+     ],
+     [
+      "santoku_17cm/santoku_17cm",
+      "geom37",
+      2.2
+     ],
+     [
+      "utility_13cm/utility_13cm",
+      "geom43",
+      1.6
+     ],
+     [
+      "boning_15cm/boning_15cm",
+      "geom49",
+      2.0
+     ],
+     [
+      "paring_9cm/paring_9cm",
+      "geom55",
+      1.5
+     ]
+    ]
+   }
+  },
+  {
+   "id": "hull-fill",
+   "level": "pass",
+   "message": "no colliding mesh loses much to its convex hull",
+   "data": {
+    "geoms": []
+   }
+  },
+  {
+   "id": "floating-pieces",
+   "level": "pass",
+   "message": "every body's collision pieces touch each other",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "starts-apart",
+   "level": "pass",
+   "message": "no body starts inside another",
+   "data": {
+    "pairs": []
+   }
+  },
+  {
+   "id": "settles",
+   "level": "pass",
+   "message": "after 2 s on the floor the fastest part moves at 0.003 m/s",
+   "data": {
+    "max_speed": 0.0031
+   }
+  },
+  {
+   "id": "no-overlap",
+   "level": "pass",
+   "message": "settling: deepest at any moment none; once settled, between bodies none, into the floor none (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "data": {
+    "overlap": {
+     "max_mm": 0.0,
+     "pairs": [],
+     "bodies": null,
+     "floor": null,
+     "end": {
+      "max_mm": 0.0,
+      "pairs": [],
+      "bodies": null,
+      "floor": null
+     }
+    }
+   }
+  },
+  {
+   "id": "timestep",
+   "level": "pass",
+   "message": "settled at 1 ms and at 0.5 ms steps, it ends 0.0 mm and 0.0\u00b0 apart",
+   "data": {
+    "mm": 0.01,
+    "deg": 0.01
+   }
+  },
+  {
+   "id": "tip-margin",
+   "level": "pass",
+   "message": "knife_block/knife_block with the 6 bodies resting on it can tilt 13.4\u00b0 toward its least stable side before its centre of mass passes the edge of its footprint",
+   "data": {
+    "body": "knife_block/knife_block",
+    "deg": 13.4
+   }
+  },
+  {
+   "id": "drop",
+   "level": "pass",
+   "message": "dropped from 10 cm it bounces back 8% of the way and sinks 1.6 mm into the floor on impact",
+   "data": {
+    "bounce": 0.078,
+    "floor_mm": 1.6
+   }
+  }
+ ],
+ "verdict": "pass"
+}

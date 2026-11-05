@@ -1,0 +1,198 @@
+{
+ "name": "Aroma_Stainless_Steel_Milk_Frother_2_Cup",
+ "path": "Aroma_Stainless_Steel_Milk_Frother_2_Cup",
+ "mjcf": "model.xml",
+ "mujoco": "3.17.0",
+ "bodies": 1,
+ "geoms": 34,
+ "joints": 1,
+ "timestep": 0.002,
+ "mass_kg": 2.3341,
+ "floor_added": true,
+ "checks": [
+  {
+   "id": "loads",
+   "level": "pass",
+   "message": "loads in MuJoCo 3.17.0: 1 body, 34 geoms, 1 joint (with the free joints added here)"
+  },
+  {
+   "id": "fixed-to-world",
+   "level": "warn",
+   "message": "model has no joint, so MuJoCo welds it to the world and it will never move. Add <freejoint/> for a free object. The dynamic checks here add one.",
+   "data": {
+    "bodies": [
+     "model"
+    ]
+   }
+  },
+  {
+   "id": "mass-source",
+   "level": "fail",
+   "message": "1 body gets mass and inertia from its geoms (no <inertial>), at density 1000 kg/m\u00b3 (MuJoCo's default, water); the visual geoms count too: model 52% of the mass is the visual mesh",
+   "data": {
+    "bodies": [
+     "model"
+    ],
+    "visual_share": {
+     "model": 0.525
+    }
+   }
+  },
+  {
+   "id": "density",
+   "level": "pass",
+   "message": "mass over the volume MuJoCo collides (convex hulls, so a hollow object reads low): model 2368 kg/m\u00b3 (2.3341 kg)",
+   "data": {
+    "bodies": [
+     [
+      "model",
+      2368,
+      2.3341
+     ]
+    ]
+   }
+  },
+  {
+   "id": "inertia",
+   "level": "pass",
+   "message": "rotational inertia against a solid of the same mass filling its collision hull (1 = the same): model 0.92\u00d7",
+   "data": {
+    "bodies": [
+     [
+      "model",
+      0.92
+     ]
+    ]
+   }
+  },
+  {
+   "id": "centre-of-mass",
+   "level": "pass",
+   "message": "every body's centre of mass is within its collision geometry's bounds",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "friction",
+   "level": "warn",
+   "message": "32 of 32 colliding geoms have MuJoCo's default friction (1.0 sliding): none is set from a material",
+   "data": {
+    "default": 32,
+    "geoms": 32
+   }
+  },
+  {
+   "id": "contact-softness",
+   "level": "pass",
+   "message": "32 of 32 colliding geoms use MuJoCo's default contact softness (solref 0.02 s)",
+   "data": {
+    "default": 32,
+    "thin": []
+   }
+  },
+  {
+   "id": "hull-fill",
+   "level": "pass",
+   "message": "no colliding mesh loses much to its convex hull",
+   "data": {
+    "geoms": []
+   }
+  },
+  {
+   "id": "floating-pieces",
+   "level": "pass",
+   "message": "every body's collision pieces touch each other",
+   "data": {
+    "bodies": []
+   }
+  },
+  {
+   "id": "starts-apart",
+   "level": "pass",
+   "message": "no body starts inside another",
+   "data": {
+    "pairs": []
+   }
+  },
+  {
+   "id": "settles",
+   "level": "pass",
+   "message": "after 2 s on the floor the fastest part moves at 0.000 m/s",
+   "data": {
+    "max_speed": 0.0
+   }
+  },
+  {
+   "id": "no-overlap",
+   "level": "pass",
+   "message": "settling: deepest at any moment model 1.17 mm into floor at 0.02 s; once settled, between bodies none, into the floor model 0.66 mm into floor at 2.0 s (allowed: 0.5 mm between bodies and 1 mm into the floor at rest, 3 mm at any moment)",
+   "data": {
+    "overlap": {
+     "max_mm": 1.17,
+     "pairs": [
+      {
+       "body": "model",
+       "into": "floor",
+       "mm": 1.17,
+       "t": 0.02
+      }
+     ],
+     "bodies": null,
+     "floor": {
+      "body": "model",
+      "into": "floor",
+      "mm": 1.17,
+      "t": 0.02
+     },
+     "end": {
+      "max_mm": 0.66,
+      "pairs": [
+       {
+        "body": "model",
+        "into": "floor",
+        "mm": 0.66,
+        "t": 2.0
+       }
+      ],
+      "bodies": null,
+      "floor": {
+       "body": "model",
+       "into": "floor",
+       "mm": 0.66,
+       "t": 2.0
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "timestep",
+   "level": "pass",
+   "message": "settled at 2 ms and at 1 ms steps, it ends 0.0 mm and 0.0\u00b0 apart",
+   "data": {
+    "mm": 0.0,
+    "deg": 0.0
+   }
+  },
+  {
+   "id": "tip-margin",
+   "level": "pass",
+   "message": "model can tilt 19.7\u00b0 toward its least stable side before its centre of mass passes the edge of its footprint",
+   "data": {
+    "body": "model",
+    "deg": 19.7
+   }
+  },
+  {
+   "id": "drop",
+   "level": "warn",
+   "message": "dropped from 10 cm it bounces back 0% of the way and sinks 10.6 mm into the floor on impact (its geoms keep MuJoCo's soft default contacts; solref around 0.003 with a 1 ms step keeps it under 2 mm)",
+   "data": {
+    "bounce": 0.0,
+    "floor_mm": 10.64
+   }
+  }
+ ],
+ "verdict": "fail"
+}
