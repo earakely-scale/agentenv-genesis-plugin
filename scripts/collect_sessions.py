@@ -5,7 +5,8 @@ the object, the sim-asset artifact that save_sim_asset wrote: its zip and an art
 metadata (export them from the run's store with --export on the host that ran it).
 
     python scripts/collect_sessions.py --export OUT TAG...                         # on the host: artifacts + episodes
-    python scripts/collect_sessions.py --raw raw/c2=claude-sonnet-5-5 --raw ...    # here: results/sessions/
+    python scripts/collect_sessions.py --raw raw/c2=claude-sonnet-5-5=scripted --raw ...   # here: results/sessions/
+    python scripts/collect_sessions.py --raw episodes=claude-sonnet-5-5=scripted              # a GENESIS_EPISODES_DIR
 """
 
 import argparse
@@ -48,7 +49,14 @@ def export(out: Path, tags: list[str]) -> None:
 
 
 def convert(d: Path, model: str, contributor: str, video: str | None) -> dict:
-    ep = json.loads((d / "episode.json").read_text())
+    """One session from a run folder: its episode.json, or the newest episode the verifier wrote to GENESIS_EPISODES_DIR."""
+    f = d / "episode.json"
+    if not f.is_file():
+        found = sorted(d.glob("*.json"), key=lambda p: p.stat().st_mtime)
+        if not found:
+            raise ValueError(f"{d}: no episode JSON")
+        f = found[-1]
+    ep = json.loads(f.read_text())
     art = json.loads((d / "artifact.json").read_text()) if (d / "artifact.json").is_file() else None
     session = ep.get("session")
     if session is None and (d / "sim_asset.zip").is_file():
